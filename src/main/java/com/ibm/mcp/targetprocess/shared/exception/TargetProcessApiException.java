@@ -1,4 +1,4 @@
-package com.ibm.mcp.targetprocess.exception;
+package com.ibm.mcp.targetprocess.shared.exception;
 
 public class TargetProcessApiException extends RuntimeException {
 

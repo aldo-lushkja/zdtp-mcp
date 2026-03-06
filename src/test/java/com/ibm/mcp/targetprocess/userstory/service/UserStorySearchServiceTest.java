@@ -1,10 +1,11 @@
-package com.ibm.mcp.targetprocess.service;
+package com.ibm.mcp.targetprocess.userstory.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mcp.targetprocess.config.TargetProcessProperties;
-import com.ibm.mcp.targetprocess.converter.UserStoryConverter;
-import com.ibm.mcp.targetprocess.dto.UserStoryDto;
-import com.ibm.mcp.targetprocess.exception.TargetProcessApiException;
+import com.ibm.mcp.targetprocess.shared.client.TargetProcessHttpClient;
+import com.ibm.mcp.targetprocess.shared.exception.TargetProcessApiException;
+import com.ibm.mcp.targetprocess.userstory.converter.UserStoryConverter;
+import com.ibm.mcp.targetprocess.userstory.dto.UserStoryDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,14 +29,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class TargetProcessServiceTest {
+class UserStorySearchServiceTest {
 
     private static final String BASE_URL = "https://company.tpondemand.com";
     private static final String TOKEN = "test-token";
-    private static final String EMPTY_RESPONSE = "{\"items\":[]}";
+    private static final String EMPTY_RESPONSE = "{\"Items\":[]}";
+    // 1736899200000 ms epoch = 2025-01-15T00:00:00Z
+    // 1739577600000 ms epoch = 2025-02-15T00:00:00Z
     private static final String STORY_RESPONSE = """
-            {"items":[{"id":42,"name":"My Story","project":{"id":1,"name":"consumer_loyalty"},
-            "entityState":{"id":10,"name":"Open"},"createDate":"2025-01-15","owner":{"id":5,"login":"aldo.lushkja"}}]}
+            {"Items":[{"Id":42,"Name":"My Story","Project":{"Id":1,"Name":"consumer_loyalty"},
+            "EntityState":{"Id":10,"Name":"Open"},"CreateDate":"\\/Date(1736899200000+0000)\\/",
+            "EndDate":"\\/Date(1739577600000+0000)\\/","Effort":5.0,
+            "Owner":{"Id":5,"Login":"aldo.lushkja"},"AssignedUser":{"Id":6,"Login":"john.doe"}}]}
             """;
 
     @Mock
@@ -45,12 +50,13 @@ class TargetProcessServiceTest {
     @Mock
     HttpResponse<String> httpResponse;
 
-    TargetProcessService service;
+    UserStorySearchService service;
 
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new TargetProcessService(props, new ObjectMapper(), httpClient, new UserStoryConverter());
+        TargetProcessHttpClient tpHttpClient = new TargetProcessHttpClient(httpClient, new ObjectMapper());
+        service = new UserStorySearchService(props, tpHttpClient, new UserStoryConverter());
     }
 
     // ── URL / where clause tests ────────────────────────────────────────────────
@@ -73,7 +79,7 @@ class TargetProcessServiceTest {
         service.searchUserStories("login feature", "", "", "", "", 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("Name.Contains(\"login feature\")");
+                .contains("Name contains 'login feature'");
     }
 
     @Test
@@ -83,27 +89,27 @@ class TargetProcessServiceTest {
         service.searchUserStories("", "consumer_loyalty", "", "", "", 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("Project.Name.Contains(\"consumer_loyalty\")");
+                .contains("Project.Name contains 'consumer_loyalty'");
     }
 
     @Test
-    void startDateFilter_usesDateTimeWrapper() throws Exception {
+    void startDateFilter_usesGteOperator() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
         service.searchUserStories("", "", "", "2025-01-01", "", 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("CreateDate >= DateTime('2025-01-01')");
+                .contains("CreateDate gte '2025-01-01'");
     }
 
     @Test
-    void endDateFilter_usesDateTimeWrapper() throws Exception {
+    void endDateFilter_usesLtOperator() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
         service.searchUserStories("", "", "", "", "2025-01-31", 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("CreateDate < DateTime('2025-01-31')");
+                .contains("CreateDate lt '2025-01-31'");
     }
 
     @Test
@@ -113,7 +119,7 @@ class TargetProcessServiceTest {
         service.searchUserStories("", "", "aldo.lushkja", "", "", 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("Owner.Login == \"aldo.lushkja\"");
+                .contains("Owner.Login eq 'aldo.lushkja'");
     }
 
     @Test
@@ -124,11 +130,11 @@ class TargetProcessServiceTest {
 
         String where = urlParam(captureDecodedUrl(), "where");
         assertThat(where)
-                .contains("Name.Contains(\"story\")")
-                .contains("Project.Name.Contains(\"consumer_loyalty\")")
-                .contains("Owner.Login == \"aldo.lushkja\"")
-                .contains("CreateDate >= DateTime('2025-01-01')")
-                .contains("CreateDate < DateTime('2025-01-31')")
+                .contains("Name contains 'story'")
+                .contains("Project.Name contains 'consumer_loyalty'")
+                .contains("Owner.Login eq 'aldo.lushkja'")
+                .contains("CreateDate gte '2025-01-01'")
+                .contains("CreateDate lt '2025-01-31'")
                 .contains(" and ");
     }
 
@@ -139,6 +145,19 @@ class TargetProcessServiceTest {
         service.searchUserStories("", "", "", "", "", 10);
 
         assertThat(captureDecodedUrl()).doesNotContain("CreatedBy");
+    }
+
+    @Test
+    void selectClause_containsEffortEndDateAndAssignedUser() throws Exception {
+        givenApiReturns(EMPTY_RESPONSE);
+
+        service.searchUserStories("", "", "", "", "", 10);
+
+        String url = captureDecodedUrl();
+        assertThat(url)
+                .contains("Effort")
+                .contains("EndDate")
+                .contains("AssignedUser");
     }
 
     @Test
@@ -174,7 +193,10 @@ class TargetProcessServiceTest {
         assertThat(story.projectName()).isEqualTo("consumer_loyalty");
         assertThat(story.state()).isEqualTo("Open");
         assertThat(story.ownerLogin()).isEqualTo("aldo.lushkja");
-        assertThat(story.createdAt()).isEqualTo("2025-01-15");
+        assertThat(story.assigneeLogin()).isEqualTo("john.doe");
+        assertThat(story.effort()).isEqualTo(5.0);
+        assertThat(story.createdAt()).isEqualTo("2025-01-15"); // parsed from /Date(1736899200000+0000)/
+        assertThat(story.endDate()).isEqualTo("2025-02-15"); // parsed from /Date(1739577600000+0000)/
     }
 
     @Test

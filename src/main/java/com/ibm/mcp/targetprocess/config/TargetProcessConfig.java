@@ -1,6 +1,6 @@
 package com.ibm.mcp.targetprocess.config;
 
-import com.ibm.mcp.targetprocess.controller.TargetProcessMcpTools;
+import com.ibm.mcp.targetprocess.userstory.controller.UserStoryMcpTools;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,7 +20,7 @@ public class TargetProcessConfig {
     }
 
     @Bean
-    public ToolCallbackProvider targetprocessTools(TargetProcessMcpTools mcpTools) {
+    public ToolCallbackProvider targetprocessTools(UserStoryMcpTools mcpTools) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(mcpTools)
                 .build();

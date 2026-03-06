@@ -1,4 +1,4 @@
-package com.ibm.mcp.targetprocess.dto;
+package com.ibm.mcp.targetprocess.userstory.dto;
 
 import lombok.Builder;
 
@@ -10,5 +10,8 @@ public record UserStoryDto(
     String projectName,
     String state,
     String ownerLogin,
-    String createdAt
+    String assigneeLogin,
+    Double effort,
+    String createdAt,
+    String endDate
 ) {}
