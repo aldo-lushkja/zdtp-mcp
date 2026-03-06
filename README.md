@@ -1,103 +1,98 @@
 # Targetprocess MCP Server
 
-A Spring Boot application implementing the Model Context Protocol (MCP) to interact with IBM Targetprocess.
+A Spring Boot application implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) to expose IBM Targetprocess data to AI assistants.
 
-## Features
-- **Search User Stories:** Find user stories by name across projects.
-- **Java 21 & Spring Boot 3.4:** Leveraging modern Java features and Spring's latest capabilities.
-- **Spring AI MCP:** Seamless integration with AI models using the Model Context Protocol.
+## Prerequisites
 
----
+- Java 21+
+- Gradle (wrapper included)
+- A Targetprocess API Access Token (Profile → Settings → API Access Tokens)
 
-## Local Development
-
-### 1. Prerequisites
-- **Java 21+:** [Adoptium (Temurin)](https://adoptium.net/) is recommended.
-- **Gradle:** The project includes a Gradle wrapper (`./gradlew`).
-
-### 2. Configuration
-The server requires access to your Targetprocess instance. Create an API Access Token in Targetprocess (Profile -> Settings -> API Access Tokens).
+## Configuration
 
 Set the following environment variables:
-- `TARGETPROCESS_BASE_URL`: e.g., `https://youraccount.tpondemand.com`
-- `TARGETPROCESS_ACCESS_TOKEN`: Your generated API token.
 
-### 3. Build the Project
-Compile and package the application into a fat JAR:
-```powershell
-./gradlew build --no-daemon
-```
-The resulting JAR will be located at `C:\workspace\mcp\targetprocess-mcp\build\libs\targetprocess-mcp-0.0.1-SNAPSHOT.jar`.
+| Variable | Example |
+| --- | --- |
+| `TARGETPROCESS_BASE_URL` | `https://youraccount.tpondemand.com` |
+| `TARGETPROCESS_ACCESS_TOKEN` | Your generated API token |
 
-### 4. Running for Testing
-Since the server uses STDIO for MCP communication, running it directly will not show traditional logs on `stdout`. All logs are redirected to `stderr`.
-```powershell
-java -jar build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar
-```
-If successful, the server will wait for MCP JSON-RPC messages on `stdin`.
-
----
-
-## Claude Code CLI Integration
-
-To use this MCP server with the **Claude Code CLI**, you can add it globally or to a specific project.
-
-### Automatic Setup (Recommended)
-Run the following command in your terminal:
+## Build & Run
 
 ```bash
-claude mcp add targetprocess -- java -jar "C:\workspace\mcp\targetprocess-mcp\build\libs\targetprocess-mcp-0.0.1-SNAPSHOT.jar"
-```
-*Note: Replace `C:/path/to/...` with the absolute path to your project.*
+# Build fat JAR
+./gradlew build --no-daemon
 
-### Configuration via Environment Variables
-Claude Code will use the environment variables from your shell. Ensure `TARGETPROCESS_BASE_URL` and `TARGETPROCESS_ACCESS_TOKEN` are exported in your `.bashrc`, `.zshrc`, or Windows System Environment Variables.
+# Run tests
+./gradlew test
 
-Alternatively, you can edit your `~/.claude.json` (or `%USERPROFILE%\.claude.json`) manually:
-
-```json
-{
-  "mcpServers": {
-    "targetprocess": {
-      "command": "java",
-      "args": ["-jar", "C:/path/to/targetprocess-mcp/build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar"],
-      "env": {
-        "TARGETPROCESS_BASE_URL": "https://your_account.tpondemand.com",
-        "TARGETPROCESS_ACCESS_TOKEN": "your_api_key"
-      }
-    }
-  }
-}
+# Start server (waits for MCP JSON-RPC on stdin)
+java -jar build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar
 ```
 
----
-
-## Claude Desktop Integration
-
-Add the following to your `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "targetprocess": {
-      "command": "java",
-      "args": [
-        "-jar",
-        "C:/path/to/targetprocess-mcp/build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar"
-      ],
-      "env": {
-        "TARGETPROCESS_BASE_URL": "https://your_account.tpondemand.com",
-        "TARGETPROCESS_ACCESS_TOKEN": "your_api_key"
-      }
-    }
-  }
-}
-```
+> The server uses STDIO transport — all logs go to **stderr** so stdout stays clean for MCP communication.
 
 ---
 
 ## Available Tools
 
-### `search_user_stories`
-- **Parameters:** `query` (String) - The search term for User Story names.
-- **Returns:** A formatted list of User Stories including ID, Name, Project, and Current State.
+### `searchUserStories`
+
+Search for user stories in Targetprocess. All parameters are optional.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `nameQuery` | String | Filter by story name (contains) |
+| `projectName` | String | Filter by project name |
+| `creatorLogin` | String | Filter by author login |
+| `startDate` | String | Created on or after (YYYY-MM-DD) |
+| `endDate` | String | Created on or before (YYYY-MM-DD) |
+| `take` | int | Max results to return |
+
+**Returns:** Formatted list of user stories — `[ID] Name (Project, State, Author, Created)`
+
+---
+
+## Integration
+
+### Claude Code CLI
+
+```bash
+claude mcp add targetprocess -- java -jar "/path/to/targetprocess-mcp/build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar"
+```
+
+Or add manually to `~/.claude.json`:
+
+```json
+{
+  "mcpServers": {
+    "targetprocess": {
+      "command": "java",
+      "args": ["-jar", "/path/to/targetprocess-mcp/build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar"],
+      "env": {
+        "TARGETPROCESS_BASE_URL": "https://youraccount.tpondemand.com",
+        "TARGETPROCESS_ACCESS_TOKEN": "your_api_token"
+      }
+    }
+  }
+}
+```
+
+### Claude Desktop
+
+Add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "targetprocess": {
+      "command": "java",
+      "args": ["-jar", "/path/to/targetprocess-mcp/build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar"],
+      "env": {
+        "TARGETPROCESS_BASE_URL": "https://youraccount.tpondemand.com",
+        "TARGETPROCESS_ACCESS_TOKEN": "your_api_token"
+      }
+    }
+  }
+}
+```
