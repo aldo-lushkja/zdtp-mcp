@@ -2,6 +2,7 @@ package com.ibm.mcp.targetprocess.request.controller;
 
 import com.ibm.mcp.targetprocess.request.dto.RequestDto;
 import com.ibm.mcp.targetprocess.request.service.RequestCreateService;
+import com.ibm.mcp.targetprocess.request.service.RequestGetByIdService;
 import com.ibm.mcp.targetprocess.request.service.RequestSearchService;
 import com.ibm.mcp.targetprocess.request.service.RequestUpdateService;
 import org.springframework.ai.tool.annotation.Tool;
@@ -15,13 +16,16 @@ public class RequestMcpTools {
     private final RequestSearchService requestSearchService;
     private final RequestCreateService requestCreateService;
     private final RequestUpdateService requestUpdateService;
+    private final RequestGetByIdService requestGetByIdService;
 
     public RequestMcpTools(RequestSearchService requestSearchService,
                            RequestCreateService requestCreateService,
-                           RequestUpdateService requestUpdateService) {
+                           RequestUpdateService requestUpdateService,
+                           RequestGetByIdService requestGetByIdService) {
         this.requestSearchService = requestSearchService;
         this.requestCreateService = requestCreateService;
         this.requestUpdateService = requestUpdateService;
+        this.requestGetByIdService = requestGetByIdService;
     }
 
     @Tool(description = """
@@ -65,6 +69,12 @@ public class RequestMcpTools {
     public String updateRequest(int id, String name, String description, String stateName, Double effort) {
         RequestDto request = requestUpdateService.updateRequest(id, name, description, stateName, effort);
         return "Updated: " + format(request);
+    }
+
+    @Tool(description = "Get a request by its numeric ID. Returns full details including description.")
+    public String getRequestById(int id) {
+        RequestDto request = requestGetByIdService.getById(id);
+        return format(request) + "\nDescription:\n" + nullSafe(request.description());
     }
 
     private String format(RequestDto r) {

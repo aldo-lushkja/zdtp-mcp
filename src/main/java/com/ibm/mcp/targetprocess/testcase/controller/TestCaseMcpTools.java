@@ -2,6 +2,7 @@ package com.ibm.mcp.targetprocess.testcase.controller;
 
 import com.ibm.mcp.targetprocess.testcase.dto.TestCaseDto;
 import com.ibm.mcp.targetprocess.testcase.service.TestCaseCreateService;
+import com.ibm.mcp.targetprocess.testcase.service.TestCaseGetByIdService;
 import com.ibm.mcp.targetprocess.testcase.service.TestCaseSearchService;
 import com.ibm.mcp.targetprocess.testcase.service.TestCaseUpdateService;
 import org.springframework.ai.tool.annotation.Tool;
@@ -15,13 +16,16 @@ public class TestCaseMcpTools {
     private final TestCaseSearchService testCaseSearchService;
     private final TestCaseCreateService testCaseCreateService;
     private final TestCaseUpdateService testCaseUpdateService;
+    private final TestCaseGetByIdService testCaseGetByIdService;
 
     public TestCaseMcpTools(TestCaseSearchService testCaseSearchService,
                             TestCaseCreateService testCaseCreateService,
-                            TestCaseUpdateService testCaseUpdateService) {
+                            TestCaseUpdateService testCaseUpdateService,
+                            TestCaseGetByIdService testCaseGetByIdService) {
         this.testCaseSearchService = testCaseSearchService;
         this.testCaseCreateService = testCaseCreateService;
         this.testCaseUpdateService = testCaseUpdateService;
+        this.testCaseGetByIdService = testCaseGetByIdService;
     }
 
     @Tool(description = """
@@ -65,6 +69,12 @@ public class TestCaseMcpTools {
     public String updateTestCase(int id, String name, String description, String stateName) {
         TestCaseDto testCase = testCaseUpdateService.updateTestCase(id, name, description, stateName);
         return "Updated: " + format(testCase);
+    }
+
+    @Tool(description = "Get a test case by its numeric ID. Returns full details including description.")
+    public String getTestCaseById(int id) {
+        TestCaseDto testCase = testCaseGetByIdService.getById(id);
+        return format(testCase) + "\nDescription:\n" + nullSafe(testCase.description());
     }
 
     private String format(TestCaseDto t) {

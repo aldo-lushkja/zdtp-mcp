@@ -2,6 +2,7 @@ package com.ibm.mcp.targetprocess.feature.controller;
 
 import com.ibm.mcp.targetprocess.feature.dto.FeatureDto;
 import com.ibm.mcp.targetprocess.feature.service.FeatureCreateService;
+import com.ibm.mcp.targetprocess.feature.service.FeatureGetByIdService;
 import com.ibm.mcp.targetprocess.feature.service.FeatureSearchService;
 import com.ibm.mcp.targetprocess.feature.service.FeatureUpdateService;
 import org.springframework.ai.tool.annotation.Tool;
@@ -15,13 +16,16 @@ public class FeatureMcpTools {
     private final FeatureSearchService featureSearchService;
     private final FeatureCreateService featureCreateService;
     private final FeatureUpdateService featureUpdateService;
+    private final FeatureGetByIdService featureGetByIdService;
 
     public FeatureMcpTools(FeatureSearchService featureSearchService,
                            FeatureCreateService featureCreateService,
-                           FeatureUpdateService featureUpdateService) {
+                           FeatureUpdateService featureUpdateService,
+                           FeatureGetByIdService featureGetByIdService) {
         this.featureSearchService = featureSearchService;
         this.featureCreateService = featureCreateService;
         this.featureUpdateService = featureUpdateService;
+        this.featureGetByIdService = featureGetByIdService;
     }
 
     @Tool(description = """
@@ -65,6 +69,12 @@ public class FeatureMcpTools {
     public String updateFeature(int id, String name, String description, String stateName, Double effort) {
         FeatureDto feature = featureUpdateService.updateFeature(id, name, description, stateName, effort);
         return "Updated: " + format(feature);
+    }
+
+    @Tool(description = "Get a feature by its numeric ID. Returns full details including description.")
+    public String getFeatureById(int id) {
+        FeatureDto feature = featureGetByIdService.getById(id);
+        return format(feature) + "\nDescription:\n" + nullSafe(feature.description());
     }
 
     private String format(FeatureDto f) {

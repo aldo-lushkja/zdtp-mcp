@@ -2,6 +2,7 @@ package com.ibm.mcp.targetprocess.testplan.controller;
 
 import com.ibm.mcp.targetprocess.testplan.dto.TestPlanDto;
 import com.ibm.mcp.targetprocess.testplan.service.TestPlanCreateService;
+import com.ibm.mcp.targetprocess.testplan.service.TestPlanGetByIdService;
 import com.ibm.mcp.targetprocess.testplan.service.TestPlanSearchService;
 import com.ibm.mcp.targetprocess.testplan.service.TestPlanUpdateService;
 import org.springframework.ai.tool.annotation.Tool;
@@ -15,13 +16,16 @@ public class TestPlanMcpTools {
     private final TestPlanSearchService testPlanSearchService;
     private final TestPlanCreateService testPlanCreateService;
     private final TestPlanUpdateService testPlanUpdateService;
+    private final TestPlanGetByIdService testPlanGetByIdService;
 
     public TestPlanMcpTools(TestPlanSearchService testPlanSearchService,
                             TestPlanCreateService testPlanCreateService,
-                            TestPlanUpdateService testPlanUpdateService) {
+                            TestPlanUpdateService testPlanUpdateService,
+                            TestPlanGetByIdService testPlanGetByIdService) {
         this.testPlanSearchService = testPlanSearchService;
         this.testPlanCreateService = testPlanCreateService;
         this.testPlanUpdateService = testPlanUpdateService;
+        this.testPlanGetByIdService = testPlanGetByIdService;
     }
 
     @Tool(description = """
@@ -65,6 +69,12 @@ public class TestPlanMcpTools {
     public String updateTestPlan(int id, String name, String description, String stateName) {
         TestPlanDto testPlan = testPlanUpdateService.updateTestPlan(id, name, description, stateName);
         return "Updated: " + format(testPlan);
+    }
+
+    @Tool(description = "Get a test plan by its numeric ID. Returns full details including description.")
+    public String getTestPlanById(int id) {
+        TestPlanDto testPlan = testPlanGetByIdService.getById(id);
+        return format(testPlan) + "\nDescription:\n" + nullSafe(testPlan.description());
     }
 
     private String format(TestPlanDto t) {

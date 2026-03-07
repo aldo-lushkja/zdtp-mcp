@@ -2,6 +2,7 @@ package com.ibm.mcp.targetprocess.userstory.controller;
 
 import com.ibm.mcp.targetprocess.userstory.dto.UserStoryDto;
 import com.ibm.mcp.targetprocess.userstory.service.UserStoryCreateService;
+import com.ibm.mcp.targetprocess.userstory.service.UserStoryGetByIdService;
 import com.ibm.mcp.targetprocess.userstory.service.UserStorySearchService;
 import com.ibm.mcp.targetprocess.userstory.service.UserStoryUpdateService;
 import org.springframework.ai.tool.annotation.Tool;
@@ -15,13 +16,16 @@ public class UserStoryMcpTools {
     private final UserStorySearchService userStorySearchService;
     private final UserStoryCreateService userStoryCreateService;
     private final UserStoryUpdateService userStoryUpdateService;
+    private final UserStoryGetByIdService userStoryGetByIdService;
 
     public UserStoryMcpTools(UserStorySearchService userStorySearchService,
                              UserStoryCreateService userStoryCreateService,
-                             UserStoryUpdateService userStoryUpdateService) {
+                             UserStoryUpdateService userStoryUpdateService,
+                             UserStoryGetByIdService userStoryGetByIdService) {
         this.userStorySearchService = userStorySearchService;
         this.userStoryCreateService = userStoryCreateService;
         this.userStoryUpdateService = userStoryUpdateService;
+        this.userStoryGetByIdService = userStoryGetByIdService;
     }
 
     @Tool(description = """
@@ -65,6 +69,12 @@ public class UserStoryMcpTools {
     public String updateUserStory(int id, String name, String description, String stateName, Double effort) {
         UserStoryDto story = userStoryUpdateService.updateUserStory(id, name, description, stateName, effort);
         return "Updated: " + format(story);
+    }
+
+    @Tool(description = "Get a user story by its numeric ID. Returns full details including description.")
+    public String getUserStoryById(int id) {
+        UserStoryDto story = userStoryGetByIdService.getById(id);
+        return format(story) + "\nDescription:\n" + nullSafe(story.description());
     }
 
     private String format(UserStoryDto s) {
