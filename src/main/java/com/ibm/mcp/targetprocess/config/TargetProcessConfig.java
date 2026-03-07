@@ -1,6 +1,7 @@
 package com.ibm.mcp.targetprocess.config;
 
 import com.ibm.mcp.targetprocess.feature.controller.FeatureMcpTools;
+import com.ibm.mcp.targetprocess.project.controller.ProjectMcpTools;
 import com.ibm.mcp.targetprocess.request.controller.RequestMcpTools;
 import com.ibm.mcp.targetprocess.testplan.controller.TestPlanMcpTools;
 import com.ibm.mcp.targetprocess.userstory.controller.UserStoryMcpTools;
@@ -26,9 +27,10 @@ public class TargetProcessConfig {
     public ToolCallbackProvider targetprocessTools(UserStoryMcpTools userStoryMcpTools,
                                                    FeatureMcpTools featureMcpTools,
                                                    TestPlanMcpTools testPlanMcpTools,
-                                                   RequestMcpTools requestMcpTools) {
+                                                   RequestMcpTools requestMcpTools,
+                                                   ProjectMcpTools projectMcpTools) {
         return MethodToolCallbackProvider.builder()
-                .toolObjects(userStoryMcpTools, featureMcpTools, testPlanMcpTools, requestMcpTools)
+                .toolObjects(userStoryMcpTools, featureMcpTools, testPlanMcpTools, requestMcpTools, projectMcpTools)
                 .build();
     }
 }
