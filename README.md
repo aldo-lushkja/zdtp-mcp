@@ -1,6 +1,6 @@
-# 🎯 Targetprocess MCP Server
+# 🎯 Zero Dependency Targetprocess MCP Server
 
-A Spring Boot application implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) to expose Targetprocess data to AI assistants.
+A lightweight Java application implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) to expose Targetprocess data to AI assistants. This version is refactored for **zero external framework dependencies**, using standard Java libraries for HTTP, I/O, and logging.
 
 ## 📋 Table of Contents
 
@@ -17,7 +17,7 @@ A Spring Boot application implementing the [Model Context Protocol (MCP)](https:
 
 ## ✅ Prerequisites
 
-- Java 21+
+- **Java 21**
 - Gradle (wrapper included)
 - A Targetprocess API Access Token (Profile → Settings → API Access Tokens)
 
@@ -37,17 +37,20 @@ Set the following environment variables:
 ## 🔨 Build & Run
 
 ```bash
+# Set JAVA_HOME to Java 21 if not default
+# export JAVA_HOME=/path/to/java-21
+
 # Build fat JAR
-./gradlew build --no-daemon
+./gradlew shadowJar
 
 # Run tests
 ./gradlew test
 
 # Start server (waits for MCP JSON-RPC on stdin)
-java -jar build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar
+java -jar build/libs/zdtp-mcp-1.0.0-all.jar
 ```
 
-> 📌 The server uses **STDIO transport** — all logs go to **stderr** so stdout stays clean for MCP communication.
+> 📌 The server uses **STDIO transport** — all logs go to **stderr** (via `System.err`) so stdout stays clean for MCP communication. No external logging frameworks (SLF4J/Logback) are used.
 
 ---
 
@@ -55,34 +58,31 @@ java -jar build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar
 
 ### Request flow
 
+The application follows the **Boundary-Control-Entity (BCE)** pattern, ensuring a clean separation between the MCP interface, business logic, and data entities.
+
 ![Request flow](https://mermaid.ink/img/c2VxdWVuY2VEaWFncmFtCiAgICBwYXJ0aWNpcGFudCBBSSBhcyBBSSBBc3Npc3RhbnQKICAgIHBhcnRpY2lwYW50IE1DUCBhcyBNQ1AgTGF5ZXI8YnIvPihUYXJnZXRQcm9jZXNzTWNwVG9vbHMpCiAgICBwYXJ0aWNpcGFudCBTVkMgYXMgU2VydmljZSBMYXllcjxici8+KGUuZy4gVXNlclN0b3J5U2VhcmNoU2VydmljZSkKICAgIHBhcnRpY2lwYW50IEhUVFAgYXMgVGFyZ2V0UHJvY2Vzc0h0dHBDbGllbnQ8YnIvPihKYXZhIDIxIEh0dHBDbGllbnQpCiAgICBwYXJ0aWNpcGFudCBUUCBhcyBUYXJnZXRwcm9jZXNzIEFQSSB2MQoKICAgIEFJLT4+TUNQOiBKU09OLVJQQyB0b29sIGNhbGwgb3ZlciBTVERJTwogICAgTUNQLT4+U1ZDOiBUeXBlZCBtZXRob2QgY2FsbCB3aXRoIHBhcmFtZXRlcnMKICAgIFNWQy0+PlNWQzogQnVpbGQgT0RhdGEgV0hFUkUgY2xhdXNlICsgaW5jbHVkZSBzdHJpbmcKICAgIFNWQy0+PkhUVFA6IGZldGNoKHVybCkgLyBwb3N0KHVybCwgYm9keSkKICAgIEhUVFAtPj5UUDogSFRUUCBHRVQvUE9TVCArIGFjY2Vzc190b2tlbgogICAgVFAtLT4+SFRUUDogSlNPTiByZXNwb25zZQogICAgSFRUUC0tPj5TVkM6IFBhcnNlZCByZXNwb25zZSAoVGFyZ2V0UHJvY2Vzc1Jlc3BvbnNlPFQ+KQogICAgU1ZDLT4+U1ZDOiBDb252ZXJ0IG1vZGVsIHRvIERUTwogICAgU1ZDLS0+Pk1DUDogTGlzdDxEVE8+IC8gRFRPCiAgICBNQ1AtLT4+QUk6IEZvcm1hdHRlZCBzdHJpbmcgcmVzdWx0)
 
 ### 📦 Package structure
 
 ```
-com.ibm.mcp.targetprocess/
-├── config/               TargetProcessConfig, TargetProcessProperties
+com.ibm.mcp.zdtp/
+├── config/               TargetProcessProperties (Manual wiring in ZdtpMcpApplication)
 ├── shared/
-│   ├── client/           TargetProcessHttpClient
-│   ├── exception/        TargetProcessApiException, TargetProcessClientException
-│   └── model/            Project, Owner, EntityState, ReleaseReference, TargetProcessResponse
-├── userstory/            model / dto / converter / service / controller
-├── epic/                 model / dto / converter / service / controller
-├── feature/              model / dto / converter / service / controller
-├── release/              model / dto / converter / service / controller
-├── request/              model / dto / converter / service / controller
-├── testplan/             model / dto / converter / service / controller
-├── testcase/             model / dto / converter / service / controller
-├── team/                 model / dto / converter / service / controller
-├── teamiteration/        model / dto / converter / service / controller
-└── project/              model / dto / converter / service / controller
+│   ├── control/          TargetProcessHttpClient (Java 21 Native)
+│   ├── entity/           Common TP models and response wrappers
+│   └── boundary/         Global exceptions
+├── [domain]/             e.g., userstory, epic, feature
+│   ├── boundary/         McpTools (@Tool definitions)
+│   ├── control/          Services and Converters
+│   └── entity/           DTOs and Domain Models
+└── mcp/
+    └── boundary/         McpServer (JSON-RPC handling), SchemaBuilder
 ```
 
-Each domain package follows the same layered pattern:
-
-```
-Tool (@Tool)  →  *SearchService / *CreateService / *UpdateService / *GetByIdService  →  *Converter  →  TargetProcessHttpClient
-```
+Each domain package follows the BCE pattern:
+- **Boundary**: The tool interface exposed to the AI.
+- **Control**: Business logic, URL building, and data transformation.
+- **Entity**: Data structures representing Targetprocess objects.
 
 ---
 
@@ -242,7 +242,7 @@ How are story points distributed by author across the last 3 sprints for [team n
 ### Claude Code CLI
 
 ```bash
-claude mcp add targetprocess -- java -jar "/path/to/targetprocess-mcp/build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar"
+claude mcp add targetprocess -- java -jar "/path/to/targetprocess-mcp/build/libs/zdtp-mcp-1.0.0-all.jar"
 ```
 
 Or add manually to `~/.claude.json`:
@@ -252,7 +252,7 @@ Or add manually to `~/.claude.json`:
   "mcpServers": {
     "targetprocess": {
       "command": "java",
-      "args": ["-jar", "/path/to/targetprocess-mcp/build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar"],
+      "args": ["-jar", "/path/to/targetprocess-mcp/build/libs/zdtp-mcp-1.0.0-all.jar"],
       "env": {
         "TARGETPROCESS_BASE_URL": "https://youraccount.tpondemand.com",
         "TARGETPROCESS_ACCESS_TOKEN": "your_api_token"
@@ -271,7 +271,7 @@ Add to `claude_desktop_config.json`:
   "mcpServers": {
     "targetprocess": {
       "command": "java",
-      "args": ["-jar", "/path/to/targetprocess-mcp/build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar"],
+      "args": ["-jar", "/path/to/targetprocess-mcp/build/libs/zdtp-mcp-1.0.0-all.jar"],
       "env": {
         "TARGETPROCESS_BASE_URL": "https://youraccount.tpondemand.com",
         "TARGETPROCESS_ACCESS_TOKEN": "your_api_token"
