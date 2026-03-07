@@ -42,6 +42,15 @@ public class TargetProcessHttpClient {
                 .build()).body();
     }
 
+    public void delete(String url) {
+        send(HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Accept", "application/json")
+                .timeout(Duration.ofSeconds(30))
+                .DELETE()
+                .build());
+    }
+
     public <T> TargetProcessResponse<T> parse(String body, TypeReference<TargetProcessResponse<T>> ref) {
         try {
             return getMapper().readValue(body, ref);

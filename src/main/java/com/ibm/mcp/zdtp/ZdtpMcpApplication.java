@@ -100,7 +100,14 @@ public class ZdtpMcpApplication {
         TestCaseCreateService testCaseCreateService = new TestCaseCreateService(properties, tpHttpClient, testCaseConverter, mapper);
         TestCaseUpdateService testCaseUpdateService = new TestCaseUpdateService(properties, tpHttpClient, testCaseConverter, mapper);
         TestCaseGetByIdService testCaseGetByIdService = new TestCaseGetByIdService(properties, tpHttpClient, testCaseConverter, mapper);
-        TestCaseMcpTools testCaseMcpTools = new TestCaseMcpTools(testCaseSearchService, testCaseCreateService, testCaseUpdateService, testCaseGetByIdService);
+        
+        TestStepConverter testStepConverter = new TestStepConverter();
+        TestStepCreateService testStepCreateService = new TestStepCreateService(properties, tpHttpClient, testStepConverter, mapper);
+        
+        TestCaseDeleteService testCaseDeleteService = new TestCaseDeleteService(properties, tpHttpClient, mapper);
+        TestStepDeleteService testStepDeleteService = new TestStepDeleteService(properties, tpHttpClient, mapper);
+        
+        TestCaseMcpTools testCaseMcpTools = new TestCaseMcpTools(testCaseSearchService, testCaseCreateService, testCaseUpdateService, testCaseGetByIdService, testStepCreateService, testCaseDeleteService, testStepDeleteService);
 
         // Domain: TestPlan
         TestPlanConverter testPlanConverter = new TestPlanConverter();
@@ -108,7 +115,8 @@ public class ZdtpMcpApplication {
         TestPlanCreateService testPlanCreateService = new TestPlanCreateService(properties, tpHttpClient, testPlanConverter, mapper);
         TestPlanUpdateService testPlanUpdateService = new TestPlanUpdateService(properties, tpHttpClient, testPlanConverter, mapper);
         TestPlanGetByIdService testPlanGetByIdService = new TestPlanGetByIdService(properties, tpHttpClient, testPlanConverter, mapper);
-        TestPlanMcpTools testPlanMcpTools = new TestPlanMcpTools(testPlanSearchService, testPlanCreateService, testPlanUpdateService, testPlanGetByIdService);
+        TestPlanDeleteService testPlanDeleteService = new TestPlanDeleteService(properties, tpHttpClient, mapper);
+        TestPlanMcpTools testPlanMcpTools = new TestPlanMcpTools(testPlanSearchService, testPlanCreateService, testPlanUpdateService, testPlanGetByIdService, testPlanDeleteService);
 
         // Domain: UserStory
         UserStoryConverter userStoryConverter = new UserStoryConverter();
@@ -116,7 +124,8 @@ public class ZdtpMcpApplication {
         UserStoryCreateService userStoryCreateService = new UserStoryCreateService(properties, tpHttpClient, userStoryConverter, mapper);
         UserStoryUpdateService userStoryUpdateService = new UserStoryUpdateService(properties, tpHttpClient, userStoryConverter, mapper);
         UserStoryGetByIdService userStoryGetByIdService = new UserStoryGetByIdService(properties, tpHttpClient, userStoryConverter, mapper);
-        UserStoryMcpTools userStoryMcpTools = new UserStoryMcpTools(userStorySearchService, userStoryCreateService, userStoryUpdateService, userStoryGetByIdService);
+        UserStoryDeleteService userStoryDeleteService = new UserStoryDeleteService(properties, tpHttpClient, mapper);
+        UserStoryMcpTools userStoryMcpTools = new UserStoryMcpTools(userStorySearchService, userStoryCreateService, userStoryUpdateService, userStoryGetByIdService, userStoryDeleteService);
 
         McpServer server = new McpServer();
         SchemaBuilder schema = new SchemaBuilder(mapper);

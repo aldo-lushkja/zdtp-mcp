@@ -10,9 +10,10 @@ public class TestPlanMcpTools {
     private final TestPlanCreateService createSvc;
     private final TestPlanUpdateService updateSvc;
     private final TestPlanGetByIdService getSvc;
+    private final TestPlanDeleteService deleteSvc;
 
-    public TestPlanMcpTools(TestPlanSearchService s, TestPlanCreateService c, TestPlanUpdateService u, TestPlanGetByIdService g) {
-        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g;
+    public TestPlanMcpTools(TestPlanSearchService s, TestPlanCreateService c, TestPlanUpdateService u, TestPlanGetByIdService g, TestPlanDeleteService d) {
+        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g; this.deleteSvc = d;
     }
 
     public void register(McpServer server, SchemaBuilder schema) {
@@ -34,6 +35,9 @@ public class TestPlanMcpTools {
 
         server.registerTool("test_plan_get", "Get a test plan by ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
+
+        server.registerTool("test_plan_delete", "Delete a test plan by ID.",
+                schema.object().prop("id", schema.integer().required()).build(), args -> delete(args.path("id").asInt()));
     }
 
     private String search(TestPlanSearchService.SearchCriteria c) {
@@ -44,6 +48,11 @@ public class TestPlanMcpTools {
     private String create(String n, int p, String d) { return "Created: " + format(createSvc.create(n, p, d)); }
     private String update(int i, String n, String d, String s) { return "Updated: " + format(updateSvc.update(i, n, d, s)); }
     private String get(int i) { var t = getSvc.get(i); return format(t) + "\nDescription:\n" + (t.description() != null ? t.description() : "N/A"); }
+
+    private String delete(int i) {
+        deleteSvc.delete(i);
+        return "Test plan [%d] deleted successfully.".formatted(i);
+    }
 
     private String format(TestPlanDto t) {
         return "[%d] %s (Project: %s, State: %s, Author: %s, Created: %s)"

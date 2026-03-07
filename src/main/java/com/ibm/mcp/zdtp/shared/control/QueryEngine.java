@@ -32,7 +32,8 @@ public class QueryEngine {
     public static final Domain RELEASE = new Domain("Releases", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,StartDate,EndDate,Effort,Owner[Id,Login]]");
     public static final Domain REQUEST = new Domain("Requests", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login]]");
     public static final Domain TEST_PLAN = new Domain("TestPlans", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,Owner[Id,Login]]");
-    public static final Domain TEST_CASE = new Domain("TestCases", "[Id,Name]");
+    public static final Domain TEST_CASE = new Domain("TestCases", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,Owner[Id,Login],TestPlans[Id,Name]]");
+    public static final Domain TEST_STEP = new Domain("TestSteps", "[Id,Description,Result,RunOrder,TestCase[Id,Name]]");
     public static final Domain TEAM = new Domain("Teams", "[Id,Name]");
     public static final Domain TEAM_ITERATION = new Domain("TeamIterations", "[Id,Name,StartDate,EndDate,Team[Id,Name]]");
     public static final Domain PROJECT = new Domain("Projects", "[Id,Name]");
@@ -78,6 +79,11 @@ public class QueryEngine {
         String responseBody = httpClient.post(url, jsonBody);
         T entity = httpClient.parseSingle(responseBody, clazz);
         return mapper.apply(entity);
+    }
+
+    public void delete(Domain domain, int id) {
+        String url = buildUrl(domain.resource() + "/" + id, Map.of());
+        httpClient.delete(url);
     }
 
     private String buildUrl(String path, Map<String, String> query) {

@@ -118,8 +118,9 @@ The diagram below shows the entities exposed by this server and their relationsh
 | `searchUserStories` | 📖 User Story | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `creatorLogin`, `startDate`, `endDate`, `take`, `releaseId`, `sprintId` |
 | `createUserStory` | 📖 User Story | Create a new user story | `name`*, `projectId`*, `description`, `effort` |
 | `updateUserStory` | 📖 User Story | Update fields by ID | `id`*, `name`, `description`, `stateName`, `effort` |
-| `getUserStoryById` | 📖 User Story | Fetch full details including description | `id`* |
-| `searchEpics` | 🏔️ Epic | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` |
+| `user_story_get` | 📖 User Story | Fetch full details including description | `id`* |
+| `user_story_delete` | 📖 User Story | Delete a user story | `id`* |
+| `epic_search` | 🏔️ Epic | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` |
 | `createEpic` | 🏔️ Epic | Create a new epic | `name`*, `projectId`*, `description`, `effort` |
 | `updateEpic` | 🏔️ Epic | Update fields by ID | `id`*, `name`, `description`, `stateName`, `effort` |
 | `getEpicById` | 🏔️ Epic | Fetch full details including description | `id`* |
@@ -135,19 +136,23 @@ The diagram below shows the entities exposed by this server and their relationsh
 | `createRequest` | 📬 Request | Create a new request | `name`*, `projectId`*, `description`, `effort` |
 | `updateRequest` | 📬 Request | Update fields by ID | `id`*, `name`, `description`, `stateName`, `effort` |
 | `getRequestById` | 📬 Request | Fetch full details including description | `id`* |
-| `searchTestPlans` | 🧪 Test Plan | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` |
-| `createTestPlan` | 🧪 Test Plan | Create a new test plan | `name`*, `projectId`*, `description` |
-| `updateTestPlan` | 🧪 Test Plan | Update fields by ID | `id`*, `name`, `description`, `stateName` |
-| `getTestPlanById` | 🧪 Test Plan | Fetch full details including description | `id`* |
-| `searchTestCases` | 🔬 Test Case | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` |
-| `createTestCase` | 🔬 Test Case | Create a new test case | `name`*, `projectId`*, `description`, `testPlanId` |
-| `updateTestCase` | 🔬 Test Case | Update fields by ID | `id`*, `name`, `description`, `stateName` |
-| `getTestCaseById` | 🔬 Test Case | Fetch full details including description | `id`* |
-| `searchProjects` | 📁 Project | Search projects by name | `nameQuery`, `startDate`, `endDate`, `take` |
-| `searchTeams` | 👥 Team | Search teams by name | `nameQuery`, `take` |
-| `getTeamById` | 👥 Team | Fetch team by ID | `id`* |
-| `searchTeamIterations` | 🔄 Team Iteration | Search team iterations by name, teamId, teamName, or date range | `nameQuery`, `teamId`, `teamName`, `startDate`, `endDate`, `take` |
-| `getTeamIterationById` | 🔄 Team Iteration | Fetch team iteration by ID | `id`* |
+| `test_plan_search` | 🧪 Test Plan | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` |
+| `test_plan_create` | 🧪 Test Plan | Create a new test plan | `name`*, `projectId`*, `description` |
+| `test_plan_update` | 🧪 Test Plan | Update fields by ID | `id`*, `name`, `description`, `stateName` |
+| `test_plan_get` | 🧪 Test Plan | Fetch full details including description | `id`* |
+| `test_plan_delete` | 🧪 Test Plan | Delete a test plan | `id`* |
+| `test_case_search` | 🔬 Test Case | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` |
+| `test_case_create` | 🔬 Test Case | Create a new test case | `name`*, `projectId`*, `description`, `testPlanId` |
+| `test_case_update` | 🔬 Test Case | Update fields by ID | `id`*, `name`, `description`, `stateName` |
+| `test_case_get` | 🔬 Test Case | Fetch full details including description | `id`* |
+| `test_case_delete` | 🔬 Test Case | Delete a test case | `id`* |
+| `test_step_create` | 🔬 Test Case | Add a test step to an existing test case | `testCaseId`*, `description`*, `expectedResult`, `runOrder` |
+| `test_step_delete` | 🔬 Test Case | Delete a test step | `id`* |
+| `project_search` | 📁 Project | Search projects by name | `nameQuery`, `startDate`, `endDate`, `take` |
+| `team_search` | 👥 Team | Search teams by name | `nameQuery`, `take` |
+| `team_get` | 👥 Team | Fetch team by ID | `id`* |
+| `team_iteration_search` | 🔄 Team Iteration | Search team iterations by name, teamId, teamName, or date range | `nameQuery`, `teamId`, `teamName`, `startDate`, `endDate`, `take` |
+| `team_iteration_get` | 🔄 Team Iteration | Fetch team iteration by ID | `id`* |
 
 `*` required parameter
 

@@ -10,9 +10,10 @@ public class UserStoryMcpTools {
     private final UserStoryCreateService createService;
     private final UserStoryUpdateService updateService;
     private final UserStoryGetByIdService getByIdService;
+    private final UserStoryDeleteService deleteService;
 
-    public UserStoryMcpTools(UserStorySearchService s, UserStoryCreateService c, UserStoryUpdateService u, UserStoryGetByIdService g) {
-        this.searchService = s; this.createService = c; this.updateService = u; this.getByIdService = g;
+    public UserStoryMcpTools(UserStorySearchService s, UserStoryCreateService c, UserStoryUpdateService u, UserStoryGetByIdService g, UserStoryDeleteService d) {
+        this.searchService = s; this.createService = c; this.updateService = u; this.getByIdService = g; this.deleteService = d;
     }
 
     public void register(McpServer server, SchemaBuilder schema) {
@@ -37,6 +38,9 @@ public class UserStoryMcpTools {
 
         server.registerTool("user_story_get", "Get a user story by its numeric ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
+
+        server.registerTool("user_story_delete", "Delete a user story by its numeric ID.",
+                schema.object().prop("id", schema.integer().required()).build(), args -> delete(args.path("id").asInt()));
     }
 
     private String search(UserStorySearchService.SearchCriteria c) {
@@ -47,6 +51,11 @@ public class UserStoryMcpTools {
     private String create(String n, int p, String d, Double e) { return "Created: " + format(createService.create(n, p, d, e)); }
     private String update(int i, String n, String d, String s, Double e) { return "Updated: " + format(updateService.update(i, n, d, s, e)); }
     private String get(int i) { var s = getByIdService.get(i); return format(s) + "\nDescription:\n" + (s.description() != null ? s.description() : "N/A"); }
+
+    private String delete(int i) {
+        deleteService.delete(i);
+        return "User story [%d] deleted successfully.".formatted(i);
+    }
 
     private String format(UserStoryDto s) {
         return "[%d] %s (Project: %s, State: %s, Author: %s, Assignee: %s, Points: %s, Created: %s, Done: %s, Release: %s, Sprint: %s)"
