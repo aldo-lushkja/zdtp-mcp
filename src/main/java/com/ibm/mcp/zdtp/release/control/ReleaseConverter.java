@@ -15,15 +15,18 @@ public class ReleaseConverter {
     private static final Pattern TP_DATE = Pattern.compile("/Date\\((\\d+)[+-]\\d{4}\\)/");
 
     public ReleaseDto toDto(Release release) {
-        return ReleaseDto.builder()
-                .id(release.id()).name(release.name()).description(release.description())
-                .projectName(extractProjectName(release)).state(extractState(release))
-                .ownerLogin(extractOwnerLogin(release))
-                .effort(release.effort())
-                .createdAt(parseDate(release.createDate()))
-                .startDate(parseDate(release.startDate()))
-                .endDate(parseDate(release.endDate()))
-                .build();
+        return new ReleaseDto(
+                release.id(),
+                release.name(),
+                release.description(),
+                extractProjectName(release),
+                extractState(release),
+                extractOwnerLogin(release),
+                release.effort(),
+                parseDate(release.createDate()),
+                parseDate(release.startDate()),
+                parseDate(release.endDate())
+        );
     }
 
     private String parseDate(String raw) {

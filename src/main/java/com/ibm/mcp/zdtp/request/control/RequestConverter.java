@@ -15,14 +15,17 @@ public class RequestConverter {
     private static final Pattern TP_DATE = Pattern.compile("/Date\\((\\d+)[+-]\\d{4}\\)/");
 
     public RequestDto toDto(Request request) {
-        return RequestDto.builder()
-                .id(request.id()).name(request.name()).description(request.description())
-                .projectName(extractProjectName(request)).state(extractState(request))
-                .ownerLogin(extractOwnerLogin(request))
-                .effort(request.effort())
-                .createdAt(parseDate(request.createDate()))
-                .endDate(parseDate(request.endDate()))
-                .build();
+        return new RequestDto(
+                request.id(),
+                request.name(),
+                request.description(),
+                extractProjectName(request),
+                extractState(request),
+                extractOwnerLogin(request),
+                request.effort(),
+                parseDate(request.createDate()),
+                parseDate(request.endDate())
+        );
     }
 
     private String parseDate(String raw) {

@@ -1,8 +1,5 @@
 package com.ibm.mcp.zdtp.request.entity;
 
-import lombok.Builder;
-
-@Builder
 public record RequestDto(
     int id,
     String name,

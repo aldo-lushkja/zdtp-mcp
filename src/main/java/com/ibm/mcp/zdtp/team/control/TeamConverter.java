@@ -5,9 +5,9 @@ import com.ibm.mcp.zdtp.team.entity.Team;
 public class TeamConverter {
 
     public TeamDto toDto(Team team) {
-        return TeamDto.builder()
-                .id(team.id())
-                .name(team.name())
-                .build();
+        return new TeamDto(
+                team.id(),
+                team.name()
+        );
     }
 }

@@ -16,16 +16,19 @@ public class FeatureConverter {
     private static final Pattern TP_DATE = Pattern.compile("/Date\\((\\d+)[+-]\\d{4}\\)/");
 
     public FeatureDto toDto(Feature feature) {
-        return FeatureDto.builder()
-                .id(feature.id()).name(feature.name()).description(feature.description())
-                .projectName(extractProjectName(feature)).state(extractState(feature))
-                .ownerLogin(extractOwnerLogin(feature))
-                .effort(feature.effort())
-                .createdAt(parseDate(feature.createDate()))
-                .endDate(parseDate(feature.endDate()))
-                .sprintId(Optional.ofNullable(feature.sprint()).map(SprintReference::id).orElse(null))
-                .sprintName(Optional.ofNullable(feature.sprint()).map(SprintReference::name).orElse(null))
-                .build();
+        return new FeatureDto(
+                feature.id(),
+                feature.name(),
+                feature.description(),
+                extractProjectName(feature),
+                extractState(feature),
+                extractOwnerLogin(feature),
+                feature.effort(),
+                parseDate(feature.createDate()),
+                parseDate(feature.endDate()),
+                Optional.ofNullable(feature.sprint()).map(SprintReference::id).orElse(null),
+                Optional.ofNullable(feature.sprint()).map(SprintReference::name).orElse(null)
+        );
     }
 
     private String parseDate(String raw) {

@@ -1,8 +1,5 @@
 package com.ibm.mcp.zdtp.userstory.entity;
 
-import lombok.Builder;
-
-@Builder
 public record UserStoryDto(
     int id,
     String name,

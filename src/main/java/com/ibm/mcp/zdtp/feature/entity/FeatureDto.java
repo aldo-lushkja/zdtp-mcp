@@ -1,8 +1,5 @@
 package com.ibm.mcp.zdtp.feature.entity;
 
-import lombok.Builder;
-
-@Builder
 public record FeatureDto(
     int id,
     String name,

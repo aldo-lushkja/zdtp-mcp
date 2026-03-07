@@ -15,13 +15,16 @@ public class TestCaseConverter {
     private static final Pattern TP_DATE = Pattern.compile("/Date\\((\\d+)[+-]\\d{4}\\)/");
 
     public TestCaseDto toDto(TestCase testCase) {
-        return TestCaseDto.builder()
-                .id(testCase.id()).name(testCase.name()).description(testCase.description())
-                .projectName(extractProjectName(testCase)).state(extractState(testCase))
-                .ownerLogin(extractOwnerLogin(testCase))
-                .createdAt(parseDate(testCase.createDate()))
-                .testPlanName(extractTestPlanName(testCase))
-                .build();
+        return new TestCaseDto(
+                testCase.id(),
+                testCase.name(),
+                testCase.description(),
+                extractProjectName(testCase),
+                extractState(testCase),
+                extractOwnerLogin(testCase),
+                parseDate(testCase.createDate()),
+                extractTestPlanName(testCase)
+        );
     }
 
     private String parseDate(String raw) {

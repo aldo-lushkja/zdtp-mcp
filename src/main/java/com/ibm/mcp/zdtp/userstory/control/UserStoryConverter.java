@@ -17,19 +17,22 @@ public class UserStoryConverter {
     private static final Pattern TP_DATE = Pattern.compile("/Date\\((\\d+)[+-]\\d{4}\\)/");
 
     public UserStoryDto toDto(UserStory story) {
-        return UserStoryDto.builder()
-                .id(story.id()).name(story.name()).description(story.description())
-                .projectName(extractProjectName(story)).state(extractState(story))
-                .ownerLogin(extractOwnerLogin(story))
-                .assigneeLogin(extractAssigneeLogin(story))
-                .effort(story.effort())
-                .createdAt(parseDate(story.createDate()))
-                .endDate(parseDate(story.endDate()))
-                .releaseId(Optional.ofNullable(story.release()).map(ReleaseReference::id).orElse(null))
-                .releaseName(Optional.ofNullable(story.release()).map(ReleaseReference::name).orElse(null))
-                .sprintId(Optional.ofNullable(story.sprint()).map(SprintReference::id).orElse(null))
-                .sprintName(Optional.ofNullable(story.sprint()).map(SprintReference::name).orElse(null))
-                .build();
+        return new UserStoryDto(
+                story.id(),
+                story.name(),
+                story.description(),
+                extractProjectName(story),
+                extractState(story),
+                extractOwnerLogin(story),
+                extractAssigneeLogin(story),
+                story.effort(),
+                parseDate(story.createDate()),
+                parseDate(story.endDate()),
+                Optional.ofNullable(story.release()).map(ReleaseReference::id).orElse(null),
+                Optional.ofNullable(story.release()).map(ReleaseReference::name).orElse(null),
+                Optional.ofNullable(story.sprint()).map(SprintReference::id).orElse(null),
+                Optional.ofNullable(story.sprint()).map(SprintReference::name).orElse(null)
+        );
     }
 
     private String parseDate(String raw) {

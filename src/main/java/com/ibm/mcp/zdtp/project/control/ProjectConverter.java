@@ -13,11 +13,13 @@ public class ProjectConverter {
     private static final Pattern TP_DATE = Pattern.compile("/Date\\((\\d+)[+-]\\d{4}\\)/");
 
     public ProjectDto toDto(ProjectData project) {
-        return ProjectDto.builder()
-                .id(project.id()).name(project.name()).description(project.description())
-                .state(extractState(project))
-                .createdAt(parseDate(project.createDate()))
-                .build();
+        return new ProjectDto(
+                project.id(),
+                project.name(),
+                project.description(),
+                extractState(project),
+                parseDate(project.createDate())
+        );
     }
 
     private String parseDate(String raw) {

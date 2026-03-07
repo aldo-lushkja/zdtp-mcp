@@ -7,11 +7,6 @@ plugins {
 group = 'com.ibm.mcp.zdtp'
 version = '0.0.2-SNAPSHOT'
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
 
 application {
     mainClass = 'com.ibm.mcp.zdtp.ZdtpMcpApplication'
@@ -32,9 +27,6 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
 
-    compileOnly 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
-    
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.mockito:mockito-core:5.11.0'
@@ -50,7 +42,20 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << '-parameters'
 }
 
+tasks.named('jar') {
+    enabled = false
+}
+
 tasks.named('shadowJar') {
     archiveClassifier.set('')
     mergeServiceFiles()
+}
+
+// Fix for Shadow JAR and application plugin distribution task conflicts
+// These tasks use the output of shadowJar (the jar with no classifier)
+// without an explicit dependency, causing build failures in newer Gradle versions.
+def shadowTasks = ['distZip', 'distTar', 'startScripts', 
+                   'shadowDistZip', 'shadowDistTar', 'startShadowScripts']
+shadowTasks.each { taskName ->
+    tasks.findByName(taskName)?.dependsOn('shadowJar')
 }

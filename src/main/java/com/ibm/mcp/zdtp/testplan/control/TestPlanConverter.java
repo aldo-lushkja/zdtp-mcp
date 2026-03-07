@@ -15,12 +15,15 @@ public class TestPlanConverter {
     private static final Pattern TP_DATE = Pattern.compile("/Date\\((\\d+)[+-]\\d{4}\\)/");
 
     public TestPlanDto toDto(TestPlan testPlan) {
-        return TestPlanDto.builder()
-                .id(testPlan.id()).name(testPlan.name()).description(testPlan.description())
-                .projectName(extractProjectName(testPlan)).state(extractState(testPlan))
-                .ownerLogin(extractOwnerLogin(testPlan))
-                .createdAt(parseDate(testPlan.createDate()))
-                .build();
+        return new TestPlanDto(
+                testPlan.id(),
+                testPlan.name(),
+                testPlan.description(),
+                extractProjectName(testPlan),
+                extractState(testPlan),
+                extractOwnerLogin(testPlan),
+                parseDate(testPlan.createDate())
+        );
     }
 
     private String parseDate(String raw) {

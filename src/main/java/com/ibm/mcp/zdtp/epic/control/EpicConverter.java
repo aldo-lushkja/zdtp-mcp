@@ -15,14 +15,17 @@ public class EpicConverter {
     private static final Pattern TP_DATE = Pattern.compile("/Date\\((\\d+)[+-]\\d{4}\\)/");
 
     public EpicDto toDto(Epic epic) {
-        return EpicDto.builder()
-                .id(epic.id()).name(epic.name()).description(epic.description())
-                .projectName(extractProjectName(epic)).state(extractState(epic))
-                .ownerLogin(extractOwnerLogin(epic))
-                .effort(epic.effort())
-                .createdAt(parseDate(epic.createDate()))
-                .endDate(parseDate(epic.endDate()))
-                .build();
+        return new EpicDto(
+                epic.id(),
+                epic.name(),
+                epic.description(),
+                extractProjectName(epic),
+                extractState(epic),
+                extractOwnerLogin(epic),
+                epic.effort(),
+                parseDate(epic.createDate()),
+                parseDate(epic.endDate())
+        );
     }
 
     private String parseDate(String raw) {

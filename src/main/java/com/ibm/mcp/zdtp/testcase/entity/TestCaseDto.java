@@ -1,8 +1,5 @@
 package com.ibm.mcp.zdtp.testcase.entity;
 
-import lombok.Builder;
-
-@Builder
 public record TestCaseDto(
     int id,
     String name,

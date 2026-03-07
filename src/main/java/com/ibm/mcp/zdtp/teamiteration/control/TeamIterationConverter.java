@@ -13,14 +13,14 @@ public class TeamIterationConverter {
     private static final Pattern TP_DATE = Pattern.compile("/Date\\((\\d+)[+-]\\d{4}\\)/");
 
     public TeamIterationDto toDto(TeamIteration teamIteration) {
-        return TeamIterationDto.builder()
-                .id(teamIteration.id())
-                .name(teamIteration.name())
-                .startDate(parseDate(teamIteration.startDate()))
-                .endDate(parseDate(teamIteration.endDate()))
-                .teamId(Optional.ofNullable(teamIteration.team()).map(Team::id).orElse(null))
-                .teamName(Optional.ofNullable(teamIteration.team()).map(Team::name).orElse(null))
-                .build();
+        return new TeamIterationDto(
+                teamIteration.id(),
+                teamIteration.name(),
+                parseDate(teamIteration.startDate()),
+                parseDate(teamIteration.endDate()),
+                Optional.ofNullable(teamIteration.team()).map(Team::id).orElse(null),
+                Optional.ofNullable(teamIteration.team()).map(Team::name).orElse(null)
+        );
     }
 
     private String parseDate(String raw) {
