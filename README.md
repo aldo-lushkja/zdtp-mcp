@@ -56,6 +56,10 @@ java -jar build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar
 | `createUserStory` | User Story | Create a new user story | `name`*, `projectId`*, `description`, `effort` |
 | `updateUserStory` | User Story | Update fields by ID (only non-blank fields are changed) | `id`*, `name`, `description`, `stateName`, `effort` |
 | `getUserStoryById` | User Story | Fetch full details including description | `id`* |
+| `searchEpics` | Epic | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` |
+| `createEpic` | Epic | Create a new epic | `name`*, `projectId`*, `description`, `effort` |
+| `updateEpic` | Epic | Update fields by ID | `id`*, `name`, `description`, `stateName`, `effort` |
+| `getEpicById` | Epic | Fetch full details including description | `id`* |
 | `searchFeatures` | Feature | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` |
 | `createFeature` | Feature | Create a new feature | `name`*, `projectId`*, `description`, `effort` |
 | `updateFeature` | Feature | Update fields by ID | `id`*, `name`, `description`, `stateName`, `effort` |

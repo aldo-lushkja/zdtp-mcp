@@ -1,5 +1,6 @@
 package com.ibm.mcp.targetprocess.config;
 
+import com.ibm.mcp.targetprocess.epic.controller.EpicMcpTools;
 import com.ibm.mcp.targetprocess.feature.controller.FeatureMcpTools;
 import com.ibm.mcp.targetprocess.project.controller.ProjectMcpTools;
 import com.ibm.mcp.targetprocess.request.controller.RequestMcpTools;
@@ -27,12 +28,13 @@ public class TargetProcessConfig {
     @Bean
     public ToolCallbackProvider targetprocessTools(UserStoryMcpTools userStoryMcpTools,
                                                    FeatureMcpTools featureMcpTools,
+                                                   EpicMcpTools epicMcpTools,
                                                    TestPlanMcpTools testPlanMcpTools,
                                                    RequestMcpTools requestMcpTools,
                                                    ProjectMcpTools projectMcpTools,
                                                    TestCaseMcpTools testCaseMcpTools) {
         return MethodToolCallbackProvider.builder()
-                .toolObjects(userStoryMcpTools, featureMcpTools, testPlanMcpTools, requestMcpTools, projectMcpTools, testCaseMcpTools)
+                .toolObjects(userStoryMcpTools, featureMcpTools, epicMcpTools, testPlanMcpTools, requestMcpTools, projectMcpTools, testCaseMcpTools)
                 .build();
     }
 }
