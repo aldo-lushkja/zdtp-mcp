@@ -8,8 +8,8 @@ public record TargetProcessProperties(
 ) {
     public static TargetProcessProperties fromEnv() {
         return new TargetProcessProperties(
-            Optional.ofNullable(System.getenv("TARGETPROCESS_BASE_URL")).orElse(""),
-            Optional.ofNullable(System.getenv("TARGETPROCESS_ACCESS_TOKEN")).orElse("")
+            Optional.ofNullable(System.getenv("TP_URL")).orElse(""),
+            Optional.ofNullable(System.getenv("TP_TOKEN")).orElse("")
         );
     }
 }

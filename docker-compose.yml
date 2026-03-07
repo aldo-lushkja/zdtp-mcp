@@ -4,5 +4,5 @@ services:
     build: .
     image: zdtp-mcp:local
     environment:
-      - TARGETPROCESS_URL=${TARGETPROCESS_URL}
-      - TARGETPROCESS_TOKEN=${TARGETPROCESS_TOKEN}
+      - TP_URL=${TP_URL}
+      - TP_TOKEN=${TP_TOKEN}

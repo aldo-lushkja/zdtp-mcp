@@ -19,19 +19,16 @@ java -jar build/libs/zdtp-mcp-1.0.0-all.jar
 
 ## 🐳 Local Docker Development
 
-You can build and run the server locally using Docker. This creates a small native binary using GraalVM by default.
+You can build and run the server locally using Docker (JVM-based).
 
 ```bash
-# Build the default (native) Docker image
+# Build the Docker image
 docker build -t zdtp-mcp .
-
-# Build the fast JVM-based image (useful for rapid testing)
-docker build -t zdtp-mcp:jvm --target jvm .
 
 # Run locally to verify (waits for MCP JSON-RPC on stdin)
 docker run -it --rm \
-  -e TARGETPROCESS_BASE_URL="https://youraccount.tpondemand.com" \
-  -e TARGETPROCESS_ACCESS_TOKEN="your_token" \
+  -e TP_URL="https://youraccount.tpondemand.com" \
+  -e TP_TOKEN="your_token" \
   zdtp-mcp
 ```
 
