@@ -47,7 +47,7 @@ tasks.named('jar') {
 }
 
 tasks.named('shadowJar') {
-    archiveClassifier.set('')
+    archiveFileName.set('zdtp-mcp.jar')
     mergeServiceFiles()
 }
 
