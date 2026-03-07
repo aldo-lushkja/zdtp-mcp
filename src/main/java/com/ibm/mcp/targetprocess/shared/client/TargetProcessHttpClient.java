@@ -89,7 +89,7 @@ public class TargetProcessHttpClient {
     }
 
     private void validateResponse(HttpResponse<String> response) {
-        if (response.statusCode() != 200) {
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
             throw new TargetProcessApiException(response.statusCode(), response.body());
         }
     }

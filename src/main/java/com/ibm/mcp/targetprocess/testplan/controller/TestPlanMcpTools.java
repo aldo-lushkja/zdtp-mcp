@@ -44,7 +44,11 @@ public class TestPlanMcpTools {
     @Tool(description = """
             Create a new test plan in Targetprocess. \
             Requires name and projectId (numeric ID of the project). \
-            Description is optional.""")
+            Description is optional. \
+            IMPORTANT — description formatting rules: \
+            (1) Always use HTML, never plain markdown (e.g. <h2>, <p>, <ul>, <li>, <strong>). \
+            (2) To embed a diagram, encode the Mermaid definition in base64 and use: \
+            <img src="https://mermaid.ink/img/<base64>" alt="diagram description" />""")
     public String createTestPlan(String name, int projectId, String description) {
         TestPlanDto testPlan = testPlanCreateService.createTestPlan(name, projectId, description);
         return "Created: " + format(testPlan);
@@ -53,7 +57,11 @@ public class TestPlanMcpTools {
     @Tool(description = """
             Update an existing test plan in Targetprocess by its numeric ID. \
             All fields except id are optional — only provided (non-blank) fields are updated. \
-            stateName accepts workflow state names such as 'Open', 'In Progress', 'Done'.""")
+            stateName accepts workflow state names such as 'Open', 'In Progress', 'Done'. \
+            IMPORTANT — description formatting rules: \
+            (1) Always use HTML, never plain markdown (e.g. <h2>, <p>, <ul>, <li>, <strong>). \
+            (2) To embed a diagram, encode the Mermaid definition in base64 and use: \
+            <img src="https://mermaid.ink/img/<base64>" alt="diagram description" />""")
     public String updateTestPlan(int id, String name, String description, String stateName) {
         TestPlanDto testPlan = testPlanUpdateService.updateTestPlan(id, name, description, stateName);
         return "Updated: " + format(testPlan);

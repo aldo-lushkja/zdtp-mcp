@@ -44,7 +44,11 @@ public class RequestMcpTools {
     @Tool(description = """
             Create a new request in Targetprocess. \
             Requires name and projectId (numeric ID of the project). \
-            Description and effort (story points) are optional.""")
+            Description and effort (story points) are optional. \
+            IMPORTANT — description formatting rules: \
+            (1) Always use HTML, never plain markdown (e.g. <h2>, <p>, <ul>, <li>, <strong>). \
+            (2) To embed a diagram, encode the Mermaid definition in base64 and use: \
+            <img src="https://mermaid.ink/img/<base64>" alt="diagram description" />""")
     public String createRequest(String name, int projectId, String description, Double effort) {
         RequestDto request = requestCreateService.createRequest(name, projectId, description, effort);
         return "Created: " + format(request);
@@ -53,7 +57,11 @@ public class RequestMcpTools {
     @Tool(description = """
             Update an existing request in Targetprocess by its numeric ID. \
             All fields except id are optional — only provided (non-blank) fields are updated. \
-            stateName accepts workflow state names such as 'Open', 'In Progress', 'Done'.""")
+            stateName accepts workflow state names such as 'Open', 'In Progress', 'Done'. \
+            IMPORTANT — description formatting rules: \
+            (1) Always use HTML, never plain markdown (e.g. <h2>, <p>, <ul>, <li>, <strong>). \
+            (2) To embed a diagram, encode the Mermaid definition in base64 and use: \
+            <img src="https://mermaid.ink/img/<base64>" alt="diagram description" />""")
     public String updateRequest(int id, String name, String description, String stateName, Double effort) {
         RequestDto request = requestUpdateService.updateRequest(id, name, description, stateName, effort);
         return "Updated: " + format(request);
