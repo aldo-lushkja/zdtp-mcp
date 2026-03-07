@@ -31,6 +31,34 @@ claude mcp add zdtp -- docker run -i --rm \
   ghcr.io/owner/zdtp-mcp:jvm
 ```
 
+### ♊ Gemini CLI Integration
+
+To add this server to Gemini CLI, use the following command:
+
+```bash
+# Using the pre-built fat JAR (v1.0.0)
+gemini mcp add zdtp java -jar "/path/to/targetprocess-mcp/build/libs/zdtp-mcp-1.0.0-all.jar" \
+  -e TARGETPROCESS_BASE_URL="https://youraccount.tpondemand.com" \
+  -e TARGETPROCESS_ACCESS_TOKEN="your_token"
+```
+
+Or by manually editing your `~/.gemini/settings.json` (user scope) or project-local `.gemini/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "zdtp": {
+      "command": "java",
+      "args": ["-jar", "/path/to/targetprocess-mcp/build/libs/zdtp-mcp-1.0.0-all.jar"],
+      "env": {
+        "TARGETPROCESS_BASE_URL": "https://youraccount.tpondemand.com",
+        "TARGETPROCESS_ACCESS_TOKEN": "your_api_token"
+      }
+    }
+  }
+}
+```
+
 ### 🐳 Local Docker Development
 
 You can build and run the server locally using Docker. This creates a small native binary using GraalVM.
@@ -158,10 +186,30 @@ The application follows the **Boundary-Control-Entity (BCE)** pattern, ensuring 
 
 ## 🔌 Manual Configuration
 
-### Claude Desktop
+### Gemini CLI
 
-Add to `claude_desktop_config.json`:
+Add to `~/.gemini/settings.json` (global) or project-local `.gemini/settings.json`:
 
+#### Using Docker (Recommended)
+```json
+{
+  "mcpServers": {
+    "zdtp": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e", "TARGETPROCESS_BASE_URL=https://youraccount.tpondemand.com",
+        "-e", "TARGETPROCESS_ACCESS_TOKEN=your_token",
+        "ghcr.io/owner/zdtp-mcp:native"
+      ]
+    }
+  }
+}
+```
+
+#### Using Fat JAR
 ```json
 {
   "mcpServers": {
@@ -170,8 +218,30 @@ Add to `claude_desktop_config.json`:
       "args": ["-jar", "/path/to/targetprocess-mcp/build/libs/zdtp-mcp-1.0.0-all.jar"],
       "env": {
         "TARGETPROCESS_BASE_URL": "https://youraccount.tpondemand.com",
-        "TARGETPROCESS_ACCESS_TOKEN": "your_api_token"
+        "TARGETPROCESS_ACCESS_TOKEN": "your_token"
       }
+    }
+  }
+}
+```
+
+### Claude Desktop
+
+Add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "zdtp": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e", "TARGETPROCESS_BASE_URL=https://youraccount.tpondemand.com",
+        "-e", "TARGETPROCESS_ACCESS_TOKEN=your_token",
+        "ghcr.io/owner/zdtp-mcp:native"
+      ]
     }
   }
 }

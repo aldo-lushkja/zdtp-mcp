@@ -24,7 +24,6 @@ public class McpServer {
     }
 
     public void start() {
-        System.out.println("Starting Zero Dependency MCP Server");
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -33,6 +32,7 @@ public class McpServer {
                     JsonNode request = mapper.readTree(line);
                     handleRequest(request);
                 } catch (Exception e) {
+                    // Log errors to stderr, never to stdout as it breaks the protocol
                     System.err.println("Failed to parse or handle request: " + line + " - " + e.getMessage());
                 }
             }
@@ -43,7 +43,7 @@ public class McpServer {
 
     private void handleRequest(JsonNode req) throws JsonProcessingException {
         String method = req.path("method").asText();
-        JsonNode idNode = req.path("id");
+        JsonNode idNode = req.get("id");
 
         if ("initialize".equals(method)) {
             ObjectNode result = mapper.createObjectNode();

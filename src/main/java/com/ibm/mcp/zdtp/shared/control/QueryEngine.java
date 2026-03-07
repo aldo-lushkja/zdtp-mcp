@@ -32,7 +32,7 @@ public class QueryEngine {
     public static final Domain RELEASE = new Domain("Releases", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,StartDate,EndDate,Effort,Owner[Id,Login]]");
     public static final Domain REQUEST = new Domain("Requests", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login]]");
     public static final Domain TEST_PLAN = new Domain("TestPlans", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,Owner[Id,Login]]");
-    public static final Domain TEST_CASE = new Domain("TestCases", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,Owner[Id,Login],TestPlan[Id,Name]]");
+    public static final Domain TEST_CASE = new Domain("TestCases", "[Id,Name]");
     public static final Domain TEAM = new Domain("Teams", "[Id,Name]");
     public static final Domain TEAM_ITERATION = new Domain("TeamIterations", "[Id,Name,StartDate,EndDate,Team[Id,Name]]");
     public static final Domain PROJECT = new Domain("Projects", "[Id,Name]");
