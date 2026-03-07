@@ -1,80 +1,48 @@
 package com.ibm.mcp.zdtp.testcase.control;
 
-import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.control.BaseService;
 import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
-import com.ibm.mcp.zdtp.shared.entity.TargetProcessResponse;
-import com.ibm.mcp.zdtp.testcase.control.TestCaseConverter;
-import com.ibm.mcp.zdtp.testcase.entity.TestCaseDto;
 import com.ibm.mcp.zdtp.testcase.entity.TestCase;
+import com.ibm.mcp.zdtp.testcase.entity.TestCaseDto;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-public class TestCaseSearchService {
-
-    private static final String INCLUDE =
-            "[Id,Name,Description,Project[Id,Name],CreateDate,Owner[Id,Login]]";
-
-    private final TargetProcessProperties properties;
-    private final TargetProcessHttpClient httpClient;
+public class TestCaseSearchService extends BaseService {
+    private static final String INCLUDE = "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,Owner[Id,Login],TestPlan[Id,Name]]";
     private final TestCaseConverter converter;
 
-    public TestCaseSearchService(TargetProcessProperties properties,
-                                 TargetProcessHttpClient httpClient,
-                                 TestCaseConverter converter) {
-        this.properties = properties;
-        this.httpClient = httpClient;
+    public TestCaseSearchService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TestCaseConverter converter) {
+        super(properties, httpClient);
         this.converter = converter;
     }
 
-    public List<TestCaseDto> searchTestCases(String nameQuery, String projectName,
-                                             String ownerLogin, String startDate,
-                                             String endDate, int take) {
-        String url = buildUrl(nameQuery, projectName, ownerLogin, startDate, endDate, take);
-        String body = httpClient.fetch(url);
-        TargetProcessResponse<TestCase> resp = httpClient.parse(body, new TypeReference<>() {});
-        return Optional.ofNullable(resp.items()).orElse(List.of())
-                .stream().map(converter::toDto).toList();
+    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take) {}
+
+    public List<TestCaseDto> searchTestCases(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take) {
+        return search(new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take));
     }
 
-    private String buildUrl(String nameQuery, String projectName,
-                            String ownerLogin, String startDate, String endDate, int take) {
-        String where = buildWhere(nameQuery, projectName, ownerLogin, startDate, endDate);
-        return assembleUrl(where, take);
-    }
+    public List<TestCaseDto> search(SearchCriteria criteria) {
+        String whereClause = query()
+                .add("Name", "contains", criteria.nameQuery())
+                .add("Project.Name", "contains", criteria.projectName())
+                .add("Owner.Login", "eq", criteria.ownerLogin())
+                .add(criteria.startDate() != null && !criteria.startDate().isBlank() ? "CreateDate gte '%s'".formatted(criteria.startDate()) : null)
+                .add(criteria.endDate() != null && !criteria.endDate().isBlank() ? "CreateDate lt '%s'".formatted(criteria.endDate()) : null)
+                .build();
 
-    private String buildWhere(String nameQuery, String projectName,
-                              String ownerLogin, String startDate, String endDate) {
-        List<String> conditions = new ArrayList<>();
-        if (nameQuery != null && !nameQuery.isBlank()) {
-            conditions.add("Name contains '%s'".formatted(nameQuery));
+        Map<String, String> parameters = new TreeMap<>();
+        if (!whereClause.isBlank()) {
+            parameters.put("where", whereClause);
         }
-        if (projectName != null && !projectName.isBlank()) {
-            conditions.add("Project.Name contains '%s'".formatted(projectName));
-        }
-        if (ownerLogin != null && !ownerLogin.isBlank()) {
-            conditions.add("Owner.Login eq '%s'".formatted(ownerLogin));
-        }
-        if (startDate != null && !startDate.isBlank()) {
-            conditions.add("CreateDate gte '%s'".formatted(startDate));
-        }
-        if (endDate != null && !endDate.isBlank()) {
-            conditions.add("CreateDate lt '%s'".formatted(endDate));
-        }
-        return String.join(" and ", conditions);
-    }
+        parameters.put("include", INCLUDE);
+        parameters.put("orderByDesc", "CreateDate");
+        parameters.put("take", String.valueOf(criteria.take()));
 
-    private String assembleUrl(String where, int take) {
-        return properties.baseUrl() + "/api/v1/TestCases"
-                + "?where=" + URLEncoder.encode(where, StandardCharsets.UTF_8).replace("+", "%20")
-                + "&include=" + URLEncoder.encode(INCLUDE, StandardCharsets.UTF_8).replace("+", "%20")
-                + "&orderByDesc=CreateDate"
-                + "&take=" + take
-                + "&format=json"
-                + "&access_token=" + URLEncoder.encode(properties.accessToken(), StandardCharsets.UTF_8).replace("+", "%20");
+        return fetchList("TestCases", parameters, new TypeReference<>() {}, converter::toDto);
     }
 }

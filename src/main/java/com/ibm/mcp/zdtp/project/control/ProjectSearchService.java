@@ -1,78 +1,44 @@
 package com.ibm.mcp.zdtp.project.control;
 
-import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.project.control.ProjectConverter;
-import com.ibm.mcp.zdtp.project.entity.ProjectDto;
 import com.ibm.mcp.zdtp.project.entity.ProjectData;
+import com.ibm.mcp.zdtp.project.entity.ProjectDto;
+import com.ibm.mcp.zdtp.shared.control.BaseService;
 import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
-import com.ibm.mcp.zdtp.shared.entity.TargetProcessResponse;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-public class ProjectSearchService {
-
-    private final TargetProcessProperties properties;
-    private final TargetProcessHttpClient httpClient;
+public class ProjectSearchService extends BaseService {
     private final ProjectConverter converter;
 
-    public ProjectSearchService(TargetProcessProperties properties,
-                                TargetProcessHttpClient httpClient,
-                                ProjectConverter converter) {
-        this.properties = properties;
-        this.httpClient = httpClient;
+    public ProjectSearchService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, ProjectConverter converter) {
+        super(properties, httpClient);
         this.converter = converter;
     }
 
-    // ── Public API ─────────────────────────────────────────────────────────────
+    public record SearchCriteria(String nameQuery, String startDate, String endDate, int take) {}
 
-    public List<ProjectDto> searchProjects(String nameQuery, String startDate,
-                                           String endDate, int take) {
-        String url = buildUrl(nameQuery, startDate, endDate, take);
-        String body = httpClient.fetch(url);
-        TargetProcessResponse<ProjectData> resp = httpClient.parse(body, new TypeReference<>() {});
-        return Optional.ofNullable(resp.items()).orElse(List.of())
-                .stream().map(converter::toDto).toList();
+    public List<ProjectDto> searchProjects(String nameQuery, String startDate, String endDate, int take) {
+        return search(new SearchCriteria(nameQuery, startDate, endDate, take));
     }
 
-    // ── URL building ────────────────────────────────────────────────────────────
+    public List<ProjectDto> search(SearchCriteria criteria) {
+        String whereClause = query()
+                .add("Name", "contains", criteria.nameQuery())
+                .add(criteria.startDate() != null && !criteria.startDate().isBlank() ? "CreateDate gte '%s'".formatted(criteria.startDate()) : null)
+                .add(criteria.endDate() != null && !criteria.endDate().isBlank() ? "CreateDate lt '%s'".formatted(criteria.endDate()) : null)
+                .build();
 
-    private String buildUrl(String nameQuery, String startDate, String endDate, int take) {
-        String where = buildWhere(nameQuery, startDate, endDate);
-        return assembleUrl(where, take);
-    }
-
-    private String buildWhere(String nameQuery, String startDate, String endDate) {
-        List<String> conditions = collectConditions(nameQuery, startDate, endDate);
-        return String.join(" and ", conditions);
-    }
-
-    private List<String> collectConditions(String nameQuery, String startDate, String endDate) {
-        List<String> conditions = new ArrayList<>();
-        if (nameQuery != null && !nameQuery.isBlank()) {
-            conditions.add("Name contains '%s'".formatted(nameQuery));
+        Map<String, String> parameters = new TreeMap<>();
+        if (!whereClause.isBlank()) {
+            parameters.put("where", whereClause);
         }
-        if (startDate != null && !startDate.isBlank()) {
-            conditions.add("CreateDate gte '%s'".formatted(startDate));
-        }
-        if (endDate != null && !endDate.isBlank()) {
-            conditions.add("CreateDate lt '%s'".formatted(endDate));
-        }
-        return conditions;
-    }
+        parameters.put("orderByDesc", "CreateDate");
+        parameters.put("take", String.valueOf(criteria.take()));
 
-    private String assembleUrl(String where, int take) {
-        String include = "[Id,Name,Description,EntityState[Id,Name],CreateDate]";
-        return properties.baseUrl() + "/api/v1/Projects"
-                + "?where=" + URLEncoder.encode(where, StandardCharsets.UTF_8).replace("+", "%20")
-                + "&include=" + URLEncoder.encode(include, StandardCharsets.UTF_8).replace("+", "%20")
-                + "&orderByDesc=CreateDate"
-                + "&take=" + take
-                + "&format=json"
-                + "&access_token=" + URLEncoder.encode(properties.accessToken(), StandardCharsets.UTF_8).replace("+", "%20");
+        return fetchList("Projects", parameters, new TypeReference<>() {}, converter::toDto);
     }
 }

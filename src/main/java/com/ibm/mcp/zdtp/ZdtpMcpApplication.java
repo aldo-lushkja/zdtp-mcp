@@ -49,10 +49,7 @@ public class ZdtpMcpApplication {
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .build();
-                
+        HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(30)).build();
         TargetProcessHttpClient tpHttpClient = new TargetProcessHttpClient(client, mapper);
 
         // Wiring Epic

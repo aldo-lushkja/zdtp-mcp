@@ -1,60 +1,35 @@
 package com.ibm.mcp.zdtp.team.boundary;
 
-import com.ibm.mcp.zdtp.team.entity.TeamDto;
 import com.ibm.mcp.zdtp.team.control.TeamGetByIdService;
 import com.ibm.mcp.zdtp.team.control.TeamSearchService;
 import com.ibm.mcp.zdtp.mcp.boundary.McpServer;
 import com.ibm.mcp.zdtp.mcp.boundary.SchemaBuilder;
 
-import java.util.List;
-
 public class TeamMcpTools {
+    private final TeamSearchService searchService;
+    private final TeamGetByIdService getService;
 
-    private final TeamSearchService teamSearchService;
-    private final TeamGetByIdService teamGetByIdService;
-
-    public TeamMcpTools(TeamSearchService teamSearchService,
-                        TeamGetByIdService teamGetByIdService) {
-        this.teamSearchService = teamSearchService;
-        this.teamGetByIdService = teamGetByIdService;
+    public TeamMcpTools(TeamSearchService searchService, TeamGetByIdService getService) {
+        this.searchService = searchService;
+        this.getService = getService;
     }
 
     public void register(McpServer server, SchemaBuilder schema) {
-        server.registerTool("team_search", 
-            "Search for teams in Targetprocess. Supports filtering by team name. Results are ordered by name.",
-            schema.object()
-                .prop("nameQuery", schema.string())
-                .prop("take", schema.integer().withDefault(10))
-                .build(),
-            args -> searchTeams(
-                args.path("nameQuery").asText(null),
-                args.path("take").asInt(10)
-            )
-        );
+        server.registerTool("team_search", "Search for teams.",
+                schema.object().prop("nameQuery", schema.string()).prop("take", schema.integer().withDefault(10)).build(),
+                args -> search(new TeamSearchService.SearchCriteria(args.path("nameQuery").asText(null), args.path("take").asInt(10))));
 
-        server.registerTool("team_get",
-            "Get a team by its numeric ID.",
-            schema.object()
-                .prop("id", schema.integer().required())
-                .build(),
-            args -> getTeamById(args.path("id").asInt())
-        );
+        server.registerTool("team_get", "Get a team by ID.",
+                schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
     }
 
-    public String searchTeams(String nameQuery, int take) {
-        List<TeamDto> teams = teamSearchService.searchTeams(nameQuery, take);
-        if (teams.isEmpty()) {
-            return "No teams found.";
-        }
-        return String.join("\n", teams.stream().map(this::format).toList());
+    private String search(TeamSearchService.SearchCriteria criteria) {
+        var results = searchService.search(criteria);
+        return results.isEmpty() ? "No teams found." : String.join("\n", results.stream().map(t -> "[%d] %s".formatted(t.id(), t.name())).toList());
     }
 
-    public String getTeamById(int id) {
-        TeamDto team = teamGetByIdService.getById(id);
-        return format(team);
-    }
-
-    private String format(TeamDto t) {
-        return "[%d] %s".formatted(t.id(), t.name());
+    private String get(int id) {
+        var team = getService.get(id);
+        return "[%d] %s".formatted(team.id(), team.name());
     }
 }

@@ -1,54 +1,42 @@
 package com.ibm.mcp.zdtp.team.control;
 
-import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.control.BaseService;
 import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
-import com.ibm.mcp.zdtp.shared.entity.TargetProcessResponse;
-import com.ibm.mcp.zdtp.team.control.TeamConverter;
-import com.ibm.mcp.zdtp.team.entity.TeamDto;
 import com.ibm.mcp.zdtp.team.entity.Team;
+import com.ibm.mcp.zdtp.team.entity.TeamDto;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-public class TeamSearchService {
-
-    private final TargetProcessProperties properties;
-    private final TargetProcessHttpClient httpClient;
+public class TeamSearchService extends BaseService {
     private final TeamConverter converter;
 
-    public TeamSearchService(TargetProcessProperties properties,
-                             TargetProcessHttpClient httpClient,
-                             TeamConverter converter) {
-        this.properties = properties;
-        this.httpClient = httpClient;
+    public TeamSearchService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TeamConverter converter) {
+        super(properties, httpClient);
         this.converter = converter;
     }
 
+    public record SearchCriteria(String nameQuery, int take) {}
+
     public List<TeamDto> searchTeams(String nameQuery, int take) {
-        String url = buildUrl(nameQuery, take);
-        String body = httpClient.fetch(url);
-        TargetProcessResponse<Team> resp = httpClient.parse(body, new TypeReference<>() {});
-        return Optional.ofNullable(resp.items()).orElse(List.of())
-                .stream().map(converter::toDto).toList();
+        return search(new SearchCriteria(nameQuery, take));
     }
 
-    private String buildUrl(String nameQuery, int take) {
-        List<String> conditions = new ArrayList<>();
-        if (nameQuery != null && !nameQuery.isBlank()) {
-            conditions.add("Name contains '%s'".formatted(nameQuery));
+    public List<TeamDto> search(SearchCriteria criteria) {
+        String whereClause = query()
+                .add("Name", "contains", criteria.nameQuery())
+                .build();
+
+        Map<String, String> parameters = new TreeMap<>();
+        if (!whereClause.isBlank()) {
+            parameters.put("where", whereClause);
         }
-        String where = String.join(" and ", conditions);
-        String include = "[Id,Name]";
-        return properties.baseUrl() + "/api/v1/Teams"
-                + "?where=" + URLEncoder.encode(where, StandardCharsets.UTF_8).replace("+", "%20")
-                + "&include=" + URLEncoder.encode(include, StandardCharsets.UTF_8).replace("+", "%20")
-                + "&orderByDesc=Name"
-                + "&take=" + take
-                + "&format=json"
-                + "&access_token=" + URLEncoder.encode(properties.accessToken(), StandardCharsets.UTF_8).replace("+", "%20");
+        parameters.put("orderBy", "Name");
+        parameters.put("take", String.valueOf(criteria.take()));
+
+        return fetchList("Teams", parameters, new TypeReference<>() {}, converter::toDto);
     }
 }

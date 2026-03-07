@@ -1,128 +1,54 @@
 package com.ibm.mcp.zdtp.testplan.boundary;
 
 import com.ibm.mcp.zdtp.testplan.entity.TestPlanDto;
-import com.ibm.mcp.zdtp.testplan.control.TestPlanCreateService;
-import com.ibm.mcp.zdtp.testplan.control.TestPlanGetByIdService;
-import com.ibm.mcp.zdtp.testplan.control.TestPlanSearchService;
-import com.ibm.mcp.zdtp.testplan.control.TestPlanUpdateService;
+import com.ibm.mcp.zdtp.testplan.control.*;
 import com.ibm.mcp.zdtp.mcp.boundary.McpServer;
 import com.ibm.mcp.zdtp.mcp.boundary.SchemaBuilder;
 
-import java.util.List;
-
 public class TestPlanMcpTools {
+    private final TestPlanSearchService searchSvc;
+    private final TestPlanCreateService createSvc;
+    private final TestPlanUpdateService updateSvc;
+    private final TestPlanGetByIdService getSvc;
 
-    private final TestPlanSearchService testPlanSearchService;
-    private final TestPlanCreateService testPlanCreateService;
-    private final TestPlanUpdateService testPlanUpdateService;
-    private final TestPlanGetByIdService testPlanGetByIdService;
-
-    public TestPlanMcpTools(TestPlanSearchService testPlanSearchService,
-                            TestPlanCreateService testPlanCreateService,
-                            TestPlanUpdateService testPlanUpdateService,
-                            TestPlanGetByIdService testPlanGetByIdService) {
-        this.testPlanSearchService = testPlanSearchService;
-        this.testPlanCreateService = testPlanCreateService;
-        this.testPlanUpdateService = testPlanUpdateService;
-        this.testPlanGetByIdService = testPlanGetByIdService;
+    public TestPlanMcpTools(TestPlanSearchService s, TestPlanCreateService c, TestPlanUpdateService u, TestPlanGetByIdService g) {
+        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g;
     }
 
     public void register(McpServer server, SchemaBuilder schema) {
-        server.registerTool("test_plan_search", 
-            "Search for test plans in Targetprocess. Supports filtering by test plan name, project name, owner login, and creation date range (YYYY-MM-DD). Results are ordered by creation date descending.",
-            schema.object()
-                .prop("nameQuery", schema.string())
-                .prop("projectName", schema.string())
-                .prop("ownerLogin", schema.string())
-                .prop("startDate", schema.string())
-                .prop("endDate", schema.string())
-                .prop("take", schema.integer().withDefault(10))
-                .build(),
-            args -> searchTestPlans(
-                args.path("nameQuery").asText(null),
-                args.path("projectName").asText(null),
-                args.path("ownerLogin").asText(null),
-                args.path("startDate").asText(null),
-                args.path("endDate").asText(null),
-                args.path("take").asInt(10)
-            )
-        );
+        server.registerTool("test_plan_search", "Search for test plans.",
+                schema.object().prop("nameQuery", schema.string()).prop("projectName", schema.string()).prop("ownerLogin", schema.string())
+                        .prop("startDate", schema.string()).prop("endDate", schema.string()).prop("take", schema.integer().withDefault(10)).build(),
+                args -> search(new TestPlanSearchService.SearchCriteria(args.path("nameQuery").asText(null), args.path("projectName").asText(null),
+                        args.path("ownerLogin").asText(null), args.path("startDate").asText(null), args.path("endDate").asText(null), args.path("take").asInt(10))));
 
-        server.registerTool("test_plan_create",
-            "Create a new test plan in Targetprocess. Requires name and projectId (numeric ID of the project). Description is optional. IMPORTANT — description formatting rules: (1) Always use HTML, never plain markdown. (2) To embed a diagram, encode the Mermaid definition in base64 and use: <img src=\"https://mermaid.ink/img/<base64>\" alt=\"diagram description\" />",
-            schema.object()
-                .prop("name", schema.string().required())
-                .prop("projectId", schema.integer().required())
-                .prop("description", schema.string())
-                .build(),
-            args -> createTestPlan(
-                args.path("name").asText(),
-                args.path("projectId").asInt(),
-                args.path("description").asText(null)
-            )
-        );
+        server.registerTool("test_plan_create", "Create a new test plan.",
+                schema.object().prop("name", schema.string().required()).prop("projectId", schema.integer().required())
+                        .prop("description", schema.string()).build(),
+                args -> create(args.path("name").asText(), args.path("projectId").asInt(), args.path("description").asText(null)));
 
-        server.registerTool("test_plan_update",
-            "Update an existing test plan in Targetprocess by its numeric ID. All fields except id are optional — only provided (non-blank) fields are updated. stateName accepts workflow state names such as 'Open', 'In Progress', 'Done'.",
-            schema.object()
-                .prop("id", schema.integer().required())
-                .prop("name", schema.string())
-                .prop("description", schema.string())
-                .prop("stateName", schema.string())
-                .build(),
-            args -> updateTestPlan(
-                args.path("id").asInt(),
-                args.path("name").asText(null),
-                args.path("description").asText(null),
-                args.path("stateName").asText(null)
-            )
-        );
+        server.registerTool("test_plan_update", "Update an existing test plan.",
+                schema.object().prop("id", schema.integer().required()).prop("name", schema.string()).prop("description", schema.string())
+                        .prop("stateName", schema.string()).build(),
+                args -> update(args.path("id").asInt(), args.path("name").asText(null), args.path("description").asText(null), args.path("stateName").asText(null)));
 
-        server.registerTool("test_plan_get",
-            "Get a test plan by its numeric ID. Returns full details including description.",
-            schema.object()
-                .prop("id", schema.integer().required())
-                .build(),
-            args -> getTestPlanById(args.path("id").asInt())
-        );
+        server.registerTool("test_plan_get", "Get a test plan by ID.",
+                schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
     }
 
-    public String searchTestPlans(String nameQuery, String projectName,
-                                  String ownerLogin, String startDate,
-                                  String endDate, int take) {
-        List<TestPlanDto> testPlans = testPlanSearchService.searchTestPlans(
-                nameQuery, projectName, ownerLogin, startDate, endDate, take);
-
-        if (testPlans.isEmpty()) {
-            return "No test plans found.";
-        }
-
-        return String.join("\n", testPlans.stream().map(this::format).toList());
+    private String search(TestPlanSearchService.SearchCriteria c) {
+        var res = searchSvc.search(c);
+        return res.isEmpty() ? "No test plans found." : String.join("\n", res.stream().map(this::format).toList());
     }
 
-    public String createTestPlan(String name, int projectId, String description) {
-        TestPlanDto testPlan = testPlanCreateService.createTestPlan(name, projectId, description);
-        return "Created: " + format(testPlan);
-    }
-
-    public String updateTestPlan(int id, String name, String description, String stateName) {
-        TestPlanDto testPlan = testPlanUpdateService.updateTestPlan(id, name, description, stateName);
-        return "Updated: " + format(testPlan);
-    }
-
-    public String getTestPlanById(int id) {
-        TestPlanDto testPlan = testPlanGetByIdService.getById(id);
-        return format(testPlan) + "\nDescription:\n" + nullSafe(testPlan.description());
-    }
+    private String create(String n, int p, String d) { return "Created: " + format(createSvc.create(n, p, d)); }
+    private String update(int i, String n, String d, String s) { return "Updated: " + format(updateSvc.update(i, n, d, s)); }
+    private String get(int i) { var t = getSvc.get(i); return format(t) + "\nDescription:\n" + (t.description() != null ? t.description() : "N/A"); }
 
     private String format(TestPlanDto t) {
-        return "[%d] %s (Project: %s, State: %s, Owner: %s, Created: %s)"
-            .formatted(
-                t.id(), t.name(),
-                nullSafe(t.projectName()), nullSafe(t.state()),
-                nullSafe(t.ownerLogin()), nullSafe(t.createdAt())
-            );
+        return "[%d] %s (Project: %s, State: %s, Author: %s, Created: %s)"
+                .formatted(t.id(), t.name(), ns(t.projectName()), ns(t.state()), ns(t.ownerLogin()), ns(t.createdAt()));
     }
 
-    private String nullSafe(String v) { return v != null ? v : "N/A"; }
+    private String ns(String v) { return v != null ? v : "N/A"; }
 }
