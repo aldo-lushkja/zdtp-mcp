@@ -1,14 +1,26 @@
-# Targetprocess MCP Server
+# 🎯 Targetprocess MCP Server
 
 A Spring Boot application implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) to expose IBM Targetprocess data to AI assistants.
 
-## Prerequisites
+## 📋 Table of Contents
+
+- [Prerequisites](#-prerequisites)
+- [Configuration](#-configuration)
+- [Build & Run](#-build--run)
+- [Available Tools](#-available-tools)
+- [Integration](#-integration)
+
+---
+
+## ✅ Prerequisites
 
 - Java 21+
 - Gradle (wrapper included)
 - A Targetprocess API Access Token (Profile → Settings → API Access Tokens)
 
-## Configuration
+---
+
+## ⚙️ Configuration
 
 Set the following environment variables:
 
@@ -17,7 +29,9 @@ Set the following environment variables:
 | `TARGETPROCESS_BASE_URL` | `https://youraccount.tpondemand.com` |
 | `TARGETPROCESS_ACCESS_TOKEN` | Your generated API token |
 
-## Build & Run
+---
+
+## 🔨 Build & Run
 
 ```bash
 # Build fat JAR
@@ -34,145 +48,39 @@ java -jar build/libs/targetprocess-mcp-0.0.1-SNAPSHOT.jar
 
 ---
 
-## Available Tools
+## 🛠️ Available Tools
 
-### User Stories
+| Tool | Entity | Description | Key parameters |
+| --- | --- | --- | --- |
+| `searchUserStories` | User Story | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `creatorLogin`, `startDate`, `endDate`, `take` |
+| `createUserStory` | User Story | Create a new user story | `name`*, `projectId`*, `description`, `effort` |
+| `updateUserStory` | User Story | Update fields by ID (only non-blank fields are changed) | `id`*, `name`, `description`, `stateName`, `effort` |
+| `getUserStoryById` | User Story | Fetch full details including description | `id`* |
+| `searchFeatures` | Feature | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` |
+| `createFeature` | Feature | Create a new feature | `name`*, `projectId`*, `description`, `effort` |
+| `updateFeature` | Feature | Update fields by ID | `id`*, `name`, `description`, `stateName`, `effort` |
+| `getFeatureById` | Feature | Fetch full details including description | `id`* |
+| `searchRequests` | Request | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` |
+| `createRequest` | Request | Create a new request | `name`*, `projectId`*, `description`, `effort` |
+| `updateRequest` | Request | Update fields by ID | `id`*, `name`, `description`, `stateName`, `effort` |
+| `getRequestById` | Request | Fetch full details including description | `id`* |
+| `searchTestPlans` | Test Plan | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` |
+| `createTestPlan` | Test Plan | Create a new test plan | `name`*, `projectId`*, `description` |
+| `updateTestPlan` | Test Plan | Update fields by ID | `id`*, `name`, `description`, `stateName` |
+| `getTestPlanById` | Test Plan | Fetch full details including description | `id`* |
+| `searchTestCases` | Test Case | Search with filters, ordered by creation date desc | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` |
+| `createTestCase` | Test Case | Create a new test case | `name`*, `projectId`*, `description`, `testPlanId` |
+| `updateTestCase` | Test Case | Update fields by ID | `id`*, `name`, `description`, `stateName` |
+| `getTestCaseById` | Test Case | Fetch full details including description | `id`* |
+| `searchProjects` | Project | Search projects by name | `nameQuery`, `startDate`, `endDate`, `take` |
 
-#### `searchUserStories`
+`*` required parameter
 
-Search for user stories. All filter parameters are optional.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `nameQuery` | String | Filter by story name (contains) |
-| `projectName` | String | Filter by project name (contains) |
-| `creatorLogin` | String | Filter by owner login |
-| `startDate` | String | Created on or after (YYYY-MM-DD) |
-| `endDate` | String | Created before (YYYY-MM-DD) |
-| `take` | int | Max results to return |
-
-**Returns:** `[ID] Name (Project, State, Author, Assignee, Points, Created, Done)`
-
-#### `createUserStory`
-
-Create a new user story.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `name` | String | Story name (required) |
-| `projectId` | int | Numeric project ID (required) |
-| `description` | String | Story description (optional) |
-| `effort` | Double | Story points (optional) |
-
-**Returns:** `Created: [ID] Name (Project, State, ...)`
-
-#### `updateUserStory`
-
-Update an existing user story by ID. Only provided (non-blank) fields are changed.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `id` | int | Story ID (required) |
-| `name` | String | New name (optional) |
-| `description` | String | New description (optional) |
-| `stateName` | String | Workflow state, e.g. `In Progress` (optional) |
-| `effort` | Double | Story points (optional) |
-
-**Returns:** `Updated: [ID] Name (Project, State, ...)`
+> **Description format:** always use HTML (`<h2>`, `<p>`, `<ul>`, `<li>`, `<strong>`), never plain markdown. To embed a Mermaid diagram, base64-encode the definition and use `<img src="https://mermaid.ink/img/<base64>" />`.
 
 ---
 
-### Features
-
-#### `searchFeatures`
-
-Search for features. All filter parameters are optional.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `nameQuery` | String | Filter by feature name (contains) |
-| `projectName` | String | Filter by project name (contains) |
-| `ownerLogin` | String | Filter by owner login |
-| `startDate` | String | Created on or after (YYYY-MM-DD) |
-| `endDate` | String | Created before (YYYY-MM-DD) |
-| `take` | int | Max results to return |
-
-**Returns:** `[ID] Name (Project, State, Owner, Points, Created, Done)`
-
-#### `createFeature`
-
-Create a new feature.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `name` | String | Feature name (required) |
-| `projectId` | int | Numeric project ID (required) |
-| `description` | String | Feature description (optional) |
-| `effort` | Double | Story points (optional) |
-
-**Returns:** `Created: [ID] Name (Project, State, ...)`
-
-#### `updateFeature`
-
-Update an existing feature by ID. Only provided (non-blank) fields are changed.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `id` | int | Feature ID (required) |
-| `name` | String | New name (optional) |
-| `description` | String | New description (optional) |
-| `stateName` | String | Workflow state, e.g. `Done` (optional) |
-| `effort` | Double | Story points (optional) |
-
-**Returns:** `Updated: [ID] Name (Project, State, ...)`
-
----
-
-### Test Plans
-
-#### `searchTestPlans`
-
-Search for test plans. All filter parameters are optional.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `nameQuery` | String | Filter by test plan name (contains) |
-| `projectName` | String | Filter by project name (contains) |
-| `ownerLogin` | String | Filter by owner login |
-| `startDate` | String | Created on or after (YYYY-MM-DD) |
-| `endDate` | String | Created before (YYYY-MM-DD) |
-| `take` | int | Max results to return |
-
-**Returns:** `[ID] Name (Project, State, Owner, Created)`
-
-#### `createTestPlan`
-
-Create a new test plan.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `name` | String | Test plan name (required) |
-| `projectId` | int | Numeric project ID (required) |
-| `description` | String | Test plan description (optional) |
-
-**Returns:** `Created: [ID] Name (Project, State, ...)`
-
-#### `updateTestPlan`
-
-Update an existing test plan by ID. Only provided (non-blank) fields are changed.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `id` | int | Test plan ID (required) |
-| `name` | String | New name (optional) |
-| `description` | String | New description (optional) |
-| `stateName` | String | Workflow state, e.g. `In Progress` (optional) |
-
-**Returns:** `Updated: [ID] Name (Project, State, ...)`
-
----
-
-## Integration
+## 🔌 Integration
 
 ### Claude Code CLI
 
