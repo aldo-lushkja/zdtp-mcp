@@ -1,19 +1,17 @@
-package com.ibm.mcp.targetprocess.userstory.dto;
+package com.ibm.mcp.targetprocess.release.dto;
 
 import lombok.Builder;
 
 @Builder
-public record UserStoryDto(
+public record ReleaseDto(
     int id,
     String name,
     String description,
     String projectName,
     String state,
     String ownerLogin,
-    String assigneeLogin,
     Double effort,
     String createdAt,
-    String endDate,
-    Integer releaseId,
-    String releaseName
+    String startDate,
+    String endDate
 ) {}

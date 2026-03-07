@@ -1,42 +1,42 @@
-package com.ibm.mcp.targetprocess.userstory.service;
+package com.ibm.mcp.targetprocess.release.service;
 
 import com.ibm.mcp.targetprocess.config.TargetProcessProperties;
+import com.ibm.mcp.targetprocess.release.converter.ReleaseConverter;
+import com.ibm.mcp.targetprocess.release.dto.ReleaseDto;
+import com.ibm.mcp.targetprocess.release.model.Release;
 import com.ibm.mcp.targetprocess.shared.client.TargetProcessHttpClient;
-import com.ibm.mcp.targetprocess.userstory.converter.UserStoryConverter;
-import com.ibm.mcp.targetprocess.userstory.dto.UserStoryDto;
-import com.ibm.mcp.targetprocess.userstory.model.UserStory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
 
 @Service
-public class UserStoryGetByIdService {
+public class ReleaseGetByIdService {
 
     private static final String INCLUDE =
-            "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],AssignedUser[Id,Login],Release[Id,Name]]";
+            "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,StartDate,EndDate,Effort,Owner[Id,Login]]";
 
     private final TargetProcessProperties properties;
     private final TargetProcessHttpClient httpClient;
-    private final UserStoryConverter converter;
+    private final ReleaseConverter converter;
 
-    public UserStoryGetByIdService(TargetProcessProperties properties,
-                                   TargetProcessHttpClient httpClient,
-                                   UserStoryConverter converter) {
+    public ReleaseGetByIdService(TargetProcessProperties properties,
+                                 TargetProcessHttpClient httpClient,
+                                 ReleaseConverter converter) {
         this.properties = properties;
         this.httpClient = httpClient;
         this.converter = converter;
     }
 
-    public UserStoryDto getById(int id) {
+    public ReleaseDto getById(int id) {
         String url = buildUrl(id);
         String response = httpClient.fetch(url);
-        UserStory story = httpClient.parseSingle(response, UserStory.class);
-        return converter.toDto(story);
+        Release release = httpClient.parseSingle(response, Release.class);
+        return converter.toDto(release);
     }
 
     private String buildUrl(int id) {
-        return properties.baseUrl() + "/api/v1/UserStories/" + id
+        return properties.baseUrl() + "/api/v1/Releases/" + id
                 + "?format=json"
                 + "&include=" + UriUtils.encodeQueryParam(INCLUDE, StandardCharsets.UTF_8)
                 + "&access_token=" + UriUtils.encodeQueryParam(properties.accessToken(), StandardCharsets.UTF_8);

@@ -1,12 +1,12 @@
-package com.ibm.mcp.targetprocess.userstory.service;
+package com.ibm.mcp.targetprocess.release.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mcp.targetprocess.config.TargetProcessProperties;
+import com.ibm.mcp.targetprocess.release.converter.ReleaseConverter;
+import com.ibm.mcp.targetprocess.release.dto.ReleaseDto;
+import com.ibm.mcp.targetprocess.release.model.Release;
 import com.ibm.mcp.targetprocess.shared.client.TargetProcessHttpClient;
 import com.ibm.mcp.targetprocess.shared.exception.TargetProcessClientException;
-import com.ibm.mcp.targetprocess.userstory.converter.UserStoryConverter;
-import com.ibm.mcp.targetprocess.userstory.dto.UserStoryDto;
-import com.ibm.mcp.targetprocess.userstory.model.UserStory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
 
@@ -15,36 +15,36 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
-public class UserStoryCreateService {
+public class ReleaseCreateService {
 
     private static final String INCLUDE =
-            "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],AssignedUser[Id,Login],Release[Id,Name]]";
+            "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,StartDate,EndDate,Effort,Owner[Id,Login]]";
 
     private final TargetProcessProperties properties;
     private final TargetProcessHttpClient httpClient;
-    private final UserStoryConverter converter;
+    private final ReleaseConverter converter;
     private final ObjectMapper objectMapper;
 
-    public UserStoryCreateService(TargetProcessProperties properties,
-                                  TargetProcessHttpClient httpClient,
-                                  UserStoryConverter converter,
-                                  ObjectMapper objectMapper) {
+    public ReleaseCreateService(TargetProcessProperties properties,
+                                TargetProcessHttpClient httpClient,
+                                ReleaseConverter converter,
+                                ObjectMapper objectMapper) {
         this.properties = properties;
         this.httpClient = httpClient;
         this.converter = converter;
         this.objectMapper = objectMapper;
     }
 
-    public UserStoryDto createUserStory(String name, int projectId, String description, Double effort) {
+    public ReleaseDto createRelease(String name, int projectId, String description, Double effort) {
         String url = buildUrl();
         String body = buildBody(name, projectId, description, effort);
         String response = httpClient.post(url, body);
-        UserStory story = httpClient.parseSingle(response, UserStory.class);
-        return converter.toDto(story);
+        Release release = httpClient.parseSingle(response, Release.class);
+        return converter.toDto(release);
     }
 
     private String buildUrl() {
-        return properties.baseUrl() + "/api/v1/UserStories"
+        return properties.baseUrl() + "/api/v1/Releases"
                 + "?format=json"
                 + "&include=" + UriUtils.encodeQueryParam(INCLUDE, StandardCharsets.UTF_8)
                 + "&access_token=" + UriUtils.encodeQueryParam(properties.accessToken(), StandardCharsets.UTF_8);

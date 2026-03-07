@@ -1,11 +1,11 @@
-package com.ibm.mcp.targetprocess.userstory.service;
+package com.ibm.mcp.targetprocess.release.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mcp.targetprocess.config.TargetProcessProperties;
+import com.ibm.mcp.targetprocess.release.converter.ReleaseConverter;
+import com.ibm.mcp.targetprocess.release.dto.ReleaseDto;
 import com.ibm.mcp.targetprocess.shared.client.TargetProcessHttpClient;
 import com.ibm.mcp.targetprocess.shared.exception.TargetProcessApiException;
-import com.ibm.mcp.targetprocess.userstory.converter.UserStoryConverter;
-import com.ibm.mcp.targetprocess.userstory.dto.UserStoryDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,18 +29,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserStorySearchServiceTest {
+class ReleaseSearchServiceTest {
 
     private static final String BASE_URL = "https://company.tpondemand.com";
     private static final String TOKEN = "test-token";
     private static final String EMPTY_RESPONSE = "{\"Items\":[]}";
     // 1736899200000 ms epoch = 2025-01-15T00:00:00Z
     // 1739577600000 ms epoch = 2025-02-15T00:00:00Z
-    private static final String STORY_RESPONSE = """
-            {"Items":[{"Id":42,"Name":"My Story","Project":{"Id":1,"Name":"consumer_loyalty"},
+    // 1742860800000 ms epoch = 2025-03-25T00:00:00Z
+    private static final String RELEASE_RESPONSE = """
+            {"Items":[{"Id":77,"Name":"Release 1.0","Project":{"Id":1,"Name":"satispay_plus"},
             "EntityState":{"Id":10,"Name":"Open"},"CreateDate":"\\/Date(1736899200000+0000)\\/",
-            "EndDate":"\\/Date(1739577600000+0000)\\/","Effort":5.0,
-            "Owner":{"Id":5,"Login":"aldo.lushkja"},"AssignedUser":{"Id":6,"Login":"john.doe"}}]}
+            "StartDate":"\\/Date(1739577600000+0000)\\/","EndDate":"\\/Date(1742860800000+0000)\\/","Effort":5.0,
+            "Owner":{"Id":5,"Login":"aldo.lushkja@satispay.com"}}]}
             """;
 
     @Mock
@@ -50,13 +51,13 @@ class UserStorySearchServiceTest {
     @Mock
     HttpResponse<String> httpResponse;
 
-    UserStorySearchService service;
+    ReleaseSearchService service;
 
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
         TargetProcessHttpClient tpHttpClient = new TargetProcessHttpClient(httpClient, new ObjectMapper());
-        service = new UserStorySearchService(props, tpHttpClient, new UserStoryConverter());
+        service = new ReleaseSearchService(props, tpHttpClient, new ReleaseConverter());
     }
 
     // ── URL / where clause tests ────────────────────────────────────────────────
@@ -65,10 +66,10 @@ class UserStorySearchServiceTest {
     void noFilters_producesEmptyWhereClause() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "", "", "", 10, null);
+        service.searchReleases("", "", "", "", "", 10);
 
         String url = captureDecodedUrl();
-        assertThat(url).contains("where=");
+        assertThat(url).contains("/api/v1/Releases");
         assertThat(urlParam(url, "where")).isEmpty();
     }
 
@@ -76,95 +77,83 @@ class UserStorySearchServiceTest {
     void nameFilter_producesNameContainsCondition() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("login feature", "", "", "", "", 10, null);
+        service.searchReleases("Release 1", "", "", "", "", 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("Name contains 'login feature'");
+                .contains("Name contains 'Release 1'");
     }
 
     @Test
     void projectFilter_producesProjectNameContainsCondition() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "consumer_loyalty", "", "", "", 10, null);
+        service.searchReleases("", "satispay_plus", "", "", "", 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("Project.Name contains 'consumer_loyalty'");
-    }
-
-    @Test
-    void startDateFilter_usesGteOperator() throws Exception {
-        givenApiReturns(EMPTY_RESPONSE);
-
-        service.searchUserStories("", "", "", "2025-01-01", "", 10, null);
-
-        assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("CreateDate gte '2025-01-01'");
-    }
-
-    @Test
-    void endDateFilter_usesLtOperator() throws Exception {
-        givenApiReturns(EMPTY_RESPONSE);
-
-        service.searchUserStories("", "", "", "", "2025-01-31", 10, null);
-
-        assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("CreateDate lt '2025-01-31'");
+                .contains("Project.Name contains 'satispay_plus'");
     }
 
     @Test
     void ownerLoginFilter_usesOwnerLoginProperty() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "aldo.lushkja", "", "", 10, null);
+        service.searchReleases("", "", "aldo.lushkja@satispay.com", "", "", 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("Owner.Login eq 'aldo.lushkja'");
+                .contains("Owner.Login eq 'aldo.lushkja@satispay.com'");
+    }
+
+    @Test
+    void startDateFilter_usesGteOperator() throws Exception {
+        givenApiReturns(EMPTY_RESPONSE);
+
+        service.searchReleases("", "", "", "2026-01-01", "", 10);
+
+        assertThat(urlParam(captureDecodedUrl(), "where"))
+                .contains("CreateDate gte '2026-01-01'");
+    }
+
+    @Test
+    void endDateFilter_usesLtOperator() throws Exception {
+        givenApiReturns(EMPTY_RESPONSE);
+
+        service.searchReleases("", "", "", "", "2026-12-31", 10);
+
+        assertThat(urlParam(captureDecodedUrl(), "where"))
+                .contains("CreateDate lt '2026-12-31'");
     }
 
     @Test
     void allFilters_combinedWithAnd() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("story", "consumer_loyalty", "aldo.lushkja", "2025-01-01", "2025-01-31", 10, null);
+        service.searchReleases("Release 1", "satispay_plus", "aldo.lushkja@satispay.com", "2026-01-01", "2026-12-31", 10);
 
         String where = urlParam(captureDecodedUrl(), "where");
         assertThat(where)
-                .contains("Name contains 'story'")
-                .contains("Project.Name contains 'consumer_loyalty'")
-                .contains("Owner.Login eq 'aldo.lushkja'")
-                .contains("CreateDate gte '2025-01-01'")
-                .contains("CreateDate lt '2025-01-31'")
+                .contains("Name contains 'Release 1'")
+                .contains("Project.Name contains 'satispay_plus'")
+                .contains("Owner.Login eq 'aldo.lushkja@satispay.com'")
+                .contains("CreateDate gte '2026-01-01'")
+                .contains("CreateDate lt '2026-12-31'")
                 .contains(" and ");
     }
 
     @Test
-    void selectClause_doesNotContainCreatedBy() throws Exception {
+    void includeClause_containsStartDateAndEndDate() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "", "", "", 10, null);
-
-        assertThat(captureDecodedUrl()).doesNotContain("CreatedBy");
-    }
-
-    @Test
-    void selectClause_containsEffortEndDateAndAssignedUser() throws Exception {
-        givenApiReturns(EMPTY_RESPONSE);
-
-        service.searchUserStories("", "", "", "", "", 10, null);
+        service.searchReleases("", "", "", "", "", 10);
 
         String url = captureDecodedUrl();
-        assertThat(url)
-                .contains("Effort")
-                .contains("EndDate")
-                .contains("AssignedUser");
+        assertThat(url).contains("StartDate").contains("EndDate");
     }
 
     @Test
     void takeParameter_isIncludedInUrl() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "", "", "", 25, null);
+        service.searchReleases("", "", "", "", "", 25);
 
         assertThat(captureDecodedUrl()).contains("take=25");
     }
@@ -175,28 +164,28 @@ class UserStorySearchServiceTest {
     void emptyItemsArray_returnsEmptyList() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        List<UserStoryDto> result = service.searchUserStories("", "", "", "", "", 10, null);
+        List<ReleaseDto> result = service.searchReleases("", "", "", "", "", 10);
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void validResponse_mapsFieldsCorrectly() throws Exception {
-        givenApiReturns(STORY_RESPONSE);
+        givenApiReturns(RELEASE_RESPONSE);
 
-        List<UserStoryDto> result = service.searchUserStories("", "", "", "", "", 10, null);
+        List<ReleaseDto> result = service.searchReleases("", "", "", "", "", 10);
 
         assertThat(result).hasSize(1);
-        UserStoryDto story = result.get(0);
-        assertThat(story.id()).isEqualTo(42);
-        assertThat(story.name()).isEqualTo("My Story");
-        assertThat(story.projectName()).isEqualTo("consumer_loyalty");
-        assertThat(story.state()).isEqualTo("Open");
-        assertThat(story.ownerLogin()).isEqualTo("aldo.lushkja");
-        assertThat(story.assigneeLogin()).isEqualTo("john.doe");
-        assertThat(story.effort()).isEqualTo(5.0);
-        assertThat(story.createdAt()).isEqualTo("2025-01-15"); // parsed from /Date(1736899200000+0000)/
-        assertThat(story.endDate()).isEqualTo("2025-02-15"); // parsed from /Date(1739577600000+0000)/
+        ReleaseDto release = result.get(0);
+        assertThat(release.id()).isEqualTo(77);
+        assertThat(release.name()).isEqualTo("Release 1.0");
+        assertThat(release.projectName()).isEqualTo("satispay_plus");
+        assertThat(release.state()).isEqualTo("Open");
+        assertThat(release.ownerLogin()).isEqualTo("aldo.lushkja@satispay.com");
+        assertThat(release.effort()).isEqualTo(5.0);
+        assertThat(release.createdAt()).isEqualTo("2025-01-15");
+        assertThat(release.startDate()).isEqualTo("2025-02-15");
+        assertThat(release.endDate()).isEqualTo("2025-03-25");
     }
 
     @Test
@@ -205,52 +194,8 @@ class UserStorySearchServiceTest {
         when(httpResponse.body()).thenReturn("{\"Message\":\"Bad Request\"}");
         doReturn(httpResponse).when(httpClient).send(any(), any());
 
-        assertThatThrownBy(() -> service.searchUserStories("", "", "", "", "", 10, null))
+        assertThatThrownBy(() -> service.searchReleases("", "", "", "", "", 10))
                 .isInstanceOf(TargetProcessApiException.class);
-    }
-
-    // ── Release filter tests ─────────────────────────────────────────────────────
-
-    @Test
-    void releaseIdFilter_addsReleaseIdEqCondition() throws Exception {
-        givenApiReturns(EMPTY_RESPONSE);
-
-        service.searchUserStories("", "", "", "", "", 10, 123);
-
-        assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("Release.Id eq 123");
-    }
-
-    @Test
-    void releaseIdFilter_nullReleaseId_noReleaseCondition() throws Exception {
-        givenApiReturns(EMPTY_RESPONSE);
-
-        service.searchUserStories("", "", "", "", "", 10, null);
-
-        assertThat(urlParam(captureDecodedUrl(), "where"))
-                .doesNotContain("Release.Id");
-    }
-
-    @Test
-    void releaseIdFilter_combinedWithNameFilter() throws Exception {
-        givenApiReturns(EMPTY_RESPONSE);
-
-        service.searchUserStories("story", "", "", "", "", 10, 99);
-
-        String where = urlParam(captureDecodedUrl(), "where");
-        assertThat(where)
-                .contains("Name contains 'story'")
-                .contains("Release.Id eq 99")
-                .contains(" and ");
-    }
-
-    @Test
-    void includeClause_containsRelease() throws Exception {
-        givenApiReturns(EMPTY_RESPONSE);
-
-        service.searchUserStories("", "", "", "", "", 10, null);
-
-        assertThat(captureDecodedUrl()).contains("Release");
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────────

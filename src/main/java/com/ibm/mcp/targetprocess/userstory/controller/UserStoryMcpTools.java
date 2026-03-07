@@ -31,12 +31,13 @@ public class UserStoryMcpTools {
     @Tool(description = """
             Search for user stories in Targetprocess. \
             Supports filtering by story name, project name, owner login, \
-            and creation date range (YYYY-MM-DD). Results are ordered by creation date descending.""")
+            creation date range (YYYY-MM-DD), and releaseId (numeric release ID). \
+            Results are ordered by creation date descending.""")
     public String searchUserStories(String nameQuery, String projectName,
                                     String creatorLogin, String startDate,
-                                    String endDate, int take) {
+                                    String endDate, int take, Integer releaseId) {
         List<UserStoryDto> stories = userStorySearchService.searchUserStories(
-                nameQuery, projectName, creatorLogin, startDate, endDate, take);
+                nameQuery, projectName, creatorLogin, startDate, endDate, take, releaseId);
 
         if (stories.isEmpty()) {
             return "No user stories found.";
@@ -78,13 +79,14 @@ public class UserStoryMcpTools {
     }
 
     private String format(UserStoryDto s) {
-        return "[%d] %s (Project: %s, State: %s, Author: %s, Assignee: %s, Points: %s, Created: %s, Done: %s)"
+        return "[%d] %s (Project: %s, State: %s, Author: %s, Assignee: %s, Points: %s, Created: %s, Done: %s, Release: %s)"
             .formatted(
                 s.id(), s.name(),
                 nullSafe(s.projectName()), nullSafe(s.state()),
                 nullSafe(s.ownerLogin()), nullSafe(s.assigneeLogin()),
                 s.effort() != null ? s.effort().toString() : "N/A",
-                nullSafe(s.createdAt()), nullSafe(s.endDate())
+                nullSafe(s.createdAt()), nullSafe(s.endDate()),
+                s.releaseName() != null ? s.releaseId() + " " + s.releaseName() : "N/A"
             );
     }
 
