@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ibm.mcp.zdtp.team.entity.Team;
 
 public record TeamIteration(
+    @JsonProperty("ResourceType") String resourceType,
     @JsonProperty("Id") Integer id,
     @JsonProperty("Name") String name,
     @JsonProperty("StartDate") String startDate,

@@ -97,7 +97,11 @@ public class McpServer {
                     contentItem.put("text", output);
                 } catch (Exception e) {
                     result.put("isError", true);
-                    contentItem.put("text", "Tool execution failed: " + e.getMessage());
+                    String errorMsg = "Tool execution failed: " + e.getMessage();
+                    if (e.getCause() != null) {
+                        errorMsg += " (Cause: " + e.getCause().getMessage() + ")";
+                    }
+                    contentItem.put("text", errorMsg);
                 }
             }
             sendResponse(idNode, result, null);

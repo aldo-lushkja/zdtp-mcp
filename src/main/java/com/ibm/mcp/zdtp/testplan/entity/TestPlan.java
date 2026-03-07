@@ -6,6 +6,7 @@ import com.ibm.mcp.zdtp.shared.entity.Owner;
 import com.ibm.mcp.zdtp.shared.entity.Project;
 
 public record TestPlan(
+    @JsonProperty("ResourceType") String resourceType,
     @JsonProperty("Id") Integer id,
     @JsonProperty("Name") String name,
     @JsonProperty("Description") String description,

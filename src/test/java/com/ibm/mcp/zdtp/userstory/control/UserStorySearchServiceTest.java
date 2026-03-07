@@ -37,10 +37,13 @@ class UserStorySearchServiceTest {
     // 1736899200000 ms epoch = 2025-01-15T00:00:00Z
     // 1739577600000 ms epoch = 2025-02-15T00:00:00Z
     private static final String STORY_RESPONSE = """
-            {"Items":[{"Id":42,"Name":"My Story","Project":{"Id":1,"Name":"consumer_loyalty"},
-            "EntityState":{"Id":10,"Name":"Open"},"CreateDate":"\\/Date(1736899200000+0000)\\/",
+            {"Items":[{"ResourceType":"UserStory","Id":42,"Name":"My Story",
+            "Project":{"ResourceType":"Project","Id":1,"Name":"consumer_loyalty"},
+            "EntityState":{"ResourceType":"EntityState","Id":10,"Name":"Open"},
+            "CreateDate":"\\/Date(1736899200000+0000)\\/",
             "EndDate":"\\/Date(1739577600000+0000)\\/","Effort":5.0,
-            "Owner":{"Id":5,"Login":"aldo.lushkja"},"AssignedUser":{"Id":6,"Login":"john.doe"}}]}
+            "Owner":{"ResourceType":"GeneralUser","Id":5,"Login":"aldo.lushkja"},
+            "AssignedUser":{"Items":[{"ResourceType":"User","Id":6,"Login":"john.doe"}]}}]}
             """;
 
     @Mock

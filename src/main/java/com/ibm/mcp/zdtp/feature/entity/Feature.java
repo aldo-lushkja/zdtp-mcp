@@ -7,6 +7,7 @@ import com.ibm.mcp.zdtp.shared.entity.Project;
 import com.ibm.mcp.zdtp.shared.entity.SprintReference;
 
 public record Feature(
+    @JsonProperty("ResourceType") String resourceType,
     @JsonProperty("Id") Integer id,
     @JsonProperty("Name") String name,
     @JsonProperty("Description") String description,

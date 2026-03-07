@@ -8,6 +8,7 @@ import com.ibm.mcp.zdtp.shared.entity.Project;
 import java.util.List;
 
 public record TestCase(
+    @JsonProperty("ResourceType") String resourceType,
     @JsonProperty("Id") Integer id,
     @JsonProperty("Name") String name,
     @JsonProperty("Description") String description,
@@ -18,11 +19,13 @@ public record TestCase(
     @JsonProperty("TestPlans") TestPlanCollection testPlans
 ) {
     public record TestPlanRef(
+        @JsonProperty("ResourceType") String resourceType,
         @JsonProperty("Id") Integer id,
         @JsonProperty("Name") String name
     ) {}
 
     public record TestPlanCollection(
+        @JsonProperty("ResourceType") String resourceType,
         @JsonProperty("Items") List<TestPlanRef> items
     ) {}
 }

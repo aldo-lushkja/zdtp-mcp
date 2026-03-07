@@ -1,4 +1,8 @@
 package com.ibm.mcp.zdtp.shared.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-public record Project(@JsonProperty("Id") Integer id, @JsonProperty("Name") String name) {}
+public record Project(
+    @JsonProperty("ResourceType") String resourceType,
+    @JsonProperty("Id") Integer id,
+    @JsonProperty("Name") String name
+) {}

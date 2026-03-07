@@ -39,6 +39,8 @@ public class TargetProcessHttpClient {
         try {
             return objectMapper.readValue(body, ref);
         } catch (Exception e) {
+            System.err.println("Error parsing body: " + body);
+            e.printStackTrace();
             throw new TargetProcessClientException("Failed to parse Targetprocess response", e);
         }
     }

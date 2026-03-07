@@ -36,9 +36,9 @@ class ProjectSearchServiceTest {
     private static final String EMPTY_RESPONSE = "{\"Items\":[]}";
     // 1736899200000 ms epoch = 2025-01-15T00:00:00Z
     private static final String PROJECT_RESPONSE = """
-            {"Items":[{"Id":42,"Name":"satispay_plus",
+            {"Items":[{"ResourceType":"Project","Id":42,"Name":"satispay_plus",
             "Description":"Plus project",
-            "EntityState":{"Id":1,"Name":"Active"},
+            "EntityState":{"ResourceType":"EntityState","Id":1,"Name":"Active"},
             "CreateDate":"\\/Date(1736899200000+0000)\\/"}]}
             """;
 

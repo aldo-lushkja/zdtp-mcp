@@ -12,6 +12,8 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import com.ibm.mcp.zdtp.shared.entity.TargetProcessItems;
+
 public class UserStoryConverter {
 
     private static final Pattern TP_DATE = Pattern.compile("/Date\\((\\d+)[+-]\\d{4}\\)/");
@@ -58,6 +60,10 @@ public class UserStoryConverter {
     }
 
     private String extractAssigneeLogin(UserStory story) {
-        return Optional.ofNullable(story.assignedUser()).map(Owner::login).orElse(null);
+        return Optional.ofNullable(story.assignedUser())
+                .map(TargetProcessItems::items)
+                .flatMap(items -> items.stream().findFirst())
+                .map(Owner::login)
+                .orElse(null);
     }
 }

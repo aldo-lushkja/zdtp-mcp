@@ -7,7 +7,10 @@ import com.ibm.mcp.zdtp.shared.entity.Project;
 import com.ibm.mcp.zdtp.shared.entity.ReleaseReference;
 import com.ibm.mcp.zdtp.shared.entity.SprintReference;
 
+import com.ibm.mcp.zdtp.shared.entity.TargetProcessItems;
+
 public record UserStory(
+    @JsonProperty("ResourceType") String resourceType,
     @JsonProperty("Id") Integer id,
     @JsonProperty("Name") String name,
     @JsonProperty("Description") String description,
@@ -17,7 +20,7 @@ public record UserStory(
     @JsonProperty("EndDate") String endDate,
     @JsonProperty("Effort") Double effort,
     @JsonProperty("Owner") Owner owner,
-    @JsonProperty("AssignedUser") Owner assignedUser,
+    @JsonProperty("AssignedUser") TargetProcessItems<Owner> assignedUser,
     @JsonProperty("Release") ReleaseReference release,
     @JsonProperty("TeamIteration") SprintReference sprint
 ) {}
