@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  zdtp-mcp:
+    build: .
+    image: zdtp-mcp:local
+    environment:
+      - TARGETPROCESS_URL=${TARGETPROCESS_URL}
+      - TARGETPROCESS_TOKEN=${TARGETPROCESS_TOKEN}

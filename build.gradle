@@ -2,11 +2,11 @@ plugins {
     id 'java'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'org.graalvm.buildtools.native' version '0.10.4'
 }
 
 group = 'com.ibm.mcp.zdtp'
-version = '0.0.2-SNAPSHOT'
-
+version = '1.0.0'
 
 application {
     mainClass = 'com.ibm.mcp.zdtp.ZdtpMcpApplication'
@@ -42,12 +42,25 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << '-parameters'
 }
 
+graalvmNative {
+    binaries {
+        main {
+            imageName = 'zdtp-mcp'
+            mainClass = 'com.ibm.mcp.zdtp.ZdtpMcpApplication'
+            buildArgs.add('--no-fallback')
+            buildArgs.add('--report-unsupported-elements-at-runtime')
+        }
+    }
+}
+
 tasks.named('jar') {
-    enabled = false
+    manifest {
+        attributes 'Main-Class': 'com.ibm.mcp.zdtp.ZdtpMcpApplication'
+    }
 }
 
 tasks.named('shadowJar') {
-    archiveFileName.set('zdtp-mcp.jar')
+    archiveClassifier.set('all')
     mergeServiceFiles()
 }
 
