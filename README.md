@@ -1,4 +1,4 @@
-# 🎯 Zero Dependency Targetprocess MCP Server (v1.0.0)
+# <img src="https://raw.githubusercontent.com/aalmiray/duke-superman/master/duke-superman.png" width="48" height="48" /> <img src="https://raw.githubusercontent.com/Apptio/targetprocess-mcp/main/docs/tp-logo.png" width="48" height="48" /> Zero Dependency Targetprocess MCP Server (v1.0.0)
 
 A lightweight Java application implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) to expose Targetprocess data to AI assistants. This version is refactored for **zero external framework dependencies**, using standard Java libraries for HTTP, I/O, and logging.
 
