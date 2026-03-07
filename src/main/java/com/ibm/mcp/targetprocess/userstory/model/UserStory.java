@@ -19,5 +19,5 @@ public record UserStory(
     @JsonProperty("Owner") Owner owner,
     @JsonProperty("AssignedUser") Owner assignedUser,
     @JsonProperty("Release") ReleaseReference release,
-    @JsonProperty("Sprint") SprintReference sprint
+    @JsonProperty("TeamIteration") SprintReference sprint
 ) {}

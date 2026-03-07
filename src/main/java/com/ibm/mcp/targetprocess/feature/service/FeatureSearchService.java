@@ -82,7 +82,7 @@ public class FeatureSearchService {
     }
 
     private String assembleUrl(String where, int take) {
-        String include = "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],Sprint[Id,Name]]";
+        String include = "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],TeamIteration[Id,Name]]";
         return properties.baseUrl() + "/api/v1/Features"
                 + "?where=" + UriUtils.encodeQueryParam(where, StandardCharsets.UTF_8)
                 + "&include=" + UriUtils.encodeQueryParam(include, StandardCharsets.UTF_8)

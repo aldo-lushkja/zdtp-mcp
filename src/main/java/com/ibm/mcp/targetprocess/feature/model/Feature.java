@@ -16,5 +16,5 @@ public record Feature(
     @JsonProperty("EndDate") String endDate,
     @JsonProperty("Effort") Double effort,
     @JsonProperty("Owner") Owner owner,
-    @JsonProperty("Sprint") SprintReference sprint
+    @JsonProperty("TeamIteration") SprintReference sprint
 ) {}

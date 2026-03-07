@@ -78,17 +78,17 @@ public class UserStorySearchService {
         if (endDate != null && !endDate.isBlank()) {
             conditions.add("CreateDate lt '%s'".formatted(endDate));
         }
-        if (releaseId != null) {
+        if (releaseId != null && releaseId > 0) {
             conditions.add("Release.Id eq %d".formatted(releaseId));
         }
-        if (teamIterationId != null) {
+        if (teamIterationId != null && teamIterationId > 0) {
             conditions.add("TeamIteration.Id eq %d".formatted(teamIterationId));
         }
         return conditions;
     }
 
     private String assembleUrl(String where, int take) {
-        String include = "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],AssignedUser[Id,Login],Release[Id,Name],Sprint[Id,Name]]";
+        String include = "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],AssignedUser[Id,Login],Release[Id,Name],TeamIteration[Id,Name]]";
         return properties.baseUrl() + "/api/v1/UserStories"
                 + "?where=" + UriUtils.encodeQueryParam(where, StandardCharsets.UTF_8)
                 + "&include=" + UriUtils.encodeQueryParam(include, StandardCharsets.UTF_8)
