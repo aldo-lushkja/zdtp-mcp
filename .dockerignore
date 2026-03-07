@@ -1,0 +1,36 @@
+# Source Control
+.git
+.gitignore
+.github
+
+# Build Artifacts
+build/
+bin/
+.gradle/
+*.jar
+
+# IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Documentation
+docs/
+README.md
+LICENSE
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
