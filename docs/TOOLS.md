@@ -1,0 +1,85 @@
+# 🛠️ Available Tools Reference
+
+This document provides a detailed reference for all tools exposed by the Targetprocess MCP server.
+
+## 📖 User Stories
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `user_story_search` | Search for user stories. | `nameQuery`, `projectName`, `creatorLogin`, `startDate`, `endDate`, `releaseId`, `sprintId`, `take` (default: 10) |
+| `user_story_create` | Create a new user story. | `name`*, `projectId`*, `description`, `effort` |
+| `user_story_update` | Update an existing user story. | `id`*, `name`, `description`, `stateName`, `effort` |
+| `user_story_get` | Get user story details. | `id`* |
+| `user_story_delete` | Delete a user story. | `id`* |
+
+## 🏔️ Epics
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `epic_search` | Search for epics. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` (default: 10) |
+| `epic_create` | Create a new epic. | `name`*, `projectId`*, `description`, `effort` |
+| `epic_update` | Update an existing epic. | `id`*, `name`, `description`, `stateName`, `effort` |
+| `epic_get` | Get epic details. | `id`* |
+
+## ✨ Features
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `feature_search` | Search for features. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` (default: 10), `sprintId` |
+| `feature_create` | Create a new feature. | `name`*, `projectId`*, `description`, `effort` |
+| `feature_update` | Update an existing feature. | `id`*, `name`, `description`, `stateName`, `effort` |
+| `feature_get` | Get feature details. | `id`* |
+
+## 🚀 Releases
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `release_search` | Search for releases. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` (default: 10), `teamIterationId` |
+| `release_create` | Create a new release. | `name`*, `projectId`*, `description`, `effort` |
+| `release_update` | Update an existing release. | `id`*, `name`, `description`, `stateName`, `effort` |
+| `release_get` | Get release details. | `id`* |
+
+## 📬 Requests
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `request_search` | Search for requests. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` (default: 10) |
+| `request_create` | Create a new request. | `name`*, `projectId`*, `description`, `effort` |
+| `request_update` | Update an existing request. | `id`*, `name`, `description`, `stateName`, `effort` |
+| `request_get` | Get request details. | `id`* |
+
+## 🧪 Quality Assurance (Test Plans & Cases)
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `test_plan_search` | Search for test plans. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` (default: 10) |
+| `test_plan_create` | Create a new test plan. | `name`*, `projectId`*, `description` |
+| `test_plan_update` | Update an existing test plan. | `id`*, `name`, `description`, `stateName` |
+| `test_plan_get` | Get test plan details. | `id`* |
+| `test_plan_delete` | Delete a test plan. | `id`* |
+| `test_case_search` | Search for test cases. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` (default: 10) |
+| `test_case_create` | Create a new test case. | `name`*, `projectId`*, `description`, `testPlanId` |
+| `test_case_update` | Update an existing test case. | `id`*, `name`, `description`, `stateName` |
+| `test_case_get` | Get test case details. | `id`* |
+| `test_case_delete` | Delete a test case. | `id`* |
+| `test_step_create` | Add a step to a test case. | `testCaseId`*, `description`*, `expectedResult`, `runOrder` |
+| `test_step_delete` | Delete a test step. | `id`* |
+
+## 👥 Teams & 🔄 Sprints
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `team_search` | Search for teams. | `nameQuery`, `take` (default: 10) |
+| `team_get` | Get team details. | `id`* |
+| `team_iteration_search` | Search for team iterations (sprints). | `nameQuery`, `teamId`, `teamName`, `startDate`, `endDate`, `take` (default: 10) |
+| `team_iteration_get` | Get sprint details. | `id`* |
+
+## 📁 Projects
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `project_search` | Search for projects. | `nameQuery`, `startDate`, `endDate`, `take` (default: 10) |
+
+`*` denotes a required parameter.
+
+---
+
+### 📝 Description Format Note
+When creating or updating entities (User Stories, Bugs, Features, etc.), the `description` field always accepts **HTML format**. 
+Standard HTML tags like `<h2>`, `<p>`, `<ul>`, `<li>`, and `<strong>` are supported. 
+
+#### Mermaid Diagrams
+To embed a Mermaid diagram in a description, base64-encode the Mermaid definition and use an image tag:
+`<img src="https://mermaid.ink/img/<base64_string>" />`
