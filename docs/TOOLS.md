@@ -76,9 +76,15 @@ This document provides a detailed reference for all tools exposed by the Targetp
 
 ---
 
-### 📝 Description Format Note
-When creating or updating entities (User Stories, Bugs, Features, etc.), the `description` field always accepts **HTML format**. 
-Standard HTML tags like `<h2>`, `<p>`, `<ul>`, `<li>`, and `<strong>` are supported. 
+### 📝 Description Format Support
+When creating or updating entities (User Stories, bugs, Features, etc.), the `description` and `expectedResult` fields support both **Markdown** and **HTML**.
+
+- **Markdown**: Standard Markdown syntax is automatically converted to HTML before being sent to Targetprocess.
+- **HTML**: If the content starts and ends with HTML tags (e.g., `<div>...</div>`), it will be treated as raw HTML and passed through without conversion.
+
+#### Examples
+- Markdown: `**Bold text** and [links](http://example.com)` -> `<strong>Bold text</strong> and <a href="...">links</a>`
+- HTML: `<p>Simple paragraph</p>` -> passed as is.
 
 #### Mermaid Diagrams
 To embed a Mermaid diagram in a description, base64-encode the Mermaid definition and use an image tag:

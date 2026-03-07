@@ -25,7 +25,7 @@ public class UserStoryUpdateService extends BaseService {
             body.put("Name", name);
         }
         if (description != null) {
-            body.put("Description", description);
+            body.put("Description", convertMarkdown(description));
         }
         if (stateName != null && !stateName.isBlank()) {
             body.put("EntityState", Map.of("Name", stateName));
@@ -37,3 +37,4 @@ public class UserStoryUpdateService extends BaseService {
         return engine.update(QueryEngine.USER_STORY, id, body, converter::toDto, UserStory.class);
     }
 }
+

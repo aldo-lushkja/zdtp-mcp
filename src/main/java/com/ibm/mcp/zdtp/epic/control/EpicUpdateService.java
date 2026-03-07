@@ -21,7 +21,7 @@ public class EpicUpdateService extends BaseService {
             bodyMap.put("Name", name);
         }
         if (description != null) {
-            bodyMap.put("Description", description);
+            bodyMap.put("Description", convertMarkdown(description));
         }
         if (stateName != null && !stateName.isBlank()) {
             bodyMap.put("EntityState", Map.of("Name", stateName));
@@ -33,3 +33,4 @@ public class EpicUpdateService extends BaseService {
         return engine.update(QueryEngine.EPIC, id, bodyMap, converter::toDto, Epic.class);
     }
 }
+

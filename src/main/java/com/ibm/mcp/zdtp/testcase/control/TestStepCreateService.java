@@ -21,9 +21,9 @@ public class TestStepCreateService extends BaseService {
     public TestStepDto create(int testCaseId, String description, String expectedResult, Integer runOrder) {
         Map<String, Object> bodyMap = new LinkedHashMap<>();
         bodyMap.put("TestCase", Map.of("Id", testCaseId));
-        bodyMap.put("Description", description);
+        bodyMap.put("Description", convertMarkdown(description));
         if (expectedResult != null) {
-            bodyMap.put("Result", expectedResult);
+            bodyMap.put("Result", convertMarkdown(expectedResult));
         }
         if (runOrder != null) {
             bodyMap.put("RunOrder", runOrder);
@@ -32,4 +32,5 @@ public class TestStepCreateService extends BaseService {
         return engine.create(QueryEngine.TEST_STEP, bodyMap, converter::toDto, TestStep.class);
     }
 }
+
 

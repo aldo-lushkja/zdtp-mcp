@@ -1,16 +1,16 @@
-# ♊ Targetprocess MCP Server - Gemini Instructions
+# ♊ Lightweight Targetprocess MCP Server - Gemini Instructions
 
 This document provides instructional context for Gemini CLI when working within the Targetprocess MCP project.
 
 ## 🚀 Project Overview
-The **Targetprocess MCP Server** is a lightweight Java application that implements the [Model Context Protocol (MCP)](https://modelcontextprotocol.io). It acts as a bridge between AI assistants and the Targetprocess API, exposing project management data (User Stories, Tasks, Test Cases, etc.) as actionable tools.
+The **Lightweight Targetprocess MCP Server** is a high-performance Java application that implements the [Model Context Protocol (MCP)](https://modelcontextprotocol.io). It acts as a bridge between AI assistants and the Targetprocess API, exposing project management data (User Stories, Tasks, Test Cases, etc.) as actionable tools.
 
 ### 🛠️ Tech Stack
 - **Language**: Java 21
 - **Build System**: Gradle 8.x
-- **Main Dependencies**: Jackson (JSON), Standard Java HTTP Client.
+- **Main Dependencies**: Jackson (JSON), Commonmark (Markdown), Standard Java HTTP Client.
 - **Architecture**: **Boundary-Control-Entity (BCE)** pattern.
-- **Key Features**: Zero-framework dependency (except for Jackson), standard multi-stage Docker build, automated GitHub Actions deployment.
+- **Key Features**: Zero-framework policy (No Spring/Heavy frameworks), standard multi-stage Docker build, automated GitHub Actions deployment.
 
 ## 🔨 Building and Running
 

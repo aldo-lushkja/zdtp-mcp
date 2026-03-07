@@ -25,7 +25,7 @@ public class UserStoryCreateService extends BaseService {
         body.put("Project", Map.of("Id", projectId));
         
         if (description != null && !description.isBlank()) {
-            body.put("Description", description);
+            body.put("Description", convertMarkdown(description));
         }
         
         if (effort != null) {
@@ -35,3 +35,4 @@ public class UserStoryCreateService extends BaseService {
         return engine.create(QueryEngine.USER_STORY, body, converter::toDto, UserStory.class);
     }
 }
+

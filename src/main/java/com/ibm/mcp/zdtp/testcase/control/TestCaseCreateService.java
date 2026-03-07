@@ -28,7 +28,7 @@ public class TestCaseCreateService extends BaseService {
         bodyMap.put("Project", Map.of("Id", projectId));
         
         if (description != null && !description.isBlank()) {
-            bodyMap.put("Description", description);
+            bodyMap.put("Description", convertMarkdown(description));
         }
         
         if (testPlanId != null) {
@@ -38,4 +38,5 @@ public class TestCaseCreateService extends BaseService {
         return engine.create(QueryEngine.TEST_CASE, bodyMap, converter::toDto, TestCase.class);
     }
 }
+
 

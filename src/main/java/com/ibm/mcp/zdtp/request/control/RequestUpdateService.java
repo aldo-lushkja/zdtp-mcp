@@ -28,7 +28,7 @@ public class RequestUpdateService extends BaseService {
             bodyMap.put("Name", name);
         }
         if (description != null) {
-            bodyMap.put("Description", description);
+            bodyMap.put("Description", convertMarkdown(description));
         }
         if (stateName != null && !stateName.isBlank()) {
             bodyMap.put("EntityState", Map.of("Name", stateName));
@@ -40,4 +40,5 @@ public class RequestUpdateService extends BaseService {
         return engine.update(QueryEngine.REQUEST, id, bodyMap, converter::toDto, Request.class);
     }
 }
+
 
