@@ -1,6 +1,7 @@
 package com.ibm.mcp.targetprocess.config;
 
 import com.ibm.mcp.targetprocess.feature.controller.FeatureMcpTools;
+import com.ibm.mcp.targetprocess.testplan.controller.TestPlanMcpTools;
 import com.ibm.mcp.targetprocess.userstory.controller.UserStoryMcpTools;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.ai.tool.ToolCallbackProvider;
@@ -22,9 +23,10 @@ public class TargetProcessConfig {
 
     @Bean
     public ToolCallbackProvider targetprocessTools(UserStoryMcpTools userStoryMcpTools,
-                                                   FeatureMcpTools featureMcpTools) {
+                                                   FeatureMcpTools featureMcpTools,
+                                                   TestPlanMcpTools testPlanMcpTools) {
         return MethodToolCallbackProvider.builder()
-                .toolObjects(userStoryMcpTools, featureMcpTools)
+                .toolObjects(userStoryMcpTools, featureMcpTools, testPlanMcpTools)
                 .build();
     }
 }
