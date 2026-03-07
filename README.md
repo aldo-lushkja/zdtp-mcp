@@ -9,15 +9,19 @@ A lightweight Java application implementing the [Model Context Protocol (MCP)](h
 ### ♊ Gemini CLI
 
 ```bash
-gemini mcp add zdtp java -jar "/path/to/zdtp-mcp-1.0.0-all.jar" \
-  -e TARGETPROCESS_BASE_URL="https://youraccount.tpondemand.com" \
-  -e TARGETPROCESS_ACCESS_TOKEN="your_token"
+gemini mcp add zdtp docker run -i --rm \
+  -e TP_URL="https://youraccount.tpondemand.com" \
+  -e TP_TOKEN="your_token" \
+  ghcr.io/owner/zdtp-mcp:latest
 ```
 
 ### 🔌 Claude Code CLI
 
 ```bash
-claude mcp add zdtp -- java -jar "/path/to/zdtp-mcp-1.0.0-all.jar"
+claude mcp add zdtp -- docker run -i --rm \
+  -e TP_URL="https://youraccount.tpondemand.com" \
+  -e TP_TOKEN="your_token" \
+  ghcr.io/owner/zdtp-mcp:latest
 ```
 
 ---
@@ -28,8 +32,8 @@ Set the following environment variables:
 
 | Variable | Description |
 | --- | --- |
-| `TARGETPROCESS_BASE_URL` | Your Targetprocess instance URL (e.g., `https://youraccount.tpondemand.com`) |
-| `TARGETPROCESS_ACCESS_TOKEN` | Your API token (Profile → Settings → API Access Tokens) |
+| `TP_URL` | Your Targetprocess instance URL (e.g., `https://youraccount.tpondemand.com`) |
+| `TP_TOKEN` | Your API token (Profile → Settings → API Access Tokens) |
 
 ---
 
