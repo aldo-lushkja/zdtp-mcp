@@ -1,12 +1,12 @@
-package com.ibm.mcp.targetprocess.feature.service;
+package com.ibm.mcp.targetprocess.sprint.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.ibm.mcp.targetprocess.config.TargetProcessProperties;
-import com.ibm.mcp.targetprocess.feature.converter.FeatureConverter;
-import com.ibm.mcp.targetprocess.feature.dto.FeatureDto;
-import com.ibm.mcp.targetprocess.feature.model.Feature;
 import com.ibm.mcp.targetprocess.shared.client.TargetProcessHttpClient;
 import com.ibm.mcp.targetprocess.shared.model.TargetProcessResponse;
+import com.ibm.mcp.targetprocess.sprint.converter.SprintConverter;
+import com.ibm.mcp.targetprocess.sprint.dto.SprintDto;
+import com.ibm.mcp.targetprocess.sprint.model.Sprint;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
 
@@ -16,15 +16,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FeatureSearchService {
+public class SprintSearchService {
 
     private final TargetProcessProperties properties;
     private final TargetProcessHttpClient httpClient;
-    private final FeatureConverter converter;
+    private final SprintConverter converter;
 
-    public FeatureSearchService(TargetProcessProperties properties,
-                                TargetProcessHttpClient httpClient,
-                                FeatureConverter converter) {
+    public SprintSearchService(TargetProcessProperties properties,
+                               TargetProcessHttpClient httpClient,
+                               SprintConverter converter) {
         this.properties = properties;
         this.httpClient = httpClient;
         this.converter = converter;
@@ -32,12 +32,12 @@ public class FeatureSearchService {
 
     // ── Public API ─────────────────────────────────────────────────────────────
 
-    public List<FeatureDto> searchFeatures(String nameQuery, String projectName,
-                                           String ownerLogin, String startDate,
-                                           String endDate, int take, Integer teamIterationId) {
-        String url = buildUrl(nameQuery, projectName, ownerLogin, startDate, endDate, take, teamIterationId);
+    public List<SprintDto> searchSprints(String nameQuery, String projectName,
+                                         String ownerLogin, String startDate,
+                                         String endDate, int take) {
+        String url = buildUrl(nameQuery, projectName, ownerLogin, startDate, endDate, take);
         String body = httpClient.fetch(url);
-        TargetProcessResponse<Feature> resp = httpClient.parse(body, new TypeReference<>() {});
+        TargetProcessResponse<Sprint> resp = httpClient.parse(body, new TypeReference<>() {});
         return Optional.ofNullable(resp.items()).orElse(List.of())
                 .stream().map(converter::toDto).toList();
     }
@@ -45,20 +45,7 @@ public class FeatureSearchService {
     // ── URL building ────────────────────────────────────────────────────────────
 
     private String buildUrl(String nameQuery, String projectName,
-                            String ownerLogin, String startDate, String endDate, int take, Integer teamIterationId) {
-        String where = buildWhere(nameQuery, projectName, ownerLogin, startDate, endDate, teamIterationId);
-        return assembleUrl(where, take);
-    }
-
-    private String buildWhere(String nameQuery, String projectName,
-                              String ownerLogin, String startDate, String endDate, Integer teamIterationId) {
-        List<String> conditions = collectConditions(nameQuery, projectName, ownerLogin, startDate, endDate, teamIterationId);
-        return String.join(" and ", conditions);
-    }
-
-    private List<String> collectConditions(String nameQuery, String projectName,
-                                           String ownerLogin, String startDate, String endDate,
-                                           Integer teamIterationId) {
+                            String ownerLogin, String startDate, String endDate, int take) {
         List<String> conditions = new ArrayList<>();
         if (nameQuery != null && !nameQuery.isBlank()) {
             conditions.add("Name contains '%s'".formatted(nameQuery));
@@ -75,15 +62,9 @@ public class FeatureSearchService {
         if (endDate != null && !endDate.isBlank()) {
             conditions.add("CreateDate lt '%s'".formatted(endDate));
         }
-        if (teamIterationId != null) {
-            conditions.add("TeamIteration.Id eq %d".formatted(teamIterationId));
-        }
-        return conditions;
-    }
-
-    private String assembleUrl(String where, int take) {
-        String include = "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],Sprint[Id,Name]]";
-        return properties.baseUrl() + "/api/v1/Features"
+        String where = String.join(" and ", conditions);
+        String include = "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,StartDate,EndDate,Owner[Id,Login]]";
+        return properties.baseUrl() + "/api/v1/Sprints"
                 + "?where=" + UriUtils.encodeQueryParam(where, StandardCharsets.UTF_8)
                 + "&include=" + UriUtils.encodeQueryParam(include, StandardCharsets.UTF_8)
                 + "&orderByDesc=CreateDate"

@@ -65,7 +65,7 @@ class FeatureSearchServiceTest {
     void noFilters_producesEmptyWhereClause() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchFeatures("", "", "", "", "", 10);
+        service.searchFeatures("", "", "", "", "", 10, null);
 
         String url = captureDecodedUrl();
         assertThat(url).contains("/api/v1/Features");
@@ -76,7 +76,7 @@ class FeatureSearchServiceTest {
     void nameFilter_producesNameContainsCondition() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchFeatures("insurance", "", "", "", "", 10);
+        service.searchFeatures("insurance", "", "", "", "", 10, null);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("Name contains 'insurance'");
@@ -86,7 +86,7 @@ class FeatureSearchServiceTest {
     void projectFilter_producesProjectNameContainsCondition() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchFeatures("", "satispay_plus", "", "", "", 10);
+        service.searchFeatures("", "satispay_plus", "", "", "", 10, null);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("Project.Name contains 'satispay_plus'");
@@ -96,7 +96,7 @@ class FeatureSearchServiceTest {
     void ownerLoginFilter_usesOwnerLoginProperty() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchFeatures("", "", "aldo.lushkja@satispay.com", "", "", 10);
+        service.searchFeatures("", "", "aldo.lushkja@satispay.com", "", "", 10, null);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("Owner.Login eq 'aldo.lushkja@satispay.com'");
@@ -106,7 +106,7 @@ class FeatureSearchServiceTest {
     void startDateFilter_usesGteOperator() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchFeatures("", "", "", "2026-01-01", "", 10);
+        service.searchFeatures("", "", "", "2026-01-01", "", 10, null);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("CreateDate gte '2026-01-01'");
@@ -116,7 +116,7 @@ class FeatureSearchServiceTest {
     void endDateFilter_usesLtOperator() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchFeatures("", "", "", "", "2026-12-31", 10);
+        service.searchFeatures("", "", "", "", "2026-12-31", 10, null);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("CreateDate lt '2026-12-31'");
@@ -126,7 +126,7 @@ class FeatureSearchServiceTest {
     void allFilters_combinedWithAnd() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchFeatures("insurance", "satispay_plus", "aldo.lushkja@satispay.com", "2026-01-01", "2026-12-31", 10);
+        service.searchFeatures("insurance", "satispay_plus", "aldo.lushkja@satispay.com", "2026-01-01", "2026-12-31", 10, null);
 
         String where = urlParam(captureDecodedUrl(), "where");
         assertThat(where)
@@ -142,7 +142,7 @@ class FeatureSearchServiceTest {
     void takeParameter_isIncludedInUrl() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchFeatures("", "", "", "", "", 25);
+        service.searchFeatures("", "", "", "", "", 25, null);
 
         assertThat(captureDecodedUrl()).contains("take=25");
     }
@@ -153,7 +153,7 @@ class FeatureSearchServiceTest {
     void emptyItemsArray_returnsEmptyList() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        List<FeatureDto> result = service.searchFeatures("", "", "", "", "", 10);
+        List<FeatureDto> result = service.searchFeatures("", "", "", "", "", 10, null);
 
         assertThat(result).isEmpty();
     }
@@ -162,7 +162,7 @@ class FeatureSearchServiceTest {
     void validResponse_mapsFieldsCorrectly() throws Exception {
         givenApiReturns(FEATURE_RESPONSE);
 
-        List<FeatureDto> result = service.searchFeatures("", "", "", "", "", 10);
+        List<FeatureDto> result = service.searchFeatures("", "", "", "", "", 10, null);
 
         assertThat(result).hasSize(1);
         FeatureDto feature = result.get(0);
@@ -182,8 +182,30 @@ class FeatureSearchServiceTest {
         when(httpResponse.body()).thenReturn("{\"Message\":\"Bad Request\"}");
         doReturn(httpResponse).when(httpClient).send(any(), any());
 
-        assertThatThrownBy(() -> service.searchFeatures("", "", "", "", "", 10))
+        assertThatThrownBy(() -> service.searchFeatures("", "", "", "", "", 10, null))
                 .isInstanceOf(TargetProcessApiException.class);
+    }
+
+    // ── Team iteration filter tests ──────────────────────────────────────────────
+
+    @Test
+    void teamIterationIdFilter_addsTeamIterationIdEqCondition() throws Exception {
+        givenApiReturns(EMPTY_RESPONSE);
+
+        service.searchFeatures("", "", "", "", "", 10, 213616);
+
+        assertThat(urlParam(captureDecodedUrl(), "where"))
+                .contains("TeamIteration.Id eq 213616");
+    }
+
+    @Test
+    void teamIterationIdFilter_nullValue_noCondition() throws Exception {
+        givenApiReturns(EMPTY_RESPONSE);
+
+        service.searchFeatures("", "", "", "", "", 10, null);
+
+        assertThat(urlParam(captureDecodedUrl(), "where"))
+                .doesNotContain("TeamIteration.Id");
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────────

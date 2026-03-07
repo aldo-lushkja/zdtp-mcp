@@ -31,12 +31,13 @@ public class FeatureMcpTools {
     @Tool(description = """
             Search for features in Targetprocess. \
             Supports filtering by feature name, project name, owner login, \
-            and creation date range (YYYY-MM-DD). Results are ordered by creation date descending.""")
+            creation date range (YYYY-MM-DD), and sprintId (numeric team iteration ID). \
+            Results are ordered by creation date descending.""")
     public String searchFeatures(String nameQuery, String projectName,
                                  String ownerLogin, String startDate,
-                                 String endDate, int take) {
+                                 String endDate, int take, Integer sprintId) {
         List<FeatureDto> features = featureSearchService.searchFeatures(
-                nameQuery, projectName, ownerLogin, startDate, endDate, take);
+                nameQuery, projectName, ownerLogin, startDate, endDate, take, sprintId);
 
         if (features.isEmpty()) {
             return "No features found.";
@@ -78,13 +79,14 @@ public class FeatureMcpTools {
     }
 
     private String format(FeatureDto f) {
-        return "[%d] %s (Project: %s, State: %s, Owner: %s, Points: %s, Created: %s, Done: %s)"
+        return "[%d] %s (Project: %s, State: %s, Owner: %s, Points: %s, Created: %s, Done: %s, Sprint: %s)"
             .formatted(
                 f.id(), f.name(),
                 nullSafe(f.projectName()), nullSafe(f.state()),
                 nullSafe(f.ownerLogin()),
                 f.effort() != null ? f.effort().toString() : "N/A",
-                nullSafe(f.createdAt()), nullSafe(f.endDate())
+                nullSafe(f.createdAt()), nullSafe(f.endDate()),
+                f.sprintName() != null ? f.sprintId() + " " + f.sprintName() : "N/A"
             );
     }
 

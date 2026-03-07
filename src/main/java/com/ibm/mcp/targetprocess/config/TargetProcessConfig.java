@@ -4,7 +4,10 @@ import com.ibm.mcp.targetprocess.epic.controller.EpicMcpTools;
 import com.ibm.mcp.targetprocess.feature.controller.FeatureMcpTools;
 import com.ibm.mcp.targetprocess.project.controller.ProjectMcpTools;
 import com.ibm.mcp.targetprocess.release.controller.ReleaseMcpTools;
+import com.ibm.mcp.targetprocess.sprint.controller.SprintMcpTools;
 import com.ibm.mcp.targetprocess.request.controller.RequestMcpTools;
+import com.ibm.mcp.targetprocess.team.controller.TeamMcpTools;
+import com.ibm.mcp.targetprocess.teamiteration.controller.TeamIterationMcpTools;
 import com.ibm.mcp.targetprocess.testcase.controller.TestCaseMcpTools;
 import com.ibm.mcp.targetprocess.testplan.controller.TestPlanMcpTools;
 import com.ibm.mcp.targetprocess.userstory.controller.UserStoryMcpTools;
@@ -34,9 +37,12 @@ public class TargetProcessConfig {
                                                    RequestMcpTools requestMcpTools,
                                                    ProjectMcpTools projectMcpTools,
                                                    TestCaseMcpTools testCaseMcpTools,
-                                                   ReleaseMcpTools releaseMcpTools) {
+                                                   ReleaseMcpTools releaseMcpTools,
+                                                   SprintMcpTools sprintMcpTools,
+                                                   TeamMcpTools teamMcpTools,
+                                                   TeamIterationMcpTools teamIterationMcpTools) {
         return MethodToolCallbackProvider.builder()
-                .toolObjects(userStoryMcpTools, featureMcpTools, epicMcpTools, testPlanMcpTools, requestMcpTools, projectMcpTools, testCaseMcpTools, releaseMcpTools)
+                .toolObjects(userStoryMcpTools, featureMcpTools, epicMcpTools, testPlanMcpTools, requestMcpTools, projectMcpTools, testCaseMcpTools, releaseMcpTools, sprintMcpTools, teamMcpTools, teamIterationMcpTools)
                 .build();
     }
 }

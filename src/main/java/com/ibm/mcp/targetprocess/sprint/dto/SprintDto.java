@@ -1,18 +1,16 @@
-package com.ibm.mcp.targetprocess.feature.dto;
+package com.ibm.mcp.targetprocess.sprint.dto;
 
 import lombok.Builder;
 
 @Builder
-public record FeatureDto(
+public record SprintDto(
     int id,
     String name,
     String description,
     String projectName,
     String state,
     String ownerLogin,
-    Double effort,
     String createdAt,
-    String endDate,
-    Integer sprintId,
-    String sprintName
+    String startDate,
+    String endDate
 ) {}

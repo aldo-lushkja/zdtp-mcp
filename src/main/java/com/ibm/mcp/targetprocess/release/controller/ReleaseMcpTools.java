@@ -31,12 +31,13 @@ public class ReleaseMcpTools {
     @Tool(description = """
             Search for releases in Targetprocess. \
             Supports filtering by release name, project name, owner login, \
-            and creation date range (YYYY-MM-DD). Results are ordered by creation date descending.""")
+            start date range (YYYY-MM-DD), and teamIterationId (numeric team iteration ID). \
+            Results are ordered by creation date descending.""")
     public String searchReleases(String nameQuery, String projectName,
                                  String ownerLogin, String startDate,
-                                 String endDate, int take) {
+                                 String endDate, int take, Integer teamIterationId) {
         List<ReleaseDto> releases = releaseSearchService.searchReleases(
-                nameQuery, projectName, ownerLogin, startDate, endDate, take);
+                nameQuery, projectName, ownerLogin, startDate, endDate, take, teamIterationId);
 
         if (releases.isEmpty()) {
             return "No releases found.";

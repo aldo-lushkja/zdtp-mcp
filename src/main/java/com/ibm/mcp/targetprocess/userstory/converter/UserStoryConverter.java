@@ -4,6 +4,7 @@ import com.ibm.mcp.targetprocess.shared.model.EntityState;
 import com.ibm.mcp.targetprocess.shared.model.Owner;
 import com.ibm.mcp.targetprocess.shared.model.Project;
 import com.ibm.mcp.targetprocess.shared.model.ReleaseReference;
+import com.ibm.mcp.targetprocess.shared.model.SprintReference;
 import com.ibm.mcp.targetprocess.userstory.dto.UserStoryDto;
 import com.ibm.mcp.targetprocess.userstory.model.UserStory;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,8 @@ public class UserStoryConverter {
                 .endDate(parseDate(story.endDate()))
                 .releaseId(Optional.ofNullable(story.release()).map(ReleaseReference::id).orElse(null))
                 .releaseName(Optional.ofNullable(story.release()).map(ReleaseReference::name).orElse(null))
+                .sprintId(Optional.ofNullable(story.sprint()).map(SprintReference::id).orElse(null))
+                .sprintName(Optional.ofNullable(story.sprint()).map(SprintReference::name).orElse(null))
                 .build();
     }
 

@@ -34,8 +34,9 @@ public class UserStorySearchService {
 
     public List<UserStoryDto> searchUserStories(String nameQuery, String projectName,
                                                 String creatorLogin, String startDate,
-                                                String endDate, int take, Integer releaseId) {
-        String url = buildUrl(nameQuery, projectName, creatorLogin, startDate, endDate, take, releaseId);
+                                                String endDate, int take, Integer releaseId,
+                                                Integer teamIterationId) {
+        String url = buildUrl(nameQuery, projectName, creatorLogin, startDate, endDate, take, releaseId, teamIterationId);
         String body = httpClient.fetch(url);
         TargetProcessResponse<UserStory> resp = httpClient.parse(body, new TypeReference<>() {});
         return Optional.ofNullable(resp.items()).orElse(List.of())
@@ -45,19 +46,22 @@ public class UserStorySearchService {
     // ── URL building ────────────────────────────────────────────────────────────
 
     private String buildUrl(String nameQuery, String projectName,
-                            String creatorLogin, String startDate, String endDate, int take, Integer releaseId) {
-        String where = buildWhere(nameQuery, projectName, creatorLogin, startDate, endDate, releaseId);
+                            String creatorLogin, String startDate, String endDate, int take,
+                            Integer releaseId, Integer teamIterationId) {
+        String where = buildWhere(nameQuery, projectName, creatorLogin, startDate, endDate, releaseId, teamIterationId);
         return assembleUrl(where, take);
     }
 
     private String buildWhere(String nameQuery, String projectName,
-                              String creatorLogin, String startDate, String endDate, Integer releaseId) {
-        List<String> conditions = collectConditions(nameQuery, projectName, creatorLogin, startDate, endDate, releaseId);
+                              String creatorLogin, String startDate, String endDate,
+                              Integer releaseId, Integer teamIterationId) {
+        List<String> conditions = collectConditions(nameQuery, projectName, creatorLogin, startDate, endDate, releaseId, teamIterationId);
         return String.join(" and ", conditions);
     }
 
     private List<String> collectConditions(String nameQuery, String projectName,
-                                           String creatorLogin, String startDate, String endDate, Integer releaseId) {
+                                           String creatorLogin, String startDate, String endDate,
+                                           Integer releaseId, Integer teamIterationId) {
         List<String> conditions = new ArrayList<>();
         if (nameQuery != null && !nameQuery.isBlank()) {
             conditions.add("Name contains '%s'".formatted(nameQuery));
@@ -77,11 +81,14 @@ public class UserStorySearchService {
         if (releaseId != null) {
             conditions.add("Release.Id eq %d".formatted(releaseId));
         }
+        if (teamIterationId != null) {
+            conditions.add("TeamIteration.Id eq %d".formatted(teamIterationId));
+        }
         return conditions;
     }
 
     private String assembleUrl(String where, int take) {
-        String include = "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],AssignedUser[Id,Login],Release[Id,Name]]";
+        String include = "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],AssignedUser[Id,Login],Release[Id,Name],Sprint[Id,Name]]";
         return properties.baseUrl() + "/api/v1/UserStories"
                 + "?where=" + UriUtils.encodeQueryParam(where, StandardCharsets.UTF_8)
                 + "&include=" + UriUtils.encodeQueryParam(include, StandardCharsets.UTF_8)

@@ -32,8 +32,8 @@ public class ReleaseSearchService {
 
     public List<ReleaseDto> searchReleases(String nameQuery, String projectName,
                                            String ownerLogin, String startDate,
-                                           String endDate, int take) {
-        String url = buildUrl(nameQuery, projectName, ownerLogin, startDate, endDate, take);
+                                           String endDate, int take, Integer teamIterationId) {
+        String url = buildUrl(nameQuery, projectName, ownerLogin, startDate, endDate, take, teamIterationId);
         String body = httpClient.fetch(url);
         TargetProcessResponse<Release> resp = httpClient.parse(body, new TypeReference<>() {});
         return Optional.ofNullable(resp.items()).orElse(List.of())
@@ -41,13 +41,15 @@ public class ReleaseSearchService {
     }
 
     private String buildUrl(String nameQuery, String projectName,
-                            String ownerLogin, String startDate, String endDate, int take) {
-        String where = buildWhere(nameQuery, projectName, ownerLogin, startDate, endDate);
+                            String ownerLogin, String startDate, String endDate, int take,
+                            Integer teamIterationId) {
+        String where = buildWhere(nameQuery, projectName, ownerLogin, startDate, endDate, teamIterationId);
         return assembleUrl(where, take);
     }
 
     private String buildWhere(String nameQuery, String projectName,
-                              String ownerLogin, String startDate, String endDate) {
+                              String ownerLogin, String startDate, String endDate,
+                              Integer teamIterationId) {
         List<String> conditions = new ArrayList<>();
         if (nameQuery != null && !nameQuery.isBlank()) {
             conditions.add("Name contains '%s'".formatted(nameQuery));
@@ -59,16 +61,19 @@ public class ReleaseSearchService {
             conditions.add("Owner.Login eq '%s'".formatted(ownerLogin));
         }
         if (startDate != null && !startDate.isBlank()) {
-            conditions.add("CreateDate gte '%s'".formatted(startDate));
+            conditions.add("StartDate gte '%s'".formatted(startDate));
         }
         if (endDate != null && !endDate.isBlank()) {
-            conditions.add("CreateDate lt '%s'".formatted(endDate));
+            conditions.add("StartDate lt '%s'".formatted(endDate));
+        }
+        if (teamIterationId != null) {
+            conditions.add("TeamIterations.Id eq %d".formatted(teamIterationId));
         }
         return String.join(" and ", conditions);
     }
 
     private String assembleUrl(String where, int take) {
-        String include = "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,StartDate,EndDate,Effort,Owner[Id,Login]]";
+        String include = "[Id,Name,Description,Project[Id,Name],CreateDate,StartDate,EndDate,Effort,Owner[Id,Login]]";
         return properties.baseUrl() + "/api/v1/Releases"
                 + "?where=" + UriUtils.encodeQueryParam(where, StandardCharsets.UTF_8)
                 + "&include=" + UriUtils.encodeQueryParam(include, StandardCharsets.UTF_8)

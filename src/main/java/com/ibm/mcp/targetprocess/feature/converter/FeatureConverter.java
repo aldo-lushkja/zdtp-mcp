@@ -5,6 +5,7 @@ import com.ibm.mcp.targetprocess.feature.model.Feature;
 import com.ibm.mcp.targetprocess.shared.model.EntityState;
 import com.ibm.mcp.targetprocess.shared.model.Owner;
 import com.ibm.mcp.targetprocess.shared.model.Project;
+import com.ibm.mcp.targetprocess.shared.model.SprintReference;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -25,6 +26,8 @@ public class FeatureConverter {
                 .effort(feature.effort())
                 .createdAt(parseDate(feature.createDate()))
                 .endDate(parseDate(feature.endDate()))
+                .sprintId(Optional.ofNullable(feature.sprint()).map(SprintReference::id).orElse(null))
+                .sprintName(Optional.ofNullable(feature.sprint()).map(SprintReference::name).orElse(null))
                 .build();
     }
 

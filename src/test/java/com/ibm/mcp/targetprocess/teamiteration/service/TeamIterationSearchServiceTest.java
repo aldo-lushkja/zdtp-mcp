@@ -1,11 +1,11 @@
-package com.ibm.mcp.targetprocess.release.service;
+package com.ibm.mcp.targetprocess.teamiteration.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mcp.targetprocess.config.TargetProcessProperties;
-import com.ibm.mcp.targetprocess.release.converter.ReleaseConverter;
-import com.ibm.mcp.targetprocess.release.dto.ReleaseDto;
 import com.ibm.mcp.targetprocess.shared.client.TargetProcessHttpClient;
 import com.ibm.mcp.targetprocess.shared.exception.TargetProcessApiException;
+import com.ibm.mcp.targetprocess.teamiteration.converter.TeamIterationConverter;
+import com.ibm.mcp.targetprocess.teamiteration.dto.TeamIterationDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,19 +29,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ReleaseSearchServiceTest {
+class TeamIterationSearchServiceTest {
 
     private static final String BASE_URL = "https://company.tpondemand.com";
     private static final String TOKEN = "test-token";
     private static final String EMPTY_RESPONSE = "{\"Items\":[]}";
-    // 1736899200000 ms epoch = 2025-01-15T00:00:00Z
-    // 1739577600000 ms epoch = 2025-02-15T00:00:00Z
-    // 1742860800000 ms epoch = 2025-03-25T00:00:00Z
-    private static final String RELEASE_RESPONSE = """
-            {"Items":[{"Id":77,"Name":"Release 1.0","Project":{"Id":1,"Name":"satispay_plus"},
-            "EntityState":{"Id":10,"Name":"Open"},"CreateDate":"\\/Date(1736899200000+0000)\\/",
-            "StartDate":"\\/Date(1739577600000+0000)\\/","EndDate":"\\/Date(1742860800000+0000)\\/","Effort":5.0,
-            "Owner":{"Id":5,"Login":"aldo.lushkja@satispay.com"}}]}
+    // 1740268800000 = 2025-02-23T00:00:00Z, 1741564799000 = 2025-03-09T23:59:59Z
+    private static final String ITERATION_RESPONSE = """
+            {"Items":[{"Id":213616,"Name":"IT Consumer 6 2026-2-23",
+            "StartDate":"\\/Date(1740268800000+0000)\\/",
+            "EndDate":"\\/Date(1741564799000+0000)\\/",
+            "Team":{"Id":163894,"Name":"IT Consumer 6"}}]}
             """;
 
     @Mock
@@ -51,13 +49,13 @@ class ReleaseSearchServiceTest {
     @Mock
     HttpResponse<String> httpResponse;
 
-    ReleaseSearchService service;
+    TeamIterationSearchService service;
 
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
         TargetProcessHttpClient tpHttpClient = new TargetProcessHttpClient(httpClient, new ObjectMapper());
-        service = new ReleaseSearchService(props, tpHttpClient, new ReleaseConverter());
+        service = new TeamIterationSearchService(props, tpHttpClient, new TeamIterationConverter());
     }
 
     // ── URL / where clause tests ────────────────────────────────────────────────
@@ -66,10 +64,10 @@ class ReleaseSearchServiceTest {
     void noFilters_producesEmptyWhereClause() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchReleases("", "", "", "", "", 10, null);
+        service.searchTeamIterations("", null, "", null, null, 10);
 
         String url = captureDecodedUrl();
-        assertThat(url).contains("/api/v1/Releases");
+        assertThat(url).contains("/api/v1/TeamIterations");
         assertThat(urlParam(url, "where")).isEmpty();
     }
 
@@ -77,47 +75,47 @@ class ReleaseSearchServiceTest {
     void nameFilter_producesNameContainsCondition() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchReleases("Release 1", "", "", "", "", 10, null);
+        service.searchTeamIterations("2026", null, "", null, null, 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("Name contains 'Release 1'");
+                .contains("Name contains '2026'");
     }
 
     @Test
-    void projectFilter_producesProjectNameContainsCondition() throws Exception {
+    void teamIdFilter_producesTeamIdEqCondition() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchReleases("", "satispay_plus", "", "", "", 10, null);
+        service.searchTeamIterations("", 163894, "", null, null, 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("Project.Name contains 'satispay_plus'");
+                .contains("Team.Id eq 163894");
     }
 
     @Test
-    void ownerLoginFilter_usesOwnerLoginProperty() throws Exception {
+    void teamNameFilter_producesTeamNameContainsCondition() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchReleases("", "", "aldo.lushkja@satispay.com", "", "", 10, null);
+        service.searchTeamIterations("", null, "Consumer 6", null, null, 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("Owner.Login eq 'aldo.lushkja@satispay.com'");
+                .contains("Team.Name contains 'Consumer 6'");
     }
 
     @Test
-    void startDateFilter_usesStartDateGteOperator() throws Exception {
+    void startDateFilter_usesGteOnStartDate() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchReleases("", "", "", "2026-01-01", "", 10, null);
+        service.searchTeamIterations("", null, "", "2026-01-01", null, 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("StartDate gte '2026-01-01'");
     }
 
     @Test
-    void endDateFilter_usesStartDateLtOperator() throws Exception {
+    void endDateFilter_usesLtOnStartDate() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchReleases("", "", "", "", "2026-12-31", 10, null);
+        service.searchTeamIterations("", null, "", null, "2026-12-31", 10);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("StartDate lt '2026-12-31'");
@@ -127,70 +125,34 @@ class ReleaseSearchServiceTest {
     void allFilters_combinedWithAnd() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchReleases("Release 1", "satispay_plus", "aldo.lushkja@satispay.com", "2026-01-01", "2026-12-31", 10, null);
+        service.searchTeamIterations("2026", 163894, "Consumer 6", "2026-01-01", "2026-12-31", 10);
 
         String where = urlParam(captureDecodedUrl(), "where");
         assertThat(where)
-                .contains("Name contains 'Release 1'")
-                .contains("Project.Name contains 'satispay_plus'")
-                .contains("Owner.Login eq 'aldo.lushkja@satispay.com'")
+                .contains("Name contains '2026'")
+                .contains("Team.Id eq 163894")
+                .contains("Team.Name contains 'Consumer 6'")
                 .contains("StartDate gte '2026-01-01'")
                 .contains("StartDate lt '2026-12-31'")
                 .contains(" and ");
     }
 
     @Test
-    void includeClause_containsStartDateAndEndDate() throws Exception {
-        givenApiReturns(EMPTY_RESPONSE);
-
-        service.searchReleases("", "", "", "", "", 10, null);
-
-        String url = captureDecodedUrl();
-        assertThat(url).contains("StartDate").contains("EndDate");
-    }
-
-    @Test
     void takeParameter_isIncludedInUrl() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchReleases("", "", "", "", "", 25, null);
+        service.searchTeamIterations("", null, "", null, null, 5);
 
-        assertThat(captureDecodedUrl()).contains("take=25");
-    }
-
-    // ── Team iteration filter tests ──────────────────────────────────────────────
-
-    @Test
-    void teamIterationIdFilter_addsTeamIterationsIdEqCondition() throws Exception {
-        givenApiReturns(EMPTY_RESPONSE);
-
-        service.searchReleases("", "", "", "", "", 10, 213616);
-
-        assertThat(urlParam(captureDecodedUrl(), "where"))
-                .contains("TeamIterations.Id eq 213616");
+        assertThat(captureDecodedUrl()).contains("take=5");
     }
 
     @Test
-    void teamIterationIdFilter_nullValue_noCondition() throws Exception {
+    void resultOrderedByStartDateDesc() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchReleases("", "", "", "", "", 10, null);
+        service.searchTeamIterations("", null, "", null, null, 10);
 
-        assertThat(urlParam(captureDecodedUrl(), "where"))
-                .doesNotContain("TeamIterations.Id");
-    }
-
-    @Test
-    void teamIterationIdFilter_combinedWithProjectFilter() throws Exception {
-        givenApiReturns(EMPTY_RESPONSE);
-
-        service.searchReleases("", "consumer_loyalty", "", "", "", 10, 213616);
-
-        String where = urlParam(captureDecodedUrl(), "where");
-        assertThat(where)
-                .contains("Project.Name contains 'consumer_loyalty'")
-                .contains("TeamIterations.Id eq 213616")
-                .contains(" and ");
+        assertThat(captureDecodedUrl()).contains("orderByDesc=StartDate");
     }
 
     // ── Result parsing tests ────────────────────────────────────────────────────
@@ -199,28 +161,25 @@ class ReleaseSearchServiceTest {
     void emptyItemsArray_returnsEmptyList() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        List<ReleaseDto> result = service.searchReleases("", "", "", "", "", 10, null);
+        List<TeamIterationDto> result = service.searchTeamIterations("", null, "", null, null, 10);
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void validResponse_mapsFieldsCorrectly() throws Exception {
-        givenApiReturns(RELEASE_RESPONSE);
+        givenApiReturns(ITERATION_RESPONSE);
 
-        List<ReleaseDto> result = service.searchReleases("", "", "", "", "", 10, null);
+        List<TeamIterationDto> result = service.searchTeamIterations("", 163894, "", null, null, 10);
 
         assertThat(result).hasSize(1);
-        ReleaseDto release = result.get(0);
-        assertThat(release.id()).isEqualTo(77);
-        assertThat(release.name()).isEqualTo("Release 1.0");
-        assertThat(release.projectName()).isEqualTo("satispay_plus");
-        assertThat(release.state()).isEqualTo("Open");
-        assertThat(release.ownerLogin()).isEqualTo("aldo.lushkja@satispay.com");
-        assertThat(release.effort()).isEqualTo(5.0);
-        assertThat(release.createdAt()).isEqualTo("2025-01-15");
-        assertThat(release.startDate()).isEqualTo("2025-02-15");
-        assertThat(release.endDate()).isEqualTo("2025-03-25");
+        TeamIterationDto it = result.get(0);
+        assertThat(it.id()).isEqualTo(213616);
+        assertThat(it.name()).isEqualTo("IT Consumer 6 2026-2-23");
+        assertThat(it.teamId()).isEqualTo(163894);
+        assertThat(it.teamName()).isEqualTo("IT Consumer 6");
+        assertThat(it.startDate()).isEqualTo("2025-02-23");
+        assertThat(it.endDate()).isEqualTo("2025-03-09");
     }
 
     @Test
@@ -229,7 +188,7 @@ class ReleaseSearchServiceTest {
         when(httpResponse.body()).thenReturn("{\"Message\":\"Bad Request\"}");
         doReturn(httpResponse).when(httpClient).send(any(), any());
 
-        assertThatThrownBy(() -> service.searchReleases("", "", "", "", "", 10, null))
+        assertThatThrownBy(() -> service.searchTeamIterations("", null, "", null, null, 10))
                 .isInstanceOf(TargetProcessApiException.class);
     }
 

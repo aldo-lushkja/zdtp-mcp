@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ibm.mcp.targetprocess.shared.model.EntityState;
 import com.ibm.mcp.targetprocess.shared.model.Owner;
 import com.ibm.mcp.targetprocess.shared.model.Project;
+import com.ibm.mcp.targetprocess.shared.model.SprintReference;
 
 public record Feature(
     @JsonProperty("Id") Integer id,
@@ -14,5 +15,6 @@ public record Feature(
     @JsonProperty("CreateDate") String createDate,
     @JsonProperty("EndDate") String endDate,
     @JsonProperty("Effort") Double effort,
-    @JsonProperty("Owner") Owner owner
+    @JsonProperty("Owner") Owner owner,
+    @JsonProperty("Sprint") SprintReference sprint
 ) {}

@@ -65,7 +65,7 @@ class UserStorySearchServiceTest {
     void noFilters_producesEmptyWhereClause() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "", "", "", 10, null);
+        service.searchUserStories("", "", "", "", "", 10, null, null);
 
         String url = captureDecodedUrl();
         assertThat(url).contains("where=");
@@ -76,7 +76,7 @@ class UserStorySearchServiceTest {
     void nameFilter_producesNameContainsCondition() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("login feature", "", "", "", "", 10, null);
+        service.searchUserStories("login feature", "", "", "", "", 10, null, null);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("Name contains 'login feature'");
@@ -86,7 +86,7 @@ class UserStorySearchServiceTest {
     void projectFilter_producesProjectNameContainsCondition() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "consumer_loyalty", "", "", "", 10, null);
+        service.searchUserStories("", "consumer_loyalty", "", "", "", 10, null, null);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("Project.Name contains 'consumer_loyalty'");
@@ -96,7 +96,7 @@ class UserStorySearchServiceTest {
     void startDateFilter_usesGteOperator() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "", "2025-01-01", "", 10, null);
+        service.searchUserStories("", "", "", "2025-01-01", "", 10, null, null);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("CreateDate gte '2025-01-01'");
@@ -106,7 +106,7 @@ class UserStorySearchServiceTest {
     void endDateFilter_usesLtOperator() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "", "", "2025-01-31", 10, null);
+        service.searchUserStories("", "", "", "", "2025-01-31", 10, null, null);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("CreateDate lt '2025-01-31'");
@@ -116,7 +116,7 @@ class UserStorySearchServiceTest {
     void ownerLoginFilter_usesOwnerLoginProperty() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "aldo.lushkja", "", "", 10, null);
+        service.searchUserStories("", "", "aldo.lushkja", "", "", 10, null, null);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("Owner.Login eq 'aldo.lushkja'");
@@ -126,7 +126,7 @@ class UserStorySearchServiceTest {
     void allFilters_combinedWithAnd() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("story", "consumer_loyalty", "aldo.lushkja", "2025-01-01", "2025-01-31", 10, null);
+        service.searchUserStories("story", "consumer_loyalty", "aldo.lushkja", "2025-01-01", "2025-01-31", 10, null, null);
 
         String where = urlParam(captureDecodedUrl(), "where");
         assertThat(where)
@@ -142,7 +142,7 @@ class UserStorySearchServiceTest {
     void selectClause_doesNotContainCreatedBy() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "", "", "", 10, null);
+        service.searchUserStories("", "", "", "", "", 10, null, null);
 
         assertThat(captureDecodedUrl()).doesNotContain("CreatedBy");
     }
@@ -151,7 +151,7 @@ class UserStorySearchServiceTest {
     void selectClause_containsEffortEndDateAndAssignedUser() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "", "", "", 10, null);
+        service.searchUserStories("", "", "", "", "", 10, null, null);
 
         String url = captureDecodedUrl();
         assertThat(url)
@@ -164,7 +164,7 @@ class UserStorySearchServiceTest {
     void takeParameter_isIncludedInUrl() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "", "", "", 25, null);
+        service.searchUserStories("", "", "", "", "", 25, null, null);
 
         assertThat(captureDecodedUrl()).contains("take=25");
     }
@@ -175,7 +175,7 @@ class UserStorySearchServiceTest {
     void emptyItemsArray_returnsEmptyList() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        List<UserStoryDto> result = service.searchUserStories("", "", "", "", "", 10, null);
+        List<UserStoryDto> result = service.searchUserStories("", "", "", "", "", 10, null, null);
 
         assertThat(result).isEmpty();
     }
@@ -184,7 +184,7 @@ class UserStorySearchServiceTest {
     void validResponse_mapsFieldsCorrectly() throws Exception {
         givenApiReturns(STORY_RESPONSE);
 
-        List<UserStoryDto> result = service.searchUserStories("", "", "", "", "", 10, null);
+        List<UserStoryDto> result = service.searchUserStories("", "", "", "", "", 10, null, null);
 
         assertThat(result).hasSize(1);
         UserStoryDto story = result.get(0);
@@ -205,7 +205,7 @@ class UserStorySearchServiceTest {
         when(httpResponse.body()).thenReturn("{\"Message\":\"Bad Request\"}");
         doReturn(httpResponse).when(httpClient).send(any(), any());
 
-        assertThatThrownBy(() -> service.searchUserStories("", "", "", "", "", 10, null))
+        assertThatThrownBy(() -> service.searchUserStories("", "", "", "", "", 10, null, null))
                 .isInstanceOf(TargetProcessApiException.class);
     }
 
@@ -215,7 +215,7 @@ class UserStorySearchServiceTest {
     void releaseIdFilter_addsReleaseIdEqCondition() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "", "", "", 10, 123);
+        service.searchUserStories("", "", "", "", "", 10, 123, null);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .contains("Release.Id eq 123");
@@ -225,7 +225,7 @@ class UserStorySearchServiceTest {
     void releaseIdFilter_nullReleaseId_noReleaseCondition() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "", "", "", 10, null);
+        service.searchUserStories("", "", "", "", "", 10, null, null);
 
         assertThat(urlParam(captureDecodedUrl(), "where"))
                 .doesNotContain("Release.Id");
@@ -235,7 +235,7 @@ class UserStorySearchServiceTest {
     void releaseIdFilter_combinedWithNameFilter() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("story", "", "", "", "", 10, 99);
+        service.searchUserStories("story", "", "", "", "", 10, 99, null);
 
         String where = urlParam(captureDecodedUrl(), "where");
         assertThat(where)
@@ -248,9 +248,44 @@ class UserStorySearchServiceTest {
     void includeClause_containsRelease() throws Exception {
         givenApiReturns(EMPTY_RESPONSE);
 
-        service.searchUserStories("", "", "", "", "", 10, null);
+        service.searchUserStories("", "", "", "", "", 10, null, null);
 
         assertThat(captureDecodedUrl()).contains("Release");
+    }
+
+    // ── Team iteration filter tests ──────────────────────────────────────────────
+
+    @Test
+    void teamIterationIdFilter_addsTeamIterationIdEqCondition() throws Exception {
+        givenApiReturns(EMPTY_RESPONSE);
+
+        service.searchUserStories("", "", "", "", "", 10, null, 213616);
+
+        assertThat(urlParam(captureDecodedUrl(), "where"))
+                .contains("TeamIteration.Id eq 213616");
+    }
+
+    @Test
+    void teamIterationIdFilter_nullValue_noCondition() throws Exception {
+        givenApiReturns(EMPTY_RESPONSE);
+
+        service.searchUserStories("", "", "", "", "", 10, null, null);
+
+        assertThat(urlParam(captureDecodedUrl(), "where"))
+                .doesNotContain("TeamIteration.Id");
+    }
+
+    @Test
+    void teamIterationIdFilter_combinedWithProjectFilter() throws Exception {
+        givenApiReturns(EMPTY_RESPONSE);
+
+        service.searchUserStories("", "consumer_loyalty", "", "", "", 10, null, 213616);
+
+        String where = urlParam(captureDecodedUrl(), "where");
+        assertThat(where)
+                .contains("Project.Name contains 'consumer_loyalty'")
+                .contains("TeamIteration.Id eq 213616")
+                .contains(" and ");
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────────
