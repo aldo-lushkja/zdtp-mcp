@@ -36,6 +36,7 @@ public class TargetProcessHttpClient {
     }
 
     public String post(String url, String jsonBody) {
+        log.debug("POST body={}", jsonBody);
         HttpRequest request = buildPostRequest(url, jsonBody);
         HttpResponse<String> response = send(request);
         validateResponse(response);
