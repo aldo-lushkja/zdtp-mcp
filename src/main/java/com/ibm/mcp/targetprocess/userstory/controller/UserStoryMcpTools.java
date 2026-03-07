@@ -1,7 +1,9 @@
 package com.ibm.mcp.targetprocess.userstory.controller;
 
 import com.ibm.mcp.targetprocess.userstory.dto.UserStoryDto;
+import com.ibm.mcp.targetprocess.userstory.service.UserStoryCreateService;
 import com.ibm.mcp.targetprocess.userstory.service.UserStorySearchService;
+import com.ibm.mcp.targetprocess.userstory.service.UserStoryUpdateService;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 
@@ -11,9 +13,15 @@ import java.util.List;
 public class UserStoryMcpTools {
 
     private final UserStorySearchService userStorySearchService;
+    private final UserStoryCreateService userStoryCreateService;
+    private final UserStoryUpdateService userStoryUpdateService;
 
-    public UserStoryMcpTools(UserStorySearchService userStorySearchService) {
+    public UserStoryMcpTools(UserStorySearchService userStorySearchService,
+                             UserStoryCreateService userStoryCreateService,
+                             UserStoryUpdateService userStoryUpdateService) {
         this.userStorySearchService = userStorySearchService;
+        this.userStoryCreateService = userStoryCreateService;
+        this.userStoryUpdateService = userStoryUpdateService;
     }
 
     @Tool(description = """
@@ -31,6 +39,24 @@ public class UserStoryMcpTools {
         }
 
         return String.join("\n", stories.stream().map(this::format).toList());
+    }
+
+    @Tool(description = """
+            Create a new user story in Targetprocess. \
+            Requires name and projectId (numeric ID of the project). \
+            Description and effort (story points) are optional.""")
+    public String createUserStory(String name, int projectId, String description, Double effort) {
+        UserStoryDto story = userStoryCreateService.createUserStory(name, projectId, description, effort);
+        return "Created: " + format(story);
+    }
+
+    @Tool(description = """
+            Update an existing user story in Targetprocess by its numeric ID. \
+            All fields except id are optional — only provided (non-blank) fields are updated. \
+            stateName accepts workflow state names such as 'Open', 'In Progress', 'Done'.""")
+    public String updateUserStory(int id, String name, String description, String stateName, Double effort) {
+        UserStoryDto story = userStoryUpdateService.updateUserStory(id, name, description, stateName, effort);
+        return "Updated: " + format(story);
     }
 
     private String format(UserStoryDto s) {

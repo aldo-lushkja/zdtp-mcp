@@ -29,7 +29,14 @@ public class TargetProcessHttpClient {
     }
 
     public String fetch(String url) {
-        HttpRequest request = buildRequest(url);
+        HttpRequest request = buildGetRequest(url);
+        HttpResponse<String> response = send(request);
+        validateResponse(response);
+        return response.body();
+    }
+
+    public String post(String url, String jsonBody) {
+        HttpRequest request = buildPostRequest(url, jsonBody);
         HttpResponse<String> response = send(request);
         validateResponse(response);
         return response.body();
@@ -43,7 +50,15 @@ public class TargetProcessHttpClient {
         }
     }
 
-    private HttpRequest buildRequest(String url) {
+    public <T> T parseSingle(String body, Class<T> clazz) {
+        try {
+            return objectMapper.readValue(body, clazz);
+        } catch (Exception e) {
+            throw new TargetProcessClientException("Failed to parse Targetprocess response", e);
+        }
+    }
+
+    private HttpRequest buildGetRequest(String url) {
         return HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Accept", "application/json")
@@ -52,8 +67,18 @@ public class TargetProcessHttpClient {
                 .build();
     }
 
+    private HttpRequest buildPostRequest(String url, String jsonBody) {
+        return HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .timeout(Duration.ofSeconds(30))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+    }
+
     private HttpResponse<String> send(HttpRequest request) {
-        log.debug("GET {}", request.uri());
+        log.debug("{} {}", request.method(), request.uri());
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             log.debug("Response status={} body={}", response.statusCode(), response.body());
