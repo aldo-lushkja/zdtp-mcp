@@ -13,8 +13,8 @@ import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 public class RequestUpdateService extends BaseService {
     private final RequestConverter converter;
 
-    public RequestUpdateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, RequestConverter converter, ObjectMapper objectMapper) {
-        super(properties, httpClient, objectMapper);
+    public RequestUpdateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, RequestConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
         this.converter = converter;
     }
 
@@ -23,11 +23,20 @@ public class RequestUpdateService extends BaseService {
     }
 
     public RequestDto update(int id, String name, String description, String stateName, Double effort) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        if (name != null && !name.isBlank()) body.put("Name", name);
-        if (description != null) body.put("Description", description);
-        if (stateName != null && !stateName.isBlank()) body.put("EntityState", Map.of("Name", stateName));
-        if (effort != null) body.put("Effort", effort);
-        return engine.update(QueryEngine.REQUEST, id, body, converter::toDto, Request.class);
+        Map<String, Object> bodyMap = new LinkedHashMap<>();
+        if (name != null && !name.isBlank()) {
+            bodyMap.put("Name", name);
+        }
+        if (description != null) {
+            bodyMap.put("Description", description);
+        }
+        if (stateName != null && !stateName.isBlank()) {
+            bodyMap.put("EntityState", Map.of("Name", stateName));
+        }
+        if (effort != null) {
+            bodyMap.put("Effort", effort);
+        }
+        
+        return engine.update(QueryEngine.REQUEST, id, bodyMap, converter::toDto, Request.class);
     }
 }

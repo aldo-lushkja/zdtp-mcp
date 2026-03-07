@@ -11,8 +11,9 @@ import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 public class FeatureGetByIdService extends BaseService {
     private final FeatureConverter converter;
 
-    public FeatureGetByIdService(TargetProcessProperties props, TargetProcessHttpClient http, FeatureConverter conv, ObjectMapper mapper) {
-        super(props, http, mapper); this.converter = conv;
+    public FeatureGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, FeatureConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
+        this.converter = converter;
     }
 
     public FeatureDto getById(int id) {

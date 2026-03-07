@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,32 +38,66 @@ public class QueryEngine {
     public static final Domain PROJECT = new Domain("Projects", "[Id,Name]");
 
     public <T, D> List<D> list(Domain domain, Map<String, String> params, TypeReference<TargetProcessResponse<T>> typeRef, Function<T, D> mapper) {
-        Map<String, String> p = new TreeMap<>(params);
-        if (!domain.include().isBlank()) p.putIfAbsent("include", domain.include());
-        var resp = httpClient.parse(httpClient.fetch(url(domain.resource(), p)), typeRef);
-        return Optional.ofNullable(resp.items()).orElse(List.of()).stream().map(mapper).toList();
+        Map<String, String> parameters = new TreeMap<>(params);
+        if (!domain.include().isBlank()) {
+            parameters.putIfAbsent("include", domain.include());
+        }
+        
+        String url = buildUrl(domain.resource(), parameters);
+        String responseBody = httpClient.fetch(url);
+        TargetProcessResponse<T> response = httpClient.parse(responseBody, typeRef);
+        
+        return Optional.ofNullable(response.items())
+                .orElse(List.of())
+                .stream()
+                .map(mapper)
+                .toList();
     }
 
     public <T, D> D get(Domain domain, int id, Function<T, D> mapper, Class<T> clazz) {
-        return mapper.apply(httpClient.parseSingle(httpClient.fetch(url(domain.resource() + "/" + id, Map.of("include", domain.include()))), clazz));
+        Map<String, String> parameters = Map.of("include", domain.include());
+        String url = buildUrl(domain.resource() + "/" + id, parameters);
+        String responseBody = httpClient.fetch(url);
+        T entity = httpClient.parseSingle(responseBody, clazz);
+        return mapper.apply(entity);
     }
 
     public <T, D> D create(Domain domain, Map<String, Object> body, Function<T, D> mapper, Class<T> clazz) {
-        return mapper.apply(httpClient.parseSingle(httpClient.post(url(domain.resource(), Map.of("include", domain.include())), json(body)), clazz));
+        Map<String, String> parameters = Map.of("include", domain.include());
+        String url = buildUrl(domain.resource(), parameters);
+        String jsonBody = toJson(body);
+        String responseBody = httpClient.post(url, jsonBody);
+        T entity = httpClient.parseSingle(responseBody, clazz);
+        return mapper.apply(entity);
     }
 
     public <T, D> D update(Domain domain, int id, Map<String, Object> body, Function<T, D> mapper, Class<T> clazz) {
-        return mapper.apply(httpClient.parseSingle(httpClient.post(url(domain.resource() + "/" + id, Map.of("include", domain.include())), json(body)), clazz));
+        Map<String, String> parameters = Map.of("include", domain.include());
+        String url = buildUrl(domain.resource() + "/" + id, parameters);
+        String jsonBody = toJson(body);
+        String responseBody = httpClient.post(url, jsonBody);
+        T entity = httpClient.parseSingle(responseBody, clazz);
+        return mapper.apply(entity);
     }
 
-    private String url(String path, Map<String, String> query) {
-        Map<String, String> p = new TreeMap<>(query);
-        p.put("format", "json"); p.put("access_token", properties.accessToken());
-        String q = p.entrySet().stream().filter(e -> e.getValue() != null && !e.getValue().isBlank()).map(e -> e.getKey() + "=" + httpClient.encode(e.getValue())).collect(java.util.stream.Collectors.joining("&"));
-        return properties.baseUrl() + "/api/v1/" + path + (q.isEmpty() ? "" : "?" + q);
+    private String buildUrl(String path, Map<String, String> query) {
+        Map<String, String> params = new TreeMap<>(query);
+        params.put("format", "json");
+        params.put("access_token", properties.accessToken());
+        
+        String queryString = params.entrySet().stream()
+                .filter(e -> e.getValue() != null && !e.getValue().isBlank())
+                .map(e -> e.getKey() + "=" + TargetProcessHttpClient.encode(e.getValue()))
+                .collect(Collectors.joining("&"));
+                
+        return properties.baseUrl() + "/api/v1/" + path + (queryString.isEmpty() ? "" : "?" + queryString);
     }
 
-    private String json(Map<String, Object> body) {
-        try { return mapper.writeValueAsString(body); } catch (Exception e) { throw new TargetProcessClientException("Failed to serialize", e); }
+    private String toJson(Map<String, Object> body) {
+        try {
+            return mapper.writeValueAsString(body);
+        } catch (Exception e) {
+            throw new TargetProcessClientException("Failed to serialize request body", e);
+        }
     }
 }

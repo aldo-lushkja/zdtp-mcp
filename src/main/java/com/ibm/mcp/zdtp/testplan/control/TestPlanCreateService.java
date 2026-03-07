@@ -13,8 +13,8 @@ import com.ibm.mcp.zdtp.testplan.entity.TestPlanDto;
 public class TestPlanCreateService extends BaseService {
     private final TestPlanConverter converter;
 
-    public TestPlanCreateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TestPlanConverter converter, ObjectMapper objectMapper) {
-        super(properties, httpClient, objectMapper);
+    public TestPlanCreateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TestPlanConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
         this.converter = converter;
     }
 
@@ -23,8 +23,14 @@ public class TestPlanCreateService extends BaseService {
     }
 
     public TestPlanDto create(String name, int projectId, String description) {
-        Map<String, Object> body = new LinkedHashMap<>(); body.put("Name", name); body.put("Project", Map.of("Id", projectId));
-        if (description != null && !description.isBlank()) body.put("Description", description);
-        return engine.create(QueryEngine.TEST_PLAN, body, converter::toDto, TestPlan.class);
+        Map<String, Object> bodyMap = new LinkedHashMap<>();
+        bodyMap.put("Name", name);
+        bodyMap.put("Project", Map.of("Id", projectId));
+        
+        if (description != null && !description.isBlank()) {
+            bodyMap.put("Description", description);
+        }
+        
+        return engine.create(QueryEngine.TEST_PLAN, bodyMap, converter::toDto, TestPlan.class);
     }
 }

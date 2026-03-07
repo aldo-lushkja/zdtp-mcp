@@ -11,8 +11,8 @@ import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 public class EpicGetByIdService extends BaseService {
     private final EpicConverter converter;
 
-    public EpicGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, EpicConverter converter, ObjectMapper objectMapper) {
-        super(properties, httpClient, objectMapper);
+    public EpicGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, EpicConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
         this.converter = converter;
     }
 

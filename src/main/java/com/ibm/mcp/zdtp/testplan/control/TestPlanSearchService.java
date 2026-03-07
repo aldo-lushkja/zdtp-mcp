@@ -15,8 +15,9 @@ import com.ibm.mcp.zdtp.testplan.entity.TestPlanDto;
 public class TestPlanSearchService extends BaseService {
     private final TestPlanConverter converter;
 
-    public TestPlanSearchService(TargetProcessProperties props, TargetProcessHttpClient http, TestPlanConverter conv, ObjectMapper mapper) {
-        super(props, http, mapper); this.converter = conv;
+    public TestPlanSearchService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TestPlanConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
+        this.converter = converter;
     }
 
     public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take) {}
@@ -26,11 +27,21 @@ public class TestPlanSearchService extends BaseService {
     }
 
     public List<TestPlanDto> search(SearchCriteria criteria) {
-        String where = query().add("Name", "contains", criteria.nameQuery()).add("Project.Name", "contains", criteria.projectName()).add("Owner.Login", "eq", criteria.ownerLogin())
+        String whereClause = query()
+                .add("Name", "contains", criteria.nameQuery())
+                .add("Project.Name", "contains", criteria.projectName())
+                .add("Owner.Login", "eq", criteria.ownerLogin())
                 .add(criteria.startDate() != null && !criteria.startDate().isBlank() ? "CreateDate gte '%s'".formatted(criteria.startDate()) : null)
-                .add(criteria.endDate() != null && !criteria.endDate().isBlank() ? "CreateDate lt '%s'".formatted(criteria.endDate()) : null).build();
-        Map<String, String> p = new TreeMap<>(); if (!where.isBlank()) p.put("where", where);
-        p.put("orderByDesc", "CreateDate"); p.put("take", String.valueOf(criteria.take()));
-        return engine.list(QueryEngine.TEST_PLAN, p, new TypeReference<>() {}, converter::toDto);
+                .add(criteria.endDate() != null && !criteria.endDate().isBlank() ? "CreateDate lt '%s'".formatted(criteria.endDate()) : null)
+                .build();
+
+        Map<String, String> parameters = new TreeMap<>();
+        if (!whereClause.isBlank()) {
+            parameters.put("where", whereClause);
+        }
+        parameters.put("orderByDesc", "CreateDate");
+        parameters.put("take", String.valueOf(criteria.take()));
+
+        return engine.list(QueryEngine.TEST_PLAN, parameters, new TypeReference<>() {}, converter::toDto);
     }
 }

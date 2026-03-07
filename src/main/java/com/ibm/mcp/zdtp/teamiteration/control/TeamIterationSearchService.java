@@ -15,8 +15,9 @@ import com.ibm.mcp.zdtp.teamiteration.entity.TeamIterationDto;
 public class TeamIterationSearchService extends BaseService {
     private final TeamIterationConverter converter;
 
-    public TeamIterationSearchService(TargetProcessProperties props, TargetProcessHttpClient http, TeamIterationConverter conv, ObjectMapper mapper) {
-        super(props, http, mapper); this.converter = conv;
+    public TeamIterationSearchService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TeamIterationConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
+        this.converter = converter;
     }
 
     public record SearchCriteria(String nameQuery, Integer teamId, String teamName, String startDate, String endDate, int take) {}
@@ -26,10 +27,20 @@ public class TeamIterationSearchService extends BaseService {
     }
 
     public List<TeamIterationDto> search(SearchCriteria criteria) {
-        String where = query().add("Name", "contains", criteria.nameQuery()).add(criteria.teamId() != null && criteria.teamId() > 0 ? "Team.Id eq %d".formatted(criteria.teamId()) : null)
-                .add("Team.Name", "contains", criteria.teamName()).add(criteria.startDate() != null && !criteria.startDate().isBlank() ? "StartDate gte '%s'".formatted(criteria.startDate()) : null).build();
-        Map<String, String> p = new TreeMap<>(); if (!where.isBlank()) p.put("where", where);
-        p.put("orderByDesc", "StartDate"); p.put("take", String.valueOf(criteria.take()));
-        return engine.list(QueryEngine.TEAM_ITERATION, p, new TypeReference<>() {}, converter::toDto);
+        String whereClause = query()
+                .add("Name", "contains", criteria.nameQuery())
+                .add(criteria.teamId() != null && criteria.teamId() > 0 ? "Team.Id eq %d".formatted(criteria.teamId()) : null)
+                .add("Team.Name", "contains", criteria.teamName())
+                .add(criteria.startDate() != null && !criteria.startDate().isBlank() ? "StartDate gte '%s'".formatted(criteria.startDate()) : null)
+                .build();
+
+        Map<String, String> parameters = new TreeMap<>();
+        if (!whereClause.isBlank()) {
+            parameters.put("where", whereClause);
+        }
+        parameters.put("orderByDesc", "StartDate");
+        parameters.put("take", String.valueOf(criteria.take()));
+
+        return engine.list(QueryEngine.TEAM_ITERATION, parameters, new TypeReference<>() {}, converter::toDto);
     }
 }

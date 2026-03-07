@@ -11,8 +11,8 @@ import com.ibm.mcp.zdtp.team.entity.TeamDto;
 public class TeamGetByIdService extends BaseService {
     private final TeamConverter converter;
 
-    public TeamGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TeamConverter converter, ObjectMapper objectMapper) {
-        super(properties, httpClient, objectMapper);
+    public TeamGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TeamConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
         this.converter = converter;
     }
 

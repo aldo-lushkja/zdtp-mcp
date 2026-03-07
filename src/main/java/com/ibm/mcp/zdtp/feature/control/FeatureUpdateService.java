@@ -13,8 +13,9 @@ import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 public class FeatureUpdateService extends BaseService {
     private final FeatureConverter converter;
 
-    public FeatureUpdateService(TargetProcessProperties props, TargetProcessHttpClient http, FeatureConverter conv, ObjectMapper mapper) {
-        super(props, http, mapper); this.converter = conv;
+    public FeatureUpdateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, FeatureConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
+        this.converter = converter;
     }
 
     public FeatureDto updateFeature(int id, String name, String description, String stateName, Double effort) {
@@ -22,11 +23,20 @@ public class FeatureUpdateService extends BaseService {
     }
 
     public FeatureDto update(int id, String name, String description, String stateName, Double effort) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        if (name != null && !name.isBlank()) body.put("Name", name);
-        if (description != null) body.put("Description", description);
-        if (stateName != null && !stateName.isBlank()) body.put("EntityState", Map.of("Name", stateName));
-        if (effort != null) body.put("Effort", effort);
-        return engine.update(QueryEngine.FEATURE, id, body, converter::toDto, Feature.class);
+        Map<String, Object> bodyMap = new LinkedHashMap<>();
+        if (name != null && !name.isBlank()) {
+            bodyMap.put("Name", name);
+        }
+        if (description != null) {
+            bodyMap.put("Description", description);
+        }
+        if (stateName != null && !stateName.isBlank()) {
+            bodyMap.put("EntityState", Map.of("Name", stateName));
+        }
+        if (effort != null) {
+            bodyMap.put("Effort", effort);
+        }
+        
+        return engine.update(QueryEngine.FEATURE, id, bodyMap, converter::toDto, Feature.class);
     }
 }

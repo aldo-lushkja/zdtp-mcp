@@ -15,8 +15,9 @@ import com.ibm.mcp.zdtp.team.entity.TeamDto;
 public class TeamSearchService extends BaseService {
     private final TeamConverter converter;
 
-    public TeamSearchService(TargetProcessProperties props, TargetProcessHttpClient http, TeamConverter conv, ObjectMapper mapper) {
-        super(props, http, mapper); this.converter = conv;
+    public TeamSearchService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TeamConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
+        this.converter = converter;
     }
 
     public record SearchCriteria(String nameQuery, int take) {}
@@ -26,9 +27,17 @@ public class TeamSearchService extends BaseService {
     }
 
     public List<TeamDto> search(SearchCriteria criteria) {
-        String where = query().add("Name", "contains", criteria.nameQuery()).build();
-        Map<String, String> p = new TreeMap<>(); if (!where.isBlank()) p.put("where", where);
-        p.put("orderBy", "Name"); p.put("take", String.valueOf(criteria.take()));
-        return engine.list(QueryEngine.TEAM, p, new TypeReference<>() {}, converter::toDto);
+        String whereClause = query()
+                .add("Name", "contains", criteria.nameQuery())
+                .build();
+
+        Map<String, String> parameters = new TreeMap<>();
+        if (!whereClause.isBlank()) {
+            parameters.put("where", whereClause);
+        }
+        parameters.put("orderBy", "Name");
+        parameters.put("take", String.valueOf(criteria.take()));
+
+        return engine.list(QueryEngine.TEAM, parameters, new TypeReference<>() {}, converter::toDto);
     }
 }

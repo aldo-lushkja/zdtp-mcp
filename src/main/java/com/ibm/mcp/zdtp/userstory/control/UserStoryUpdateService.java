@@ -13,8 +13,9 @@ import com.ibm.mcp.zdtp.userstory.entity.UserStoryDto;
 public class UserStoryUpdateService extends BaseService {
     private final UserStoryConverter converter;
 
-    public UserStoryUpdateService(TargetProcessProperties props, TargetProcessHttpClient http, UserStoryConverter conv, ObjectMapper mapper) {
-        super(props, http, mapper); this.converter = conv;
+    public UserStoryUpdateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, UserStoryConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
+        this.converter = converter;
     }
 
     public UserStoryDto updateUserStory(int id, String name, String description, String stateName, Double effort) {
@@ -23,10 +24,19 @@ public class UserStoryUpdateService extends BaseService {
 
     public UserStoryDto update(int id, String name, String description, String stateName, Double effort) {
         Map<String, Object> body = new LinkedHashMap<>();
-        if (name != null && !name.isBlank()) body.put("Name", name);
-        if (description != null) body.put("Description", description);
-        if (stateName != null && !stateName.isBlank()) body.put("EntityState", Map.of("Name", stateName));
-        if (effort != null) body.put("Effort", effort);
+        if (name != null && !name.isBlank()) {
+            body.put("Name", name);
+        }
+        if (description != null) {
+            body.put("Description", description);
+        }
+        if (stateName != null && !stateName.isBlank()) {
+            body.put("EntityState", Map.of("Name", stateName));
+        }
+        if (effort != null) {
+            body.put("Effort", effort);
+        }
+        
         return engine.update(QueryEngine.USER_STORY, id, body, converter::toDto, UserStory.class);
     }
 }

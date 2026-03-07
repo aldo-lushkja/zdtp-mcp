@@ -13,8 +13,8 @@ import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 public class EpicCreateService extends BaseService {
     private final EpicConverter converter;
 
-    public EpicCreateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, EpicConverter converter, ObjectMapper objectMapper) {
-        super(properties, httpClient, objectMapper);
+    public EpicCreateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, EpicConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
         this.converter = converter;
     }
 
@@ -23,9 +23,18 @@ public class EpicCreateService extends BaseService {
     }
 
     public EpicDto create(String name, int projectId, String description, Double effort) {
-        Map<String, Object> body = new LinkedHashMap<>(); body.put("Name", name); body.put("Project", Map.of("Id", projectId));
-        if (description != null && !description.isBlank()) body.put("Description", description);
-        if (effort != null) body.put("Effort", effort);
-        return engine.create(QueryEngine.EPIC, body, converter::toDto, Epic.class);
+        Map<String, Object> bodyMap = new LinkedHashMap<>();
+        bodyMap.put("Name", name);
+        bodyMap.put("Project", Map.of("Id", projectId));
+        
+        if (description != null && !description.isBlank()) {
+            bodyMap.put("Description", description);
+        }
+        
+        if (effort != null) {
+            bodyMap.put("Effort", effort);
+        }
+        
+        return engine.create(QueryEngine.EPIC, bodyMap, converter::toDto, Epic.class);
     }
 }

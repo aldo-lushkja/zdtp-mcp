@@ -13,8 +13,8 @@ import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 public class ReleaseCreateService extends BaseService {
     private final ReleaseConverter converter;
 
-    public ReleaseCreateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, ReleaseConverter converter, ObjectMapper objectMapper) {
-        super(properties, httpClient, objectMapper);
+    public ReleaseCreateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, ReleaseConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
         this.converter = converter;
     }
 
@@ -23,9 +23,18 @@ public class ReleaseCreateService extends BaseService {
     }
 
     public ReleaseDto create(String name, int projectId, String description, Double effort) {
-        Map<String, Object> body = new LinkedHashMap<>(); body.put("Name", name); body.put("Project", Map.of("Id", projectId));
-        if (description != null && !description.isBlank()) body.put("Description", description);
-        if (effort != null) body.put("Effort", effort);
-        return engine.create(QueryEngine.RELEASE, body, converter::toDto, Release.class);
+        Map<String, Object> bodyMap = new LinkedHashMap<>();
+        bodyMap.put("Name", name);
+        bodyMap.put("Project", Map.of("Id", projectId));
+        
+        if (description != null && !description.isBlank()) {
+            bodyMap.put("Description", description);
+        }
+        
+        if (effort != null) {
+            bodyMap.put("Effort", effort);
+        }
+        
+        return engine.create(QueryEngine.RELEASE, bodyMap, converter::toDto, Release.class);
     }
 }

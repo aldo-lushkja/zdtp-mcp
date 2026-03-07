@@ -13,8 +13,8 @@ import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 public class EpicUpdateService extends BaseService {
     private final EpicConverter converter;
 
-    public EpicUpdateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, EpicConverter converter, ObjectMapper objectMapper) {
-        super(properties, httpClient, objectMapper);
+    public EpicUpdateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, EpicConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
         this.converter = converter;
     }
 
@@ -23,11 +23,20 @@ public class EpicUpdateService extends BaseService {
     }
 
     public EpicDto update(int id, String name, String description, String stateName, Double effort) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        if (name != null && !name.isBlank()) body.put("Name", name);
-        if (description != null) body.put("Description", description);
-        if (stateName != null && !stateName.isBlank()) body.put("EntityState", Map.of("Name", stateName));
-        if (effort != null) body.put("Effort", effort);
-        return engine.update(QueryEngine.EPIC, id, body, converter::toDto, Epic.class);
+        Map<String, Object> bodyMap = new LinkedHashMap<>();
+        if (name != null && !name.isBlank()) {
+            bodyMap.put("Name", name);
+        }
+        if (description != null) {
+            bodyMap.put("Description", description);
+        }
+        if (stateName != null && !stateName.isBlank()) {
+            bodyMap.put("EntityState", Map.of("Name", stateName));
+        }
+        if (effort != null) {
+            bodyMap.put("Effort", effort);
+        }
+        
+        return engine.update(QueryEngine.EPIC, id, bodyMap, converter::toDto, Epic.class);
     }
 }

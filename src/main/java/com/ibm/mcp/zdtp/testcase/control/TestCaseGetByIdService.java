@@ -11,8 +11,8 @@ import com.ibm.mcp.zdtp.testcase.entity.TestCaseDto;
 public class TestCaseGetByIdService extends BaseService {
     private final TestCaseConverter converter;
 
-    public TestCaseGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TestCaseConverter converter, ObjectMapper objectMapper) {
-        super(properties, httpClient, objectMapper);
+    public TestCaseGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TestCaseConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
         this.converter = converter;
     }
 

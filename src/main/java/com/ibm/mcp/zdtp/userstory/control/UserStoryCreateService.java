@@ -13,8 +13,9 @@ import com.ibm.mcp.zdtp.userstory.entity.UserStoryDto;
 public class UserStoryCreateService extends BaseService {
     private final UserStoryConverter converter;
 
-    public UserStoryCreateService(TargetProcessProperties props, TargetProcessHttpClient http, UserStoryConverter conv, ObjectMapper mapper) {
-        super(props, http, mapper); this.converter = conv;
+    public UserStoryCreateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, UserStoryConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
+        this.converter = converter;
     }
 
     public UserStoryDto createUserStory(String name, int projectId, String description, Double effort) {
@@ -22,9 +23,18 @@ public class UserStoryCreateService extends BaseService {
     }
 
     public UserStoryDto create(String name, int projectId, String description, Double effort) {
-        Map<String, Object> body = new LinkedHashMap<>(); body.put("Name", name); body.put("Project", Map.of("Id", projectId));
-        if (description != null && !description.isBlank()) body.put("Description", description);
-        if (effort != null) body.put("Effort", effort);
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("Name", name);
+        body.put("Project", Map.of("Id", projectId));
+        
+        if (description != null && !description.isBlank()) {
+            body.put("Description", description);
+        }
+        
+        if (effort != null) {
+            body.put("Effort", effort);
+        }
+        
         return engine.create(QueryEngine.USER_STORY, body, converter::toDto, UserStory.class);
     }
 }

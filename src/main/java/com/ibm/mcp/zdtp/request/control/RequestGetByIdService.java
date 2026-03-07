@@ -11,8 +11,8 @@ import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 public class RequestGetByIdService extends BaseService {
     private final RequestConverter converter;
 
-    public RequestGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, RequestConverter converter, ObjectMapper objectMapper) {
-        super(properties, httpClient, objectMapper);
+    public RequestGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, RequestConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
         this.converter = converter;
     }
 

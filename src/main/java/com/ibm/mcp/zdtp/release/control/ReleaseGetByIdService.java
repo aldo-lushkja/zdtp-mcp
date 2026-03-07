@@ -11,8 +11,8 @@ import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 public class ReleaseGetByIdService extends BaseService {
     private final ReleaseConverter converter;
 
-    public ReleaseGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, ReleaseConverter converter, ObjectMapper objectMapper) {
-        super(properties, httpClient, objectMapper);
+    public ReleaseGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, ReleaseConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
         this.converter = converter;
     }
 

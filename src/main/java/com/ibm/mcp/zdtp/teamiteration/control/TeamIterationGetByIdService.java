@@ -11,8 +11,8 @@ import com.ibm.mcp.zdtp.teamiteration.entity.TeamIterationDto;
 public class TeamIterationGetByIdService extends BaseService {
     private final TeamIterationConverter converter;
 
-    public TeamIterationGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TeamIterationConverter converter, ObjectMapper objectMapper) {
-        super(properties, httpClient, objectMapper);
+    public TeamIterationGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TeamIterationConverter converter, ObjectMapper mapper) {
+        super(properties, httpClient, mapper);
         this.converter = converter;
     }
 
