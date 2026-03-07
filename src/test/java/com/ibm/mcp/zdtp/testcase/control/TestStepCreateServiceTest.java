@@ -1,8 +1,10 @@
 package com.ibm.mcp.zdtp.testcase.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.testcase.entity.TestStep;
 import com.ibm.mcp.zdtp.testcase.entity.TestStepDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +41,8 @@ class TestStepCreateServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties properties = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new TestStepCreateService(properties, httpClient, new TestStepConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(properties, httpClient, new ObjectMapper());
+        service = new TestStepCreateService(engine, new TestStepConverter());
     }
 
     @Test
@@ -70,3 +73,9 @@ class TestStepCreateServiceTest {
                 .thenAnswer(inv -> new ObjectMapper().readValue(body, TestStep.class));
     }
 }
+
+
+
+
+
+

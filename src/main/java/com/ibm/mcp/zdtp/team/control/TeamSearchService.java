@@ -4,19 +4,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.team.entity.Team;
 import com.ibm.mcp.zdtp.team.entity.TeamDto;
 
 public class TeamSearchService extends BaseService {
     private final TeamConverter converter;
 
-    public TeamSearchService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TeamConverter converter, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public TeamSearchService(QueryEngine engine, TeamConverter converter) {
+        super(engine);
         this.converter = converter;
     }
 
@@ -41,3 +41,4 @@ public class TeamSearchService extends BaseService {
         return engine.list(QueryEngine.TEAM, parameters, new TypeReference<>() {}, converter::toDto);
     }
 }
+

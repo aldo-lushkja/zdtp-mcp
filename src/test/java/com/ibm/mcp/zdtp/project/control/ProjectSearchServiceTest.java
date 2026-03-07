@@ -1,10 +1,12 @@
 package com.ibm.mcp.zdtp.project.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.project.entity.ProjectDto;
 import com.ibm.mcp.zdtp.project.entity.ProjectData;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +38,8 @@ class ProjectSearchServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new ProjectSearchService(props, httpClient, new ProjectConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new ProjectSearchService(engine, new ProjectConverter());
     }
 
     @Test
@@ -67,3 +70,9 @@ class ProjectSearchServiceTest {
         assertThat(url).contains("take=5");
     }
 }
+
+
+
+
+
+

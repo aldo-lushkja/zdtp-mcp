@@ -61,3 +61,4 @@ public class TestPlanMcpTools {
 
     private String ns(String v) { return v != null ? v : "N/A"; }
 }
+

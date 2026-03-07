@@ -2,19 +2,19 @@ package com.ibm.mcp.zdtp.testcase.control;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.testcase.entity.TestCase;
 import com.ibm.mcp.zdtp.testcase.entity.TestCaseDto;
 
 public class TestCaseCreateService extends BaseService {
     private final TestCaseConverter converter;
 
-    public TestCaseCreateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TestCaseConverter converter, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public TestCaseCreateService(QueryEngine engine, TestCaseConverter converter) {
+        super(engine);
         this.converter = converter;
     }
 
@@ -38,3 +38,4 @@ public class TestCaseCreateService extends BaseService {
         return engine.create(QueryEngine.TEST_CASE, bodyMap, converter::toDto, TestCase.class);
     }
 }
+

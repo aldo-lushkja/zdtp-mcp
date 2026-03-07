@@ -48,3 +48,4 @@ public class TestPlanConverter {
         return Optional.ofNullable(testPlan.owner()).map(Owner::login).orElse(null);
     }
 }
+

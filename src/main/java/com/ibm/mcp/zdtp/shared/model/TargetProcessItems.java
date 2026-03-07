@@ -1,4 +1,4 @@
-package com.ibm.mcp.zdtp.shared.entity;
+package com.ibm.mcp.zdtp.shared.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;

@@ -1,8 +1,10 @@
 package com.ibm.mcp.zdtp.userstory.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +28,8 @@ class UserStoryDeleteServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties properties = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new UserStoryDeleteService(properties, httpClient, new ObjectMapper());
+        QueryEngine engine = new QueryEngine(properties, httpClient, new ObjectMapper());
+        service = new UserStoryDeleteService(engine);
     }
 
     @Test
@@ -35,3 +38,9 @@ class UserStoryDeleteServiceTest {
         verify(httpClient).delete(contains("/UserStories/123"));
     }
 }
+
+
+
+
+
+

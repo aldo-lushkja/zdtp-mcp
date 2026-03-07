@@ -1,6 +1,5 @@
-package com.ibm.mcp.zdtp.shared.control;
+package com.ibm.mcp.zdtp.shared.odata;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -10,8 +9,10 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.entity.TargetProcessResponse;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.model.TargetProcessResponse;
+import com.ibm.mcp.zdtp.shared.exception.TargetProcessClientException;
 
 public class QueryEngine {
     private final TargetProcessProperties properties;

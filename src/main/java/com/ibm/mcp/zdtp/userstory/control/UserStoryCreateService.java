@@ -2,19 +2,16 @@ package com.ibm.mcp.zdtp.userstory.control;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
 import com.ibm.mcp.zdtp.userstory.entity.UserStory;
 import com.ibm.mcp.zdtp.userstory.entity.UserStoryDto;
 
 public class UserStoryCreateService extends BaseService {
     private final UserStoryConverter converter;
 
-    public UserStoryCreateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, UserStoryConverter converter, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public UserStoryCreateService(QueryEngine engine, UserStoryConverter converter) {
+        super(engine);
         this.converter = converter;
     }
 

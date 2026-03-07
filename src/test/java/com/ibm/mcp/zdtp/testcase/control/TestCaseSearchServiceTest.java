@@ -1,8 +1,10 @@
 package com.ibm.mcp.zdtp.testcase.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.testcase.entity.TestCaseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +39,8 @@ class TestCaseSearchServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new TestCaseSearchService(props, httpClient, new TestCaseConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new TestCaseSearchService(engine, new TestCaseConverter());
     }
 
     @Test
@@ -67,3 +70,9 @@ class TestCaseSearchServiceTest {
         assertThat(url).contains("take=5");
     }
 }
+
+
+
+
+
+

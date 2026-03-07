@@ -2,19 +2,19 @@ package com.ibm.mcp.zdtp.feature.control;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.feature.entity.Feature;
 import com.ibm.mcp.zdtp.feature.entity.FeatureDto;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 
 public class FeatureUpdateService extends BaseService {
     private final FeatureConverter converter;
 
-    public FeatureUpdateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, FeatureConverter converter, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public FeatureUpdateService(QueryEngine engine, FeatureConverter converter) {
+        super(engine);
         this.converter = converter;
     }
 
@@ -40,3 +40,4 @@ public class FeatureUpdateService extends BaseService {
         return engine.update(QueryEngine.FEATURE, id, bodyMap, converter::toDto, Feature.class);
     }
 }
+

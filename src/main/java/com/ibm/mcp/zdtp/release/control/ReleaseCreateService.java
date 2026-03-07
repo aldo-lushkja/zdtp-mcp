@@ -2,19 +2,19 @@ package com.ibm.mcp.zdtp.release.control;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.release.entity.Release;
 import com.ibm.mcp.zdtp.release.entity.ReleaseDto;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 
 public class ReleaseCreateService extends BaseService {
     private final ReleaseConverter converter;
 
-    public ReleaseCreateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, ReleaseConverter converter, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public ReleaseCreateService(QueryEngine engine, ReleaseConverter converter) {
+        super(engine);
         this.converter = converter;
     }
 
@@ -38,3 +38,4 @@ public class ReleaseCreateService extends BaseService {
         return engine.create(QueryEngine.RELEASE, bodyMap, converter::toDto, Release.class);
     }
 }
+

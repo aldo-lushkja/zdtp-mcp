@@ -7,7 +7,7 @@ import com.ibm.mcp.zdtp.shared.entity.Project;
 import com.ibm.mcp.zdtp.shared.entity.ReleaseReference;
 import com.ibm.mcp.zdtp.shared.entity.SprintReference;
 
-import com.ibm.mcp.zdtp.shared.entity.TargetProcessItems;
+import com.ibm.mcp.zdtp.shared.model.TargetProcessItems;
 
 public record UserStory(
     @JsonProperty("ResourceType") String resourceType,

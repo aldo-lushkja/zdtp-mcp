@@ -53,3 +53,4 @@ public class FeatureConverter {
         return Optional.ofNullable(feature.owner()).map(Owner::login).orElse(null);
     }
 }
+

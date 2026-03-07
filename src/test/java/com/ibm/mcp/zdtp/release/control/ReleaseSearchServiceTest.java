@@ -1,8 +1,10 @@
 package com.ibm.mcp.zdtp.release.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.release.entity.ReleaseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +37,8 @@ class ReleaseSearchServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new ReleaseSearchService(props, httpClient, new ReleaseConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new ReleaseSearchService(engine, new ReleaseConverter());
     }
 
     @Test
@@ -65,3 +68,9 @@ class ReleaseSearchServiceTest {
         assertThat(url).contains("take=5");
     }
 }
+
+
+
+
+
+

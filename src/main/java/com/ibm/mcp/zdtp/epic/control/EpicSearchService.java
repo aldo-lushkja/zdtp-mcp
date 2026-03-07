@@ -4,27 +4,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.epic.entity.Epic;
 import com.ibm.mcp.zdtp.epic.entity.EpicDto;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
 
 public class EpicSearchService extends BaseService {
     private final EpicConverter converter;
 
-    public EpicSearchService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, EpicConverter converter, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public EpicSearchService(QueryEngine engine, EpicConverter converter) {
+        super(engine);
         this.converter = converter;
     }
 
     public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take) {}
-
-    public List<EpicDto> searchEpics(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take) {
-        return search(new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take));
-    }
 
     public List<EpicDto> search(SearchCriteria criteria) {
         String whereClause = query()
