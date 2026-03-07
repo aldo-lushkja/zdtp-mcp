@@ -1,18 +1,18 @@
 package com.ibm.mcp.zdtp.epic.control;
 
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mcp.zdtp.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.epic.entity.Epic;
 import com.ibm.mcp.zdtp.epic.entity.EpicDto;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
+import com.ibm.mcp.zdtp.shared.control.QueryEngine;
 import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 
 public class EpicGetByIdService extends BaseService {
-    private static final String INCLUDE = "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login]]";
     private final EpicConverter converter;
 
-    public EpicGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, EpicConverter converter) {
-        super(properties, httpClient);
+    public EpicGetByIdService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, EpicConverter converter, ObjectMapper objectMapper) {
+        super(properties, httpClient, objectMapper);
         this.converter = converter;
     }
 
@@ -21,7 +21,6 @@ public class EpicGetByIdService extends BaseService {
     }
 
     public EpicDto get(int id) {
-        Map<String, String> parameters = Map.of("include", INCLUDE);
-        return fetchSingle("Epics/" + id, parameters, Epic.class, converter::toDto);
+        return engine.get(QueryEngine.EPIC, id, converter::toDto, Epic.class);
     }
 }

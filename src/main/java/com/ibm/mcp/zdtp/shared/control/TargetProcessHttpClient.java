@@ -1,9 +1,8 @@
 package com.ibm.mcp.zdtp.shared.control;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ibm.mcp.zdtp.shared.entity.TargetProcessResponse;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -17,6 +16,7 @@ public class TargetProcessHttpClient {
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
+    private static final ObjectMapper DEFAULT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
 
     public TargetProcessHttpClient(HttpClient httpClient, ObjectMapper objectMapper) {
         this.httpClient = httpClient;
@@ -44,7 +44,7 @@ public class TargetProcessHttpClient {
 
     public <T> TargetProcessResponse<T> parse(String body, TypeReference<TargetProcessResponse<T>> ref) {
         try {
-            return objectMapper.readValue(body, ref);
+            return getMapper().readValue(body, ref);
         } catch (Exception e) {
             throw new TargetProcessClientException("Failed to parse Targetprocess response", e);
         }
@@ -52,13 +52,17 @@ public class TargetProcessHttpClient {
 
     public <T> T parseSingle(String body, Class<T> clazz) {
         try {
-            return objectMapper.readValue(body, clazz);
+            return getMapper().readValue(body, clazz);
         } catch (Exception e) {
             throw new TargetProcessClientException("Failed to parse Targetprocess response", e);
         }
     }
 
-    public String encode(String value) {
+    private ObjectMapper getMapper() {
+        return objectMapper != null ? objectMapper : DEFAULT_MAPPER;
+    }
+
+    public static String encode(String value) {
         if (value == null) return "";
         return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
     }

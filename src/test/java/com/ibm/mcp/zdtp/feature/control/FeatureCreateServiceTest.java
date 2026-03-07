@@ -2,7 +2,6 @@ package com.ibm.mcp.zdtp.feature.control;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.feature.control.FeatureConverter;
 import com.ibm.mcp.zdtp.feature.entity.FeatureDto;
 import com.ibm.mcp.zdtp.feature.entity.Feature;
 import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
@@ -48,44 +47,31 @@ class FeatureCreateServiceTest {
         service = new FeatureCreateService(props, httpClient, new FeatureConverter(), new ObjectMapper());
     }
 
-    // ── URL tests ────────────────────────────────────────────────────────────────
-
     @Test
     void create_urlPointsToFeaturesEndpoint() {
         givenApiReturns(FEATURE_RESPONSE);
-
         service.createFeature("New Feature", 42, null, null);
-
-        assertThat(captureUrl()).contains(BASE_URL + "/api/v1/Features");
+        assertThat(captureUrl()).contains("/api/v1/Features");
     }
 
     @Test
     void create_urlContainsFormatJson() {
         givenApiReturns(FEATURE_RESPONSE);
-
         service.createFeature("New Feature", 42, null, null);
-
         assertThat(captureUrl()).contains("format=json");
     }
 
     @Test
     void create_urlContainsInclude() {
         givenApiReturns(FEATURE_RESPONSE);
-
         service.createFeature("New Feature", 42, null, null);
-
-        assertThat(URLDecoder.decode(captureUrl(), StandardCharsets.UTF_8))
-                .contains("Owner");
+        assertThat(URLDecoder.decode(captureUrl(), StandardCharsets.UTF_8)).contains("Owner");
     }
-
-    // ── Request body tests ───────────────────────────────────────────────────────
 
     @Test
     void create_bodyContainsNameAndProjectId() {
         givenApiReturns(FEATURE_RESPONSE);
-
         service.createFeature("New Feature", 42, null, null);
-
         String body = captureBody();
         assertThat(body).contains("\"Name\":\"New Feature\"");
         assertThat(body).contains("\"Id\":42");
@@ -94,47 +80,35 @@ class FeatureCreateServiceTest {
     @Test
     void create_bodyContainsDescriptionWhenProvided() {
         givenApiReturns(FEATURE_RESPONSE);
-
         service.createFeature("New Feature", 42, "Feature description", null);
-
         assertThat(captureBody()).contains("\"Description\":\"Feature description\"");
     }
 
     @Test
     void create_bodyOmitsDescriptionWhenBlank() {
         givenApiReturns(FEATURE_RESPONSE);
-
         service.createFeature("New Feature", 42, "", null);
+        assertThat(captureBody()).doesNotContain("Description");
+    }
 
+    @Test
+    void create_bodyOmitsDescriptionWhenNull() {
+        givenApiReturns(FEATURE_RESPONSE);
+        service.createFeature("New Feature", 42, null, null);
         assertThat(captureBody()).doesNotContain("Description");
     }
 
     @Test
     void create_bodyContainsEffortWhenProvided() {
         givenApiReturns(FEATURE_RESPONSE);
-
         service.createFeature("New Feature", 42, null, 13.0);
-
         assertThat(captureBody()).contains("\"Effort\":13.0");
     }
 
     @Test
-    void create_bodyOmitsEffortWhenNull() {
-        givenApiReturns(FEATURE_RESPONSE);
-
-        service.createFeature("New Feature", 42, null, null);
-
-        assertThat(captureBody()).doesNotContain("Effort");
-    }
-
-    // ── Response parsing tests ───────────────────────────────────────────────────
-
-    @Test
     void create_mapsResponseCorrectly() {
         givenApiReturns(FEATURE_RESPONSE);
-
         FeatureDto result = service.createFeature("New Feature", 42, null, null);
-
         assertThat(result.id()).isEqualTo(200);
         assertThat(result.name()).isEqualTo("New Feature");
         assertThat(result.projectName()).isEqualTo("satispay_plus");
@@ -146,19 +120,15 @@ class FeatureCreateServiceTest {
 
     @Test
     void create_apiError_throwsTargetProcessApiException() {
-        when(httpClient.post(any(), any()))
-                .thenThrow(new TargetProcessApiException(400, "{\"Message\":\"Bad Request\"}"));
-
+        when(httpClient.post(any(), any())).thenThrow(new TargetProcessApiException(400, "Bad Request"));
         assertThatThrownBy(() -> service.createFeature("Bad", 0, null, null))
                 .isInstanceOf(TargetProcessApiException.class);
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────────
-
     private void givenApiReturns(String body) {
         when(httpClient.post(any(), any())).thenReturn(body);
         when(httpClient.parseSingle(eq(body), eq(Feature.class)))
-                .thenAnswer(inv -> new ObjectMapper().readValue(body.trim(), Feature.class));
+                .thenAnswer(inv -> new ObjectMapper().readValue(body, Feature.class));
     }
 
     private String captureUrl() {

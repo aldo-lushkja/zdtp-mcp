@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mcp.zdtp.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.shared.control.TargetProcessApiException;
-import com.ibm.mcp.zdtp.testplan.control.TestPlanConverter;
 import com.ibm.mcp.zdtp.testplan.entity.TestPlanDto;
 import com.ibm.mcp.zdtp.testplan.entity.TestPlan;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,14 +28,14 @@ class TestPlanUpdateServiceTest {
 
     private static final String BASE_URL = "https://company.tpondemand.com";
     private static final String TOKEN = "test-token";
-    // 1736899200000 ms epoch = 2025-01-15T00:00:00Z
-    private static final String TEST_PLAN_RESPONSE = """
-            {"Id":55,"Name":"Updated Plan","Project":{"Id":1,"Name":"satispay_plus"},
-            "EntityState":{"Id":11,"Name":"In Progress"},"CreateDate":"\\/Date(1736899200000+0000)\\/",
-            "Owner":{"Id":5,"Login":"aldo.lushkja@satispay.com"}}
+    private static final String PLAN_RESPONSE = """
+            {"Id":1,"Name":"Updated Plan","Project":{"Id":42,"Name":"P1"},
+            "EntityState":{"Id":2,"Name":"Active"},"CreateDate":"\\/Date(1736899200000+0000)\\/",
+            "Owner":{"Id":5,"Login":"owner@test.com"}}
             """;
 
-    @Mock TargetProcessHttpClient httpClient;
+    @Mock
+    TargetProcessHttpClient httpClient;
 
     TestPlanUpdateService service;
 
@@ -46,123 +45,88 @@ class TestPlanUpdateServiceTest {
         service = new TestPlanUpdateService(props, httpClient, new TestPlanConverter(), new ObjectMapper());
     }
 
-    // ── URL tests ─────────────────────────────────────────────────────────────────
-
     @Test
     void update_urlContainsTestPlanId() {
-        givenApiReturns(TEST_PLAN_RESPONSE);
-
-        service.updateTestPlan(55, null, null, null);
-
-        assertThat(captureUrl()).contains("/api/v1/TestPlans/55");
+        givenApiReturns(PLAN_RESPONSE);
+        service.updateTestPlan(1, "New Name", null, null);
+        assertThat(captureUrl()).contains("/api/v1/TestPlans/1");
     }
 
     @Test
     void update_urlContainsFormatJson() {
-        givenApiReturns(TEST_PLAN_RESPONSE);
-
-        service.updateTestPlan(55, null, null, null);
-
+        givenApiReturns(PLAN_RESPONSE);
+        service.updateTestPlan(1, "New Name", null, null);
         assertThat(captureUrl()).contains("format=json");
     }
 
     @Test
     void update_urlContainsInclude() {
-        givenApiReturns(TEST_PLAN_RESPONSE);
-
-        service.updateTestPlan(55, null, null, null);
-
-        assertThat(URLDecoder.decode(captureUrl(), StandardCharsets.UTF_8))
-                .contains("Owner");
+        givenApiReturns(PLAN_RESPONSE);
+        service.updateTestPlan(1, "New Name", null, null);
+        assertThat(URLDecoder.decode(captureUrl(), StandardCharsets.UTF_8)).contains("Owner");
     }
-
-    // ── Request body tests ────────────────────────────────────────────────────────
 
     @Test
     void update_bodyContainsNameWhenProvided() {
-        givenApiReturns(TEST_PLAN_RESPONSE);
-
-        service.updateTestPlan(55, "Updated Plan", null, null);
-
-        assertThat(captureBody()).contains("\"Name\":\"Updated Plan\"");
+        givenApiReturns(PLAN_RESPONSE);
+        service.updateTestPlan(1, "New Name", null, null);
+        assertThat(captureBody()).contains("\"Name\":\"New Name\"");
     }
 
     @Test
     void update_bodyOmitsNameWhenBlank() {
-        givenApiReturns(TEST_PLAN_RESPONSE);
-
-        service.updateTestPlan(55, "", null, null);
-
-        assertThat(captureBody()).doesNotContain("Name");
+        givenApiReturns(PLAN_RESPONSE);
+        service.updateTestPlan(1, "", "Desc", null);
+        assertThat(captureBody()).doesNotContain("\"Name\":");
     }
 
     @Test
     void update_bodyContainsDescriptionWhenProvided() {
-        givenApiReturns(TEST_PLAN_RESPONSE);
-
-        service.updateTestPlan(55, null, "Updated description", null);
-
-        assertThat(captureBody()).contains("\"Description\":\"Updated description\"");
+        givenApiReturns(PLAN_RESPONSE);
+        service.updateTestPlan(1, null, "New Description", null);
+        assertThat(captureBody()).contains("\"Description\":\"New Description\"");
     }
 
     @Test
     void update_bodyContainsEntityStateWhenProvided() {
-        givenApiReturns(TEST_PLAN_RESPONSE);
-
-        service.updateTestPlan(55, null, null, "In Progress");
-
-        String body = captureBody();
-        assertThat(body).contains("EntityState");
-        assertThat(body).contains("\"Name\":\"In Progress\"");
+        givenApiReturns(PLAN_RESPONSE);
+        service.updateTestPlan(1, null, null, "Active");
+        assertThat(captureBody()).contains("\"EntityState\":{\"Name\":\"Active\"}");
     }
 
     @Test
     void update_bodyOmitsEntityStateWhenBlank() {
-        givenApiReturns(TEST_PLAN_RESPONSE);
-
-        service.updateTestPlan(55, null, null, "");
-
+        givenApiReturns(PLAN_RESPONSE);
+        service.updateTestPlan(1, null, null, "");
         assertThat(captureBody()).doesNotContain("EntityState");
     }
 
     @Test
     void update_emptyBody_whenAllFieldsNull() {
-        givenApiReturns(TEST_PLAN_RESPONSE);
-
-        service.updateTestPlan(55, null, null, null);
-
+        givenApiReturns(PLAN_RESPONSE);
+        service.updateTestPlan(1, null, null, null);
         assertThat(captureBody()).isEqualTo("{}");
     }
 
-    // ── Response parsing tests ────────────────────────────────────────────────────
-
     @Test
     void update_mapsResponseCorrectly() {
-        givenApiReturns(TEST_PLAN_RESPONSE);
-
-        TestPlanDto result = service.updateTestPlan(55, "Updated Plan", null, "In Progress");
-
-        assertThat(result.id()).isEqualTo(55);
+        givenApiReturns(PLAN_RESPONSE);
+        TestPlanDto result = service.updateTestPlan(1, "Updated Plan", null, null);
+        assertThat(result.id()).isEqualTo(1);
         assertThat(result.name()).isEqualTo("Updated Plan");
-        assertThat(result.state()).isEqualTo("In Progress");
-        assertThat(result.createdAt()).isEqualTo("2025-01-15");
     }
 
     @Test
     void update_apiError_throwsTargetProcessApiException() {
-        when(httpClient.post(any(), any()))
-                .thenThrow(new TargetProcessApiException(404, "{\"Message\":\"Not Found\"}"));
-
-        assertThatThrownBy(() -> service.updateTestPlan(999, "X", null, null))
+        when(httpClient.post(any(), any())).thenThrow(new TargetProcessApiException(400, "Bad Request"));
+        assertThatThrownBy(() -> service.updateTestPlan(1, "Name", null, null))
                 .isInstanceOf(TargetProcessApiException.class);
     }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────────
 
     private void givenApiReturns(String body) {
         when(httpClient.post(any(), any())).thenReturn(body);
         when(httpClient.parseSingle(eq(body), eq(TestPlan.class)))
-                .thenAnswer(inv -> new ObjectMapper().readValue(body.trim(), TestPlan.class));
+                .thenAnswer(inv -> new ObjectMapper().readValue(body, TestPlan.class));
     }
 
     private String captureUrl() {

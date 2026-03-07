@@ -1,11 +1,11 @@
-package com.ibm.mcp.zdtp.userstory.control;
+package com.ibm.mcp.zdtp.testplan.control;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mcp.zdtp.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.shared.control.TargetProcessApiException;
-import com.ibm.mcp.zdtp.userstory.entity.UserStoryDto;
-import com.ibm.mcp.zdtp.userstory.entity.UserStory;
+import com.ibm.mcp.zdtp.testplan.entity.TestPlanDto;
+import com.ibm.mcp.zdtp.testplan.entity.TestPlan;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,50 +24,49 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserStoryGetByIdServiceTest {
+class TestPlanGetByIdServiceTest {
 
     private static final String BASE_URL = "https://company.tpondemand.com";
     private static final String TOKEN = "test-token";
-    private static final String STORY_RESPONSE = """
-            {"Id":123,"Name":"Test Story","Project":{"Id":1,"Name":"P1"},
-            "EntityState":{"Id":2,"Name":"In Dev"},"CreateDate":"\\/Date(1736899200000+0000)\\/",
-            "EndDate":null,"Effort":5.0,
+    private static final String PLAN_RESPONSE = """
+            {"Id":123,"Name":"Test Plan","Project":{"Id":1,"Name":"P1"},
+            "EntityState":{"Id":2,"Name":"Active"},"CreateDate":"\\/Date(1736899200000+0000)\\/",
             "Owner":{"Id":5,"Login":"owner@test.com"}}
             """;
 
     @Mock
     TargetProcessHttpClient httpClient;
 
-    UserStoryGetByIdService service;
+    TestPlanGetByIdService service;
 
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new UserStoryGetByIdService(props, httpClient, new UserStoryConverter(), new ObjectMapper());
+        service = new TestPlanGetByIdService(props, httpClient, new TestPlanConverter(), new ObjectMapper());
     }
 
     @Test
-    void urlContainsEntityId() {
-        givenApiReturns(STORY_RESPONSE);
+    void urlContainsPlanId() {
+        givenApiReturns(PLAN_RESPONSE);
         service.getById(123);
-        assertThat(captureUrl()).contains("/api/v1/UserStories/123");
+        assertThat(captureUrl()).contains("/api/v1/TestPlans/123");
     }
 
     @Test
     void urlContainsRequiredIncludeFields() {
-        givenApiReturns(STORY_RESPONSE);
+        givenApiReturns(PLAN_RESPONSE);
         service.getById(123);
         String url = captureUrl();
         assertThat(url).contains("include=");
-        assertThat(URLDecoder.decode(url, StandardCharsets.UTF_8)).contains("AssignedUser");
+        assertThat(URLDecoder.decode(url, StandardCharsets.UTF_8)).contains("Owner");
     }
 
     @Test
     void validResponse_mapsFieldsCorrectly() {
-        givenApiReturns(STORY_RESPONSE);
-        UserStoryDto result = service.getById(123);
+        givenApiReturns(PLAN_RESPONSE);
+        TestPlanDto result = service.getById(123);
         assertThat(result.id()).isEqualTo(123);
-        assertThat(result.name()).isEqualTo("Test Story");
+        assertThat(result.name()).isEqualTo("Test Plan");
         assertThat(result.ownerLogin()).isEqualTo("owner@test.com");
     }
 
@@ -79,8 +78,8 @@ class UserStoryGetByIdServiceTest {
 
     private void givenApiReturns(String body) {
         when(httpClient.fetch(any())).thenReturn(body);
-        when(httpClient.parseSingle(eq(body), eq(UserStory.class)))
-                .thenAnswer(inv -> new ObjectMapper().readValue(body, UserStory.class));
+        when(httpClient.parseSingle(eq(body), eq(TestPlan.class)))
+                .thenAnswer(inv -> new ObjectMapper().readValue(body, TestPlan.class));
     }
 
     private String captureUrl() {

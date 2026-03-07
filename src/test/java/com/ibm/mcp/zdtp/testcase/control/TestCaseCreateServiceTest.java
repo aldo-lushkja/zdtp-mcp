@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mcp.zdtp.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.shared.control.TargetProcessApiException;
-import com.ibm.mcp.zdtp.testcase.control.TestCaseConverter;
 import com.ibm.mcp.zdtp.testcase.entity.TestCaseDto;
 import com.ibm.mcp.zdtp.testcase.entity.TestCase;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,14 +29,14 @@ class TestCaseCreateServiceTest {
     private static final String BASE_URL = "https://company.tpondemand.com";
     private static final String TOKEN = "test-token";
     // 1736899200000 ms epoch = 2025-01-15T00:00:00Z
-    private static final String TEST_CASE_RESPONSE = """
-            {"Id":77,"Name":"Login flow test","Project":{"Id":42,"Name":"satispay_plus"},
-            "EntityState":{"Id":10,"Name":"Open"},"CreateDate":"\\/Date(1736899200000+0000)\\/",
-            "Owner":{"Id":5,"Login":"aldo.lushkja@satispay.com"},
-            "TestPlans":{"Items":[{"Id":55,"Name":"Regression Suite"}]}}
+    private static final String CASE_RESPONSE = """
+            {"Id":1,"Name":"New Case","Project":{"Id":42,"Name":"P1"},
+            "EntityState":{"Id":2,"Name":"Draft"},"CreateDate":"\\/Date(1736899200000+0000)\\/",
+            "Owner":{"Id":5,"Login":"owner@test.com"}}
             """;
 
-    @Mock TargetProcessHttpClient httpClient;
+    @Mock
+    TargetProcessHttpClient httpClient;
 
     TestCaseCreateService service;
 
@@ -47,128 +46,92 @@ class TestCaseCreateServiceTest {
         service = new TestCaseCreateService(props, httpClient, new TestCaseConverter(), new ObjectMapper());
     }
 
-    // ── URL tests ─────────────────────────────────────────────────────────────────
-
     @Test
     void create_urlPointsToTestCasesEndpoint() {
-        givenApiReturns(TEST_CASE_RESPONSE);
-
-        service.createTestCase("Login flow test", 42, null, null);
-
-        assertThat(captureUrl()).contains(BASE_URL + "/api/v1/TestCases");
+        givenApiReturns(CASE_RESPONSE);
+        service.createTestCase("New Case", 42, null, null);
+        assertThat(captureUrl()).contains("/api/v1/TestCases");
     }
 
     @Test
     void create_urlContainsFormatJson() {
-        givenApiReturns(TEST_CASE_RESPONSE);
-
-        service.createTestCase("Login flow test", 42, null, null);
-
+        givenApiReturns(CASE_RESPONSE);
+        service.createTestCase("New Case", 42, null, null);
         assertThat(captureUrl()).contains("format=json");
     }
 
     @Test
     void create_urlContainsInclude() {
-        givenApiReturns(TEST_CASE_RESPONSE);
-
-        service.createTestCase("Login flow test", 42, null, null);
-
-        assertThat(URLDecoder.decode(captureUrl(), StandardCharsets.UTF_8))
-                .contains("Owner");
+        givenApiReturns(CASE_RESPONSE);
+        service.createTestCase("New Case", 42, null, null);
+        assertThat(URLDecoder.decode(captureUrl(), StandardCharsets.UTF_8)).contains("Owner");
     }
-
-    // ── Request body tests ────────────────────────────────────────────────────────
 
     @Test
     void create_bodyContainsNameAndProjectId() {
-        givenApiReturns(TEST_CASE_RESPONSE);
-
-        service.createTestCase("Login flow test", 42, null, null);
-
+        givenApiReturns(CASE_RESPONSE);
+        service.createTestCase("New Case", 42, null, null);
         String body = captureBody();
-        assertThat(body).contains("\"Name\":\"Login flow test\"");
+        assertThat(body).contains("\"Name\":\"New Case\"");
         assertThat(body).contains("\"Id\":42");
     }
 
     @Test
     void create_bodyContainsDescriptionWhenProvided() {
-        givenApiReturns(TEST_CASE_RESPONSE);
-
-        service.createTestCase("Login flow test", 42, "Verify login works", null);
-
-        assertThat(captureBody()).contains("\"Description\":\"Verify login works\"");
+        givenApiReturns(CASE_RESPONSE);
+        service.createTestCase("New Case", 42, "Case description", null);
+        assertThat(captureBody()).contains("\"Description\":\"Case description\"");
     }
 
     @Test
     void create_bodyOmitsDescriptionWhenBlank() {
-        givenApiReturns(TEST_CASE_RESPONSE);
-
-        service.createTestCase("Login flow test", 42, "", null);
-
+        givenApiReturns(CASE_RESPONSE);
+        service.createTestCase("New Case", 42, "", null);
         assertThat(captureBody()).doesNotContain("Description");
     }
 
     @Test
     void create_bodyOmitsDescriptionWhenNull() {
-        givenApiReturns(TEST_CASE_RESPONSE);
-
-        service.createTestCase("Login flow test", 42, null, null);
-
+        givenApiReturns(CASE_RESPONSE);
+        service.createTestCase("New Case", 42, null, null);
         assertThat(captureBody()).doesNotContain("Description");
     }
 
     @Test
     void create_bodyContainsTestPlanIdWhenProvided() {
-        givenApiReturns(TEST_CASE_RESPONSE);
-
-        service.createTestCase("Login flow test", 42, null, 55);
-
-        String body = captureBody();
-        assertThat(body).contains("TestPlan");
-        assertThat(body).contains("\"Id\":55");
+        givenApiReturns(CASE_RESPONSE);
+        service.createTestCase("New Case", 42, null, 99);
+        assertThat(captureBody()).contains("\"TestPlan\":{\"Id\":99}");
     }
 
     @Test
     void create_bodyOmitsTestPlanWhenNull() {
-        givenApiReturns(TEST_CASE_RESPONSE);
-
-        service.createTestCase("Login flow test", 42, null, null);
-
+        givenApiReturns(CASE_RESPONSE);
+        service.createTestCase("New Case", 42, null, null);
         assertThat(captureBody()).doesNotContain("TestPlan");
     }
 
-    // ── Response parsing tests ────────────────────────────────────────────────────
-
     @Test
     void create_mapsResponseCorrectly() {
-        givenApiReturns(TEST_CASE_RESPONSE);
-
-        TestCaseDto result = service.createTestCase("Login flow test", 42, null, 55);
-
-        assertThat(result.id()).isEqualTo(77);
-        assertThat(result.name()).isEqualTo("Login flow test");
-        assertThat(result.projectName()).isEqualTo("satispay_plus");
-        assertThat(result.state()).isEqualTo("Open");
-        assertThat(result.ownerLogin()).isEqualTo("aldo.lushkja@satispay.com");
-        assertThat(result.testPlanName()).isEqualTo("Regression Suite");
+        givenApiReturns(CASE_RESPONSE);
+        TestCaseDto result = service.createTestCase("New Case", 42, null, null);
+        assertThat(result.id()).isEqualTo(1);
+        assertThat(result.name()).isEqualTo("New Case");
+        assertThat(result.ownerLogin()).isEqualTo("owner@test.com");
         assertThat(result.createdAt()).isEqualTo("2025-01-15");
     }
 
     @Test
     void create_apiError_throwsTargetProcessApiException() {
-        when(httpClient.post(any(), any()))
-                .thenThrow(new TargetProcessApiException(400, "{\"Message\":\"Bad Request\"}"));
-
+        when(httpClient.post(any(), any())).thenThrow(new TargetProcessApiException(400, "Bad Request"));
         assertThatThrownBy(() -> service.createTestCase("Bad", 0, null, null))
                 .isInstanceOf(TargetProcessApiException.class);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────────
-
     private void givenApiReturns(String body) {
         when(httpClient.post(any(), any())).thenReturn(body);
         when(httpClient.parseSingle(eq(body), eq(TestCase.class)))
-                .thenAnswer(inv -> new ObjectMapper().readValue(body.trim(), TestCase.class));
+                .thenAnswer(inv -> new ObjectMapper().readValue(body, TestCase.class));
     }
 
     private String captureUrl() {

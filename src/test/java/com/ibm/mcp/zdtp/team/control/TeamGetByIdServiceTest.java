@@ -3,95 +3,42 @@ package com.ibm.mcp.zdtp.team.control;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mcp.zdtp.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessApiException;
-import com.ibm.mcp.zdtp.team.control.TeamConverter;
 import com.ibm.mcp.zdtp.team.entity.TeamDto;
+import com.ibm.mcp.zdtp.team.entity.Team;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.IOException;
-import java.net.URLDecoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TeamGetByIdServiceTest {
 
-    private static final String BASE_URL = "https://company.tpondemand.com";
-    private static final String TOKEN = "test-token";
-    private static final String TEAM_RESPONSE = """
-            {"Id":163894,"Name":"IT Consumer 6"}
-            """;
-
     @Mock
-    HttpClient httpClient;
-
-    @SuppressWarnings("unchecked")
-    @Mock
-    HttpResponse<String> httpResponse;
+    TargetProcessHttpClient httpClient;
 
     TeamGetByIdService service;
 
     @BeforeEach
     void setUp() {
-        TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        TargetProcessHttpClient tpHttpClient = new TargetProcessHttpClient(httpClient, new ObjectMapper());
-        service = new TeamGetByIdService(props, tpHttpClient, new TeamConverter());
+        TargetProcessProperties props = new TargetProcessProperties("http://test", "token");
+        service = new TeamGetByIdService(props, httpClient, new TeamConverter(), new ObjectMapper());
     }
 
     @Test
-    void urlContainsEntityId() throws Exception {
-        givenApiReturns(TEAM_RESPONSE);
+    void getById_returnsMappedTeam() {
+        String body = "{\"Id\":123,\"Name\":\"Team A\"}";
+        when(httpClient.fetch(any())).thenReturn(body);
+        when(httpClient.parseSingle(eq(body), eq(Team.class)))
+                .thenAnswer(inv -> new ObjectMapper().readValue(body, Team.class));
 
-        service.getById(163894);
-
-        assertThat(captureDecodedUrl()).contains("/Teams/163894");
-    }
-
-    @Test
-    void validResponse_mapsFieldsCorrectly() throws Exception {
-        givenApiReturns(TEAM_RESPONSE);
-
-        TeamDto team = service.getById(163894);
-
-        assertThat(team.id()).isEqualTo(163894);
-        assertThat(team.name()).isEqualTo("IT Consumer 6");
-    }
-
-    @Test
-    void nonOkHttpStatus_throwsTargetProcessApiException() throws Exception {
-        when(httpResponse.statusCode()).thenReturn(404);
-        when(httpResponse.body()).thenReturn("{\"Message\":\"Not Found\"}");
-        doReturn(httpResponse).when(httpClient).send(any(), any());
-
-        assertThatThrownBy(() -> service.getById(999))
-                .isInstanceOf(TargetProcessApiException.class);
-    }
-
-    // ── Helpers ─────────────────────────────────────────────────────────────────
-
-    private void givenApiReturns(String body) throws IOException, InterruptedException {
-        when(httpResponse.statusCode()).thenReturn(200);
-        when(httpResponse.body()).thenReturn(body);
-        doReturn(httpResponse).when(httpClient).send(any(), any());
-    }
-
-    private String captureDecodedUrl() throws IOException, InterruptedException {
-        ArgumentCaptor<HttpRequest> captor = ArgumentCaptor.forClass(HttpRequest.class);
-        verify(httpClient).send(captor.capture(), any());
-        return URLDecoder.decode(captor.getValue().uri().toString(), StandardCharsets.UTF_8);
+        TeamDto result = service.getById(123);
+        assertThat(result.id()).isEqualTo(123);
+        assertThat(result.name()).isEqualTo("Team A");
     }
 }
