@@ -1,9 +1,11 @@
 package com.ibm.mcp.zdtp.testplan.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessApiException;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.exception.TargetProcessApiException;
 import com.ibm.mcp.zdtp.testplan.entity.TestPlanDto;
 import com.ibm.mcp.zdtp.testplan.entity.TestPlan;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +45,8 @@ class TestPlanCreateServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new TestPlanCreateService(props, httpClient, new TestPlanConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new TestPlanCreateService(engine, new TestPlanConverter());
     }
 
     @Test
@@ -132,3 +135,9 @@ class TestPlanCreateServiceTest {
         return captor.getValue();
     }
 }
+
+
+
+
+
+

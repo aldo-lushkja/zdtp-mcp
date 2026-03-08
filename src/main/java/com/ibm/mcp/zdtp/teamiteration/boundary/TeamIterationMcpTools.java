@@ -35,3 +35,4 @@ public class TeamIterationMcpTools {
         return "[%d] %s (Team: %s, Start: %s, End: %s)".formatted(team.id(), team.name(), team.teamName(), team.startDate(), team.endDate());
     }
 }
+

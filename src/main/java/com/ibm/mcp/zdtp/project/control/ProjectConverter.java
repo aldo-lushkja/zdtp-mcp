@@ -36,3 +36,4 @@ public class ProjectConverter {
         return Optional.ofNullable(project.state()).map(EntityState::name).orElse(null);
     }
 }
+

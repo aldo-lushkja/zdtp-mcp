@@ -51,3 +51,4 @@ public class ReleaseConverter {
         return Optional.ofNullable(release.owner()).map(Owner::login).orElse(null);
     }
 }
+

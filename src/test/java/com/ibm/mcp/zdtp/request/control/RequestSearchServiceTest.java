@@ -1,8 +1,10 @@
 package com.ibm.mcp.zdtp.request.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.request.entity.RequestDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +37,8 @@ class RequestSearchServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new RequestSearchService(props, httpClient, new RequestConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new RequestSearchService(engine, new RequestConverter());
     }
 
     @Test
@@ -65,3 +68,9 @@ class RequestSearchServiceTest {
         assertThat(url).contains("take=5");
     }
 }
+
+
+
+
+
+

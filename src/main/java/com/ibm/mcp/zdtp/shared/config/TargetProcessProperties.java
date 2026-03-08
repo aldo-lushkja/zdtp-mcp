@@ -1,4 +1,4 @@
-package com.ibm.mcp.zdtp.config;
+package com.ibm.mcp.zdtp.shared.config;
 
 import java.util.Optional;
 

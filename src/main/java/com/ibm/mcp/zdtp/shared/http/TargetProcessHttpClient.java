@@ -1,9 +1,12 @@
-package com.ibm.mcp.zdtp.shared.control;
+package com.ibm.mcp.zdtp.shared.http;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.ibm.mcp.zdtp.shared.entity.TargetProcessResponse;
+import com.ibm.mcp.zdtp.shared.model.TargetProcessResponse;
+import com.ibm.mcp.zdtp.shared.exception.TargetProcessApiException;
+import com.ibm.mcp.zdtp.shared.exception.TargetProcessClientException;
+
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;

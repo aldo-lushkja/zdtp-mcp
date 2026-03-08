@@ -1,8 +1,8 @@
-name: Build and Publish Release
+name: CI/CD Pipeline (Git Flow)
 
 on:
   push:
-    branches: [ main, develop, 'feature/**', 'bugfix/**' ]
+    branches: [ main, develop, 'release/**', 'feature/**', 'bugfix/**', 'hotfix/**' ]
     tags: [ 'v*' ]
   workflow_dispatch:
 
@@ -11,61 +11,104 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-publish:
+  # 1. Metadata: Shared information
+  metadata:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      is_release: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') }}
+      is_pre_release: ${{ startsWith(github.ref, 'refs/heads/release/') || github.ref == 'refs/heads/develop' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: 'gradle'
-
       - name: Get Version
         id: get_version
         run: |
           VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
+  # 2. Continuous Integration: Test & Build (Runs for every push)
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+      - name: Run Tests
+        run: ./gradlew test
       - name: Build Shadow JAR
         run: ./gradlew shadowJar
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fat-jar
+          path: build/libs/*-all.jar
 
+  # 3. GitHub Release: Only for Main/Tags
+  publish-release:
+    needs: [metadata, ci]
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fat-jar
+          path: build/libs
       - name: Create Release
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: build/libs/zdtp-mcp-${{ env.VERSION }}-all.jar
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v{0}-{1}', env.VERSION, github.sha) }}
-          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('Release {0}', github.ref_name) || format('Snapshot {0}', github.sha) }}
+          files: build/libs/zdtp-mcp-${{ needs.metadata.outputs.version }}-all.jar
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v{0}', needs.metadata.outputs.version) }}
+          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('Release {0}', github.ref_name) || format('Release v{0}', needs.metadata.outputs.version) }}
           draft: false
-          prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # 4. Docker Registry: Strategic tagging
+  publish-docker:
+    needs: [metadata, ci]
+    # Deploy for develop, release branches, main, or tags
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      # Use Buildx for multi-stage building
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Build and push Docker Image (JVM-based)
+      
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           target: jvm
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            # Production tags (main or v*)
+            ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) && format('{0}/{1}:{2}', env.REGISTRY, env.IMAGE_NAME, needs.metadata.outputs.version) || '' }}
+            ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) && format('{0}/{1}:latest', env.REGISTRY, env.IMAGE_NAME) || '' }}
+            # Development/Staging tags
+            ${{ github.ref == 'refs/heads/develop' && format('{0}/{1}:develop', env.REGISTRY, env.IMAGE_NAME) || '' }}
+            ${{ startsWith(github.ref, 'refs/heads/release/') && format('{0}/{1}:release', env.REGISTRY, env.IMAGE_NAME) || '' }}

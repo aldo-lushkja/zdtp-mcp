@@ -50,3 +50,4 @@ public class RequestConverter {
         return Optional.ofNullable(request.owner()).map(Owner::login).orElse(null);
     }
 }
+

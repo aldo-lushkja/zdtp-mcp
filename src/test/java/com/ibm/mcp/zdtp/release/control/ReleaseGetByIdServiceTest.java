@@ -1,10 +1,12 @@
 package com.ibm.mcp.zdtp.release.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.release.entity.ReleaseDto;
 import com.ibm.mcp.zdtp.release.entity.Release;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +29,8 @@ class ReleaseGetByIdServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties("http://test", "token");
-        service = new ReleaseGetByIdService(props, httpClient, new ReleaseConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new ReleaseGetByIdService(engine, new ReleaseConverter());
     }
 
     @Test
@@ -42,3 +45,9 @@ class ReleaseGetByIdServiceTest {
         assertThat(result.name()).isEqualTo("Rel A");
     }
 }
+
+
+
+
+
+

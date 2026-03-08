@@ -2,19 +2,19 @@ package com.ibm.mcp.zdtp.testplan.control;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.testplan.entity.TestPlan;
 import com.ibm.mcp.zdtp.testplan.entity.TestPlanDto;
 
 public class TestPlanCreateService extends BaseService {
     private final TestPlanConverter converter;
 
-    public TestPlanCreateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TestPlanConverter converter, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public TestPlanCreateService(QueryEngine engine, TestPlanConverter converter) {
+        super(engine);
         this.converter = converter;
     }
 
@@ -28,9 +28,11 @@ public class TestPlanCreateService extends BaseService {
         bodyMap.put("Project", Map.of("Id", projectId));
         
         if (description != null && !description.isBlank()) {
-            bodyMap.put("Description", description);
+            bodyMap.put("Description", convertMarkdown(description));
         }
         
         return engine.create(QueryEngine.TEST_PLAN, bodyMap, converter::toDto, TestPlan.class);
     }
 }
+
+

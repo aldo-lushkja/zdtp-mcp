@@ -2,19 +2,19 @@ package com.ibm.mcp.zdtp.request.control;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.request.entity.Request;
 import com.ibm.mcp.zdtp.request.entity.RequestDto;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 
 public class RequestUpdateService extends BaseService {
     private final RequestConverter converter;
 
-    public RequestUpdateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, RequestConverter converter, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public RequestUpdateService(QueryEngine engine, RequestConverter converter) {
+        super(engine);
         this.converter = converter;
     }
 
@@ -28,7 +28,7 @@ public class RequestUpdateService extends BaseService {
             bodyMap.put("Name", name);
         }
         if (description != null) {
-            bodyMap.put("Description", description);
+            bodyMap.put("Description", convertMarkdown(description));
         }
         if (stateName != null && !stateName.isBlank()) {
             bodyMap.put("EntityState", Map.of("Name", stateName));
@@ -40,3 +40,5 @@ public class RequestUpdateService extends BaseService {
         return engine.update(QueryEngine.REQUEST, id, bodyMap, converter::toDto, Request.class);
     }
 }
+
+

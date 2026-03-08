@@ -1,9 +1,11 @@
 package com.ibm.mcp.zdtp.request.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessApiException;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.exception.TargetProcessApiException;
 import com.ibm.mcp.zdtp.request.entity.RequestDto;
 import com.ibm.mcp.zdtp.request.entity.Request;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +45,8 @@ class RequestCreateServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new RequestCreateService(props, httpClient, new RequestConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new RequestCreateService(engine, new RequestConverter());
     }
 
     @Test
@@ -139,3 +142,9 @@ class RequestCreateServiceTest {
         return captor.getValue();
     }
 }
+
+
+
+
+
+

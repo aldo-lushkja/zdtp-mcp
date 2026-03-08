@@ -4,19 +4,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.testcase.entity.TestCase;
 import com.ibm.mcp.zdtp.testcase.entity.TestCaseDto;
 
 public class TestCaseSearchService extends BaseService {
     private final TestCaseConverter converter;
 
-    public TestCaseSearchService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, TestCaseConverter converter, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public TestCaseSearchService(QueryEngine engine, TestCaseConverter converter) {
+        super(engine);
         this.converter = converter;
     }
 
@@ -45,3 +45,4 @@ public class TestCaseSearchService extends BaseService {
         return engine.list(QueryEngine.TEST_CASE, parameters, new TypeReference<>() {}, converter::toDto);
     }
 }
+

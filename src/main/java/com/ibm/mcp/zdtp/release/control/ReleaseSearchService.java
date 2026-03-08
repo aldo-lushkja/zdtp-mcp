@@ -4,19 +4,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.release.entity.Release;
 import com.ibm.mcp.zdtp.release.entity.ReleaseDto;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 
 public class ReleaseSearchService extends BaseService {
     private final ReleaseConverter converter;
 
-    public ReleaseSearchService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, ReleaseConverter converter, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public ReleaseSearchService(QueryEngine engine, ReleaseConverter converter) {
+        super(engine);
         this.converter = converter;
     }
 
@@ -46,3 +46,4 @@ public class ReleaseSearchService extends BaseService {
         return engine.list(QueryEngine.RELEASE, parameters, new TypeReference<>() {}, converter::toDto);
     }
 }
+

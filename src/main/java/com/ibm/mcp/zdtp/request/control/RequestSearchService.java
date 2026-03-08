@@ -4,19 +4,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.request.entity.Request;
 import com.ibm.mcp.zdtp.request.entity.RequestDto;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 
 public class RequestSearchService extends BaseService {
     private final RequestConverter converter;
 
-    public RequestSearchService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, RequestConverter converter, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public RequestSearchService(QueryEngine engine, RequestConverter converter) {
+        super(engine);
         this.converter = converter;
     }
 
@@ -45,3 +45,4 @@ public class RequestSearchService extends BaseService {
         return engine.list(QueryEngine.REQUEST, parameters, new TypeReference<>() {}, converter::toDto);
     }
 }
+

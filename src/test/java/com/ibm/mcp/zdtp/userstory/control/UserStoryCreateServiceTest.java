@@ -1,9 +1,11 @@
 package com.ibm.mcp.zdtp.userstory.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessApiException;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.exception.TargetProcessApiException;
 import com.ibm.mcp.zdtp.userstory.control.UserStoryConverter;
 import com.ibm.mcp.zdtp.userstory.entity.UserStoryDto;
 import com.ibm.mcp.zdtp.userstory.entity.UserStory;
@@ -45,7 +47,8 @@ class UserStoryCreateServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new UserStoryCreateService(props, httpClient, new UserStoryConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new UserStoryCreateService(engine, new UserStoryConverter());
     }
 
     @Test
@@ -144,3 +147,9 @@ class UserStoryCreateServiceTest {
         return captor.getValue();
     }
 }
+
+
+
+
+
+

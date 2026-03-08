@@ -12,7 +12,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import com.ibm.mcp.zdtp.shared.entity.TargetProcessItems;
+import com.ibm.mcp.zdtp.shared.model.TargetProcessItems;
 
 public class UserStoryConverter {
 

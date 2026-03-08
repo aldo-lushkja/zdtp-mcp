@@ -2,7 +2,19 @@ package com.ibm.mcp.zdtp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+import com.ibm.mcp.zdtp.comment.boundary.CommentMcpTools;
+import com.ibm.mcp.zdtp.comment.control.*;
+import com.ibm.mcp.zdtp.bug.boundary.BugMcpTools;
+import com.ibm.mcp.zdtp.bug.control.*;
+import com.ibm.mcp.zdtp.task.boundary.TaskMcpTools;
+import com.ibm.mcp.zdtp.task.control.*;
+import com.ibm.mcp.zdtp.user.boundary.UserMcpTools;
+import com.ibm.mcp.zdtp.user.control.*;
+import com.ibm.mcp.zdtp.relation.boundary.RelationMcpTools;
+import com.ibm.mcp.zdtp.relation.control.*;
 import com.ibm.mcp.zdtp.epic.boundary.EpicMcpTools;
 import com.ibm.mcp.zdtp.epic.control.*;
 import com.ibm.mcp.zdtp.feature.boundary.FeatureMcpTools;
@@ -10,21 +22,15 @@ import com.ibm.mcp.zdtp.feature.control.*;
 import com.ibm.mcp.zdtp.mcp.boundary.McpServer;
 import com.ibm.mcp.zdtp.mcp.boundary.SchemaBuilder;
 import com.ibm.mcp.zdtp.project.boundary.ProjectMcpTools;
-import com.ibm.mcp.zdtp.project.control.ProjectConverter;
-import com.ibm.mcp.zdtp.project.control.ProjectSearchService;
+import com.ibm.mcp.zdtp.project.control.*;
 import com.ibm.mcp.zdtp.release.boundary.ReleaseMcpTools;
 import com.ibm.mcp.zdtp.release.control.*;
 import com.ibm.mcp.zdtp.request.boundary.RequestMcpTools;
 import com.ibm.mcp.zdtp.request.control.*;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.team.boundary.TeamMcpTools;
-import com.ibm.mcp.zdtp.team.control.TeamConverter;
-import com.ibm.mcp.zdtp.team.control.TeamGetByIdService;
-import com.ibm.mcp.zdtp.team.control.TeamSearchService;
+import com.ibm.mcp.zdtp.team.control.*;
 import com.ibm.mcp.zdtp.teamiteration.boundary.TeamIterationMcpTools;
-import com.ibm.mcp.zdtp.teamiteration.control.TeamIterationConverter;
-import com.ibm.mcp.zdtp.teamiteration.control.TeamIterationGetByIdService;
-import com.ibm.mcp.zdtp.teamiteration.control.TeamIterationSearchService;
+import com.ibm.mcp.zdtp.teamiteration.control.*;
 import com.ibm.mcp.zdtp.testcase.boundary.TestCaseMcpTools;
 import com.ibm.mcp.zdtp.testcase.control.*;
 import com.ibm.mcp.zdtp.testplan.boundary.TestPlanMcpTools;
@@ -33,103 +39,148 @@ import com.ibm.mcp.zdtp.userstory.boundary.UserStoryMcpTools;
 import com.ibm.mcp.zdtp.userstory.control.*;
 
 import java.net.http.HttpClient;
-import java.time.Duration;
 
 public class ZdtpMcpApplication {
 
     public static void main(String[] args) {
         TargetProcessProperties properties = TargetProcessProperties.fromEnv();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-
-        HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(30)).build();
-        TargetProcessHttpClient tpHttpClient = new TargetProcessHttpClient(client, mapper);
-
-        // Domain: Epic
-        EpicConverter epicConverter = new EpicConverter();
-        EpicSearchService epicSearchService = new EpicSearchService(properties, tpHttpClient, epicConverter, mapper);
-        EpicCreateService epicCreateService = new EpicCreateService(properties, tpHttpClient, epicConverter, mapper);
-        EpicUpdateService epicUpdateService = new EpicUpdateService(properties, tpHttpClient, epicConverter, mapper);
-        EpicGetByIdService epicGetByIdService = new EpicGetByIdService(properties, tpHttpClient, epicConverter, mapper);
-        EpicMcpTools epicMcpTools = new EpicMcpTools(epicSearchService, epicCreateService, epicUpdateService, epicGetByIdService);
-
-        // Domain: Feature
-        FeatureConverter featureConverter = new FeatureConverter();
-        FeatureSearchService featureSearchService = new FeatureSearchService(properties, tpHttpClient, featureConverter, mapper);
-        FeatureCreateService featureCreateService = new FeatureCreateService(properties, tpHttpClient, featureConverter, mapper);
-        FeatureUpdateService featureUpdateService = new FeatureUpdateService(properties, tpHttpClient, featureConverter, mapper);
-        FeatureGetByIdService featureGetByIdService = new FeatureGetByIdService(properties, tpHttpClient, featureConverter, mapper);
-        FeatureMcpTools featureMcpTools = new FeatureMcpTools(featureSearchService, featureCreateService, featureUpdateService, featureGetByIdService);
-
-        // Domain: Project
-        ProjectConverter projectConverter = new ProjectConverter();
-        ProjectSearchService projectSearchService = new ProjectSearchService(properties, tpHttpClient, projectConverter, mapper);
-        ProjectMcpTools projectMcpTools = new ProjectMcpTools(projectSearchService);
-
-        // Domain: Release
-        ReleaseConverter releaseConverter = new ReleaseConverter();
-        ReleaseSearchService releaseSearchService = new ReleaseSearchService(properties, tpHttpClient, releaseConverter, mapper);
-        ReleaseCreateService releaseCreateService = new ReleaseCreateService(properties, tpHttpClient, releaseConverter, mapper);
-        ReleaseUpdateService releaseUpdateService = new ReleaseUpdateService(properties, tpHttpClient, releaseConverter, mapper);
-        ReleaseGetByIdService releaseGetByIdService = new ReleaseGetByIdService(properties, tpHttpClient, releaseConverter, mapper);
-        ReleaseMcpTools releaseMcpTools = new ReleaseMcpTools(releaseSearchService, releaseCreateService, releaseUpdateService, releaseGetByIdService);
-
-        // Domain: Request
-        RequestConverter requestConverter = new RequestConverter();
-        RequestSearchService requestSearchService = new RequestSearchService(properties, tpHttpClient, requestConverter, mapper);
-        RequestCreateService requestCreateService = new RequestCreateService(properties, tpHttpClient, requestConverter, mapper);
-        RequestUpdateService requestUpdateService = new RequestUpdateService(properties, tpHttpClient, requestConverter, mapper);
-        RequestGetByIdService requestGetByIdService = new RequestGetByIdService(properties, tpHttpClient, requestConverter, mapper);
-        RequestMcpTools requestMcpTools = new RequestMcpTools(requestSearchService, requestCreateService, requestUpdateService, requestGetByIdService);
-
-        // Domain: Team
-        TeamConverter teamConverter = new TeamConverter();
-        TeamSearchService teamSearchService = new TeamSearchService(properties, tpHttpClient, teamConverter, mapper);
-        TeamGetByIdService teamGetByIdService = new TeamGetByIdService(properties, tpHttpClient, teamConverter, mapper);
-        TeamMcpTools teamMcpTools = new TeamMcpTools(teamSearchService, teamGetByIdService);
-
-        // Domain: TeamIteration
-        TeamIterationConverter teamIterationConverter = new TeamIterationConverter();
-        TeamIterationSearchService teamIterationSearchService = new TeamIterationSearchService(properties, tpHttpClient, teamIterationConverter, mapper);
-        TeamIterationGetByIdService teamIterationGetByIdService = new TeamIterationGetByIdService(properties, tpHttpClient, teamIterationConverter, mapper);
-        TeamIterationMcpTools teamIterationMcpTools = new TeamIterationMcpTools(teamIterationSearchService, teamIterationGetByIdService);
-
-        // Domain: TestCase
-        TestCaseConverter testCaseConverter = new TestCaseConverter();
-        TestCaseSearchService testCaseSearchService = new TestCaseSearchService(properties, tpHttpClient, testCaseConverter, mapper);
-        TestCaseCreateService testCaseCreateService = new TestCaseCreateService(properties, tpHttpClient, testCaseConverter, mapper);
-        TestCaseUpdateService testCaseUpdateService = new TestCaseUpdateService(properties, tpHttpClient, testCaseConverter, mapper);
-        TestCaseGetByIdService testCaseGetByIdService = new TestCaseGetByIdService(properties, tpHttpClient, testCaseConverter, mapper);
-        
-        TestStepConverter testStepConverter = new TestStepConverter();
-        TestStepCreateService testStepCreateService = new TestStepCreateService(properties, tpHttpClient, testStepConverter, mapper);
-        
-        TestCaseDeleteService testCaseDeleteService = new TestCaseDeleteService(properties, tpHttpClient, mapper);
-        TestStepDeleteService testStepDeleteService = new TestStepDeleteService(properties, tpHttpClient, mapper);
-        
-        TestCaseMcpTools testCaseMcpTools = new TestCaseMcpTools(testCaseSearchService, testCaseCreateService, testCaseUpdateService, testCaseGetByIdService, testStepCreateService, testCaseDeleteService, testStepDeleteService);
-
-        // Domain: TestPlan
-        TestPlanConverter testPlanConverter = new TestPlanConverter();
-        TestPlanSearchService testPlanSearchService = new TestPlanSearchService(properties, tpHttpClient, testPlanConverter, mapper);
-        TestPlanCreateService testPlanCreateService = new TestPlanCreateService(properties, tpHttpClient, testPlanConverter, mapper);
-        TestPlanUpdateService testPlanUpdateService = new TestPlanUpdateService(properties, tpHttpClient, testPlanConverter, mapper);
-        TestPlanGetByIdService testPlanGetByIdService = new TestPlanGetByIdService(properties, tpHttpClient, testPlanConverter, mapper);
-        TestPlanDeleteService testPlanDeleteService = new TestPlanDeleteService(properties, tpHttpClient, mapper);
-        TestPlanMcpTools testPlanMcpTools = new TestPlanMcpTools(testPlanSearchService, testPlanCreateService, testPlanUpdateService, testPlanGetByIdService, testPlanDeleteService);
-
-        // Domain: UserStory
-        UserStoryConverter userStoryConverter = new UserStoryConverter();
-        UserStorySearchService userStorySearchService = new UserStorySearchService(properties, tpHttpClient, userStoryConverter, mapper);
-        UserStoryCreateService userStoryCreateService = new UserStoryCreateService(properties, tpHttpClient, userStoryConverter, mapper);
-        UserStoryUpdateService userStoryUpdateService = new UserStoryUpdateService(properties, tpHttpClient, userStoryConverter, mapper);
-        UserStoryGetByIdService userStoryGetByIdService = new UserStoryGetByIdService(properties, tpHttpClient, userStoryConverter, mapper);
-        UserStoryDeleteService userStoryDeleteService = new UserStoryDeleteService(properties, tpHttpClient, mapper);
-        UserStoryMcpTools userStoryMcpTools = new UserStoryMcpTools(userStorySearchService, userStoryCreateService, userStoryUpdateService, userStoryGetByIdService, userStoryDeleteService);
+        ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        HttpClient javaHttpClient = HttpClient.newBuilder().build();
+        TargetProcessHttpClient tpHttpClient = new TargetProcessHttpClient(javaHttpClient, mapper);
+        QueryEngine engine = new QueryEngine(properties, tpHttpClient, mapper);
 
         McpServer server = new McpServer();
         SchemaBuilder schema = new SchemaBuilder(mapper);
 
+        // Domain: Epic
+        EpicConverter epicConverter = new EpicConverter();
+        EpicMcpTools epicMcpTools = new EpicMcpTools(
+                new EpicSearchService(engine, epicConverter),
+                new EpicCreateService(engine, epicConverter),
+                new EpicUpdateService(engine, epicConverter),
+                new EpicGetByIdService(engine, epicConverter)
+        );
+
+        // Domain: Feature
+        FeatureConverter featureConverter = new FeatureConverter();
+        FeatureMcpTools featureMcpTools = new FeatureMcpTools(
+                new FeatureSearchService(engine, featureConverter),
+                new FeatureCreateService(engine, featureConverter),
+                new FeatureUpdateService(engine, featureConverter),
+                new FeatureGetByIdService(engine, featureConverter)
+        );
+
+        // Domain: Project
+        ProjectConverter projectConverter = new ProjectConverter();
+        ProjectMcpTools projectMcpTools = new ProjectMcpTools(
+                new ProjectSearchService(engine, projectConverter)
+        );
+
+        // Domain: Release
+        ReleaseConverter releaseConverter = new ReleaseConverter();
+        ReleaseMcpTools releaseMcpTools = new ReleaseMcpTools(
+                new ReleaseSearchService(engine, releaseConverter),
+                new ReleaseCreateService(engine, releaseConverter),
+                new ReleaseUpdateService(engine, releaseConverter),
+                new ReleaseGetByIdService(engine, releaseConverter)
+        );
+
+        // Domain: Request
+        RequestConverter requestConverter = new RequestConverter();
+        RequestMcpTools requestMcpTools = new RequestMcpTools(
+                new RequestSearchService(engine, requestConverter),
+                new RequestCreateService(engine, requestConverter),
+                new RequestUpdateService(engine, requestConverter),
+                new RequestGetByIdService(engine, requestConverter)
+        );
+
+        // Domain: Team
+        TeamConverter teamConverter = new TeamConverter();
+        TeamMcpTools teamMcpTools = new TeamMcpTools(
+                new TeamSearchService(engine, teamConverter),
+                new TeamGetByIdService(engine, teamConverter)
+        );
+
+        // Domain: TeamIteration
+        TeamIterationConverter teamIterationConverter = new TeamIterationConverter();
+        TeamIterationMcpTools teamIterationMcpTools = new TeamIterationMcpTools(
+                new TeamIterationSearchService(engine, teamIterationConverter),
+                new TeamIterationGetByIdService(engine, teamIterationConverter)
+        );
+
+        // Domain: TestCase
+        TestCaseConverter testCaseConverter = new TestCaseConverter();
+        TestStepConverter testStepConverter = new TestStepConverter();
+        TestCaseMcpTools testCaseMcpTools = new TestCaseMcpTools(
+                new TestCaseSearchService(engine, testCaseConverter),
+                new TestCaseCreateService(engine, testCaseConverter),
+                new TestCaseUpdateService(engine, testCaseConverter),
+                new TestCaseGetByIdService(engine, testCaseConverter),
+                new TestStepCreateService(engine, testStepConverter),
+                new TestCaseDeleteService(engine),
+                new TestStepDeleteService(engine)
+        );
+
+        // Domain: TestPlan
+        TestPlanConverter testPlanConverter = new TestPlanConverter();
+        TestPlanMcpTools testPlanMcpTools = new TestPlanMcpTools(
+                new TestPlanSearchService(engine, testPlanConverter),
+                new TestPlanCreateService(engine, testPlanConverter),
+                new TestPlanUpdateService(engine, testPlanConverter),
+                new TestPlanGetByIdService(engine, testPlanConverter),
+                new TestPlanDeleteService(engine)
+        );
+
+        // Domain: UserStory
+        UserStoryConverter userStoryConverter = new UserStoryConverter();
+        UserStoryMcpTools userStoryMcpTools = new UserStoryMcpTools(
+                new UserStorySearchService(engine, userStoryConverter),
+                new UserStoryCreateService(engine, userStoryConverter),
+                new UserStoryUpdateService(engine, userStoryConverter),
+                new UserStoryGetByIdService(engine, userStoryConverter),
+                new UserStoryDeleteService(engine)
+        );
+
+        // Domain: Comment
+        CommentConverter commentConverter = new CommentConverter();
+        CommentMcpTools commentMcpTools = new CommentMcpTools(
+                new CommentCreateService(engine, commentConverter)
+        );
+
+        // Domain: Bug
+        BugConverter bugConverter = new BugConverter();
+        BugMcpTools bugMcpTools = new BugMcpTools(
+                new BugSearchService(engine, bugConverter),
+                new BugCreateService(engine, bugConverter),
+                new BugUpdateService(engine, bugConverter),
+                new BugGetByIdService(engine, bugConverter),
+                new BugDeleteService(engine)
+        );
+
+        // Domain: Task
+        TaskConverter taskConverter = new TaskConverter();
+        TaskMcpTools taskMcpTools = new TaskMcpTools(
+                new TaskSearchService(engine, taskConverter),
+                new TaskCreateService(engine, taskConverter),
+                new TaskUpdateService(engine, taskConverter),
+                new TaskGetByIdService(engine, taskConverter),
+                new TaskDeleteService(engine)
+        );
+
+        // Domain: User
+        UserConverter userConverter = new UserConverter();
+        UserMcpTools userMcpTools = new UserMcpTools(
+                new UserSearchService(engine, userConverter)
+        );
+
+        // Domain: Relation
+        RelationConverter relationConverter = new RelationConverter();
+        RelationMcpTools relationMcpTools = new RelationMcpTools(
+                new RelationSearchService(engine, relationConverter),
+                new RelationCreateService(engine, relationConverter)
+        );
+
+        // Register tools
         epicMcpTools.register(server, schema);
         featureMcpTools.register(server, schema);
         projectMcpTools.register(server, schema);
@@ -140,6 +191,11 @@ public class ZdtpMcpApplication {
         testCaseMcpTools.register(server, schema);
         testPlanMcpTools.register(server, schema);
         userStoryMcpTools.register(server, schema);
+        commentMcpTools.register(server, schema);
+        bugMcpTools.register(server, schema);
+        taskMcpTools.register(server, schema);
+        userMcpTools.register(server, schema);
+        relationMcpTools.register(server, schema);
 
         server.start();
     }
