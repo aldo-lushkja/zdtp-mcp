@@ -58,6 +58,7 @@ For a complete list of tools, their descriptions, and parameters, please refer t
 - [🏗️ Architecture](docs/ARCHITECTURE.md)
 - [🗂️ Data Model](docs/DATA_MODEL.md)
 - [🛠️ Development & Build](docs/DEVELOPMENT.md)
+- [🤖 CI/CD & Git Flow](docs/CICD.md)
 
 ---
 
