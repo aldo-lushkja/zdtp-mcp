@@ -70,7 +70,7 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | `test_plan_get` | Get test plan details. | `id`* |
 | `test_plan_delete` | Delete a test plan. | `id`* |
 | `test_case_search` | Search for test cases. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` (default: 10) |
-| `test_case_create` | Create a new test case. | `name`*, `projectId`*, `description`, `testPlanId` |
+| `test_case_create" | Create a new test case. | `name`*, `projectId`*, `description`, `testPlanId` |
 | `test_case_update` | Update an existing test case. | `id`*, `name`, `description`, `stateName` |
 | `test_case_get` | Get test case details. | `id`* |
 | `test_case_delete` | Delete a test case. | `id`* |
@@ -89,6 +89,17 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | Tool | Description | Parameters |
 | --- | --- | --- |
 | `project_search` | Search for projects. | `nameQuery`, `startDate`, `endDate`, `take` (default: 10) |
+
+## 👤 Users
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `user_search` | Search for active users. | `query`*, `take` (default: 10) |
+
+## 🔗 Relations
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `relation_search` | Find relations linked to an entity. | `entityId`* |
+| `relation_link` | Link two entities together. | `inboundId`*, `outboundId`*, `typeName` |
 
 ## 💬 Comments
 | Tool | Description | Parameters |

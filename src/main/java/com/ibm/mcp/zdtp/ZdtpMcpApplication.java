@@ -11,6 +11,10 @@ import com.ibm.mcp.zdtp.bug.boundary.BugMcpTools;
 import com.ibm.mcp.zdtp.bug.control.*;
 import com.ibm.mcp.zdtp.task.boundary.TaskMcpTools;
 import com.ibm.mcp.zdtp.task.control.*;
+import com.ibm.mcp.zdtp.user.boundary.UserMcpTools;
+import com.ibm.mcp.zdtp.user.control.*;
+import com.ibm.mcp.zdtp.relation.boundary.RelationMcpTools;
+import com.ibm.mcp.zdtp.relation.control.*;
 import com.ibm.mcp.zdtp.epic.boundary.EpicMcpTools;
 import com.ibm.mcp.zdtp.epic.control.*;
 import com.ibm.mcp.zdtp.feature.boundary.FeatureMcpTools;
@@ -163,6 +167,19 @@ public class ZdtpMcpApplication {
                 new TaskDeleteService(engine)
         );
 
+        // Domain: User
+        UserConverter userConverter = new UserConverter();
+        UserMcpTools userMcpTools = new UserMcpTools(
+                new UserSearchService(engine, userConverter)
+        );
+
+        // Domain: Relation
+        RelationConverter relationConverter = new RelationConverter();
+        RelationMcpTools relationMcpTools = new RelationMcpTools(
+                new RelationSearchService(engine, relationConverter),
+                new RelationCreateService(engine, relationConverter)
+        );
+
         // Register tools
         epicMcpTools.register(server, schema);
         featureMcpTools.register(server, schema);
@@ -177,6 +194,8 @@ public class ZdtpMcpApplication {
         commentMcpTools.register(server, schema);
         bugMcpTools.register(server, schema);
         taskMcpTools.register(server, schema);
+        userMcpTools.register(server, schema);
+        relationMcpTools.register(server, schema);
 
         server.start();
     }

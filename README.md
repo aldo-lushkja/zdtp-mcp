@@ -39,7 +39,7 @@ Set the following environment variables:
 
 ## 🛠️ Available Tools
 
-The server exposes a comprehensive set of tools for interacting with Targetprocess entities, including **User Stories, Epics, Features, Releases, Sprints, Test Plans/Cases, Teams, Projects, and Comments**.
+The server exposes a comprehensive set of tools for interacting with Targetprocess entities, including **User Stories, Tasks, Bugs, Epics, Features, Releases, Sprints, Test Plans/Cases, Teams, Projects, Users, Relations, and Comments**.
 
 For a complete list of tools, their descriptions, and parameters, please refer to the:
 👉 **[Available Tools Reference](docs/TOOLS.md)**

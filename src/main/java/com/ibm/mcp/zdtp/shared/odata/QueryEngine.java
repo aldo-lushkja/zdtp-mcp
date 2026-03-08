@@ -41,6 +41,8 @@ public class QueryEngine {
     public static final Domain TEAM = new Domain("Teams", "[Id,Name]");
     public static final Domain TEAM_ITERATION = new Domain("TeamIterations", "[Id,Name,StartDate,EndDate,Team[Id,Name]]");
     public static final Domain PROJECT = new Domain("Projects", "[Id,Name]");
+    public static final Domain USER = new Domain("Users", "[Id,FirstName,LastName,Login,Email,IsActive]");
+    public static final Domain RELATION = new Domain("GeneralRelations", "[Id,RelationType[Id,Name],InboundGeneral[Id,Name,ResourceType],OutboundGeneral[Id,Name,ResourceType]]");
 
     public <T, D> List<D> list(Domain domain, Map<String, String> params, TypeReference<TargetProcessResponse<T>> typeRef, Function<T, D> mapper) {
         Map<String, String> parameters = new TreeMap<>(params);
