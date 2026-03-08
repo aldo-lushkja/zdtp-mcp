@@ -6,6 +6,7 @@ public record TestPlanDto(
     String description,
     String projectName,
     String state,
+    Integer stateId,
     String ownerLogin,
     String createdAt
 ) {}

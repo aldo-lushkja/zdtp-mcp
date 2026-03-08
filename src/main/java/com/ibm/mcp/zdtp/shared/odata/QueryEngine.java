@@ -28,6 +28,8 @@ public class QueryEngine {
     public record Domain(String resource, String include) {}
 
     public static final Domain USER_STORY = new Domain("UserStories", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],AssignedUser[Id,Login],Release[Id,Name],TeamIteration[Id,Name]]");
+    public static final Domain TASK = new Domain("Tasks", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,Owner[Id,Login],UserStory[Id,Name]]");
+    public static final Domain BUG = new Domain("Bugs", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],AssignedUser[Id,Login],Release[Id,Name],UserStory[Id,Name],Feature[Id,Name],TeamIteration[Id,Name]]");
     public static final Domain FEATURE = new Domain("Features", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],TeamIteration[Id,Name]]");
     public static final Domain EPIC = new Domain("Epics", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login]]");
     public static final Domain RELEASE = new Domain("Releases", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,StartDate,EndDate,Effort,Owner[Id,Login]]");
@@ -35,6 +37,7 @@ public class QueryEngine {
     public static final Domain TEST_PLAN = new Domain("TestPlans", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,Owner[Id,Login]]");
     public static final Domain TEST_CASE = new Domain("TestCases", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,Owner[Id,Login],TestPlans[Id,Name]]");
     public static final Domain TEST_STEP = new Domain("TestSteps", "[Id,Description,Result,RunOrder,TestCase[Id,Name]]");
+    public static final Domain COMMENT = new Domain("Comments", "[Id,Description,CreateDate,Owner[Id,Login],General[Id,Name]]");
     public static final Domain TEAM = new Domain("Teams", "[Id,Name]");
     public static final Domain TEAM_ITERATION = new Domain("TeamIterations", "[Id,Name,StartDate,EndDate,Team[Id,Name]]");
     public static final Domain PROJECT = new Domain("Projects", "[Id,Name]");

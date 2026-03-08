@@ -11,6 +11,15 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | `user_story_get` | Get user story details. | `id`* |
 | `user_story_delete` | Delete a user story. | `id`* |
 
+## 📋 Tasks
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `task_search` | Search for tasks. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `userStoryId`, `take` (default: 10) |
+| `task_create` | Create a new task under a user story. | `name`*, `projectId`*, `userStoryId`*, `description` |
+| `task_update` | Update an existing task. | `id`*, `name`, `description`, `stateName` |
+| `task_get` | Get task details. | `id`* |
+| `task_delete` | Delete a task. | `id`* |
+
 ## 🏔️ Epics
 | Tool | Description | Parameters |
 | --- | --- | --- |
@@ -26,6 +35,15 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | `feature_create` | Create a new feature. | `name`*, `projectId`*, `description`, `effort` |
 | `feature_update` | Update an existing feature. | `id`*, `name`, `description`, `stateName`, `effort` |
 | `feature_get` | Get feature details. | `id`* |
+
+## 🐛 Bugs
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `bug_search` | Search for bugs. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `userStoryId`, `featureId`, `take` (default: 10) |
+| `bug_create` | Create a new bug. | `name`*, `projectId`*, `description`, `effort`, `userStoryId`, `featureId` |
+| `bug_update` | Update an existing bug. | `id`*, `name`, `description`, `stateName`, `effort` |
+| `bug_get` | Get bug details. | `id`* |
+| `bug_delete` | Delete a bug. | `id`* |
 
 ## 🚀 Releases
 | Tool | Description | Parameters |
@@ -48,7 +66,7 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | --- | --- | --- |
 | `test_plan_search` | Search for test plans. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` (default: 10) |
 | `test_plan_create` | Create a new test plan. | `name`*, `projectId`*, `description` |
-| `test_plan_update` | Update an existing test plan. | `id`*, `name`, `description`, `stateName` |
+| `test_plan_update` | Update an existing test plan. | `id`*, `name`, `description`, `stateName`, `stateId` |
 | `test_plan_get` | Get test plan details. | `id`* |
 | `test_plan_delete` | Delete a test plan. | `id`* |
 | `test_case_search` | Search for test cases. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` (default: 10) |
@@ -71,6 +89,11 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | Tool | Description | Parameters |
 | --- | --- | --- |
 | `project_search` | Search for projects. | `nameQuery`, `startDate`, `endDate`, `take` (default: 10) |
+
+## 💬 Comments
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `comment_add` | Add a comment to an entity (User Story, Task, Bug, Test Case, etc.). | `entityId`*, `text`* |
 
 `*` denotes a required parameter.
 

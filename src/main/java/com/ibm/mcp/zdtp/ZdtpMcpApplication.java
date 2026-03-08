@@ -5,6 +5,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+import com.ibm.mcp.zdtp.comment.boundary.CommentMcpTools;
+import com.ibm.mcp.zdtp.comment.control.*;
+import com.ibm.mcp.zdtp.bug.boundary.BugMcpTools;
+import com.ibm.mcp.zdtp.bug.control.*;
+import com.ibm.mcp.zdtp.task.boundary.TaskMcpTools;
+import com.ibm.mcp.zdtp.task.control.*;
 import com.ibm.mcp.zdtp.epic.boundary.EpicMcpTools;
 import com.ibm.mcp.zdtp.epic.control.*;
 import com.ibm.mcp.zdtp.feature.boundary.FeatureMcpTools;
@@ -131,6 +137,32 @@ public class ZdtpMcpApplication {
                 new UserStoryDeleteService(engine)
         );
 
+        // Domain: Comment
+        CommentConverter commentConverter = new CommentConverter();
+        CommentMcpTools commentMcpTools = new CommentMcpTools(
+                new CommentCreateService(engine, commentConverter)
+        );
+
+        // Domain: Bug
+        BugConverter bugConverter = new BugConverter();
+        BugMcpTools bugMcpTools = new BugMcpTools(
+                new BugSearchService(engine, bugConverter),
+                new BugCreateService(engine, bugConverter),
+                new BugUpdateService(engine, bugConverter),
+                new BugGetByIdService(engine, bugConverter),
+                new BugDeleteService(engine)
+        );
+
+        // Domain: Task
+        TaskConverter taskConverter = new TaskConverter();
+        TaskMcpTools taskMcpTools = new TaskMcpTools(
+                new TaskSearchService(engine, taskConverter),
+                new TaskCreateService(engine, taskConverter),
+                new TaskUpdateService(engine, taskConverter),
+                new TaskGetByIdService(engine, taskConverter),
+                new TaskDeleteService(engine)
+        );
+
         // Register tools
         epicMcpTools.register(server, schema);
         featureMcpTools.register(server, schema);
@@ -142,6 +174,9 @@ public class ZdtpMcpApplication {
         testCaseMcpTools.register(server, schema);
         testPlanMcpTools.register(server, schema);
         userStoryMcpTools.register(server, schema);
+        commentMcpTools.register(server, schema);
+        bugMcpTools.register(server, schema);
+        taskMcpTools.register(server, schema);
 
         server.start();
     }

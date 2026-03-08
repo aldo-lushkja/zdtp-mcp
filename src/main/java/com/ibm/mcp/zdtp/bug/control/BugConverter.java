@@ -1,0 +1,59 @@
+package com.ibm.mcp.zdtp.bug.control;
+
+import com.ibm.mcp.zdtp.bug.entity.Bug;
+import com.ibm.mcp.zdtp.bug.entity.BugDto;
+import com.ibm.mcp.zdtp.shared.entity.EntityState;
+import com.ibm.mcp.zdtp.shared.entity.Owner;
+import com.ibm.mcp.zdtp.shared.entity.Project;
+import com.ibm.mcp.zdtp.shared.entity.ReleaseReference;
+import com.ibm.mcp.zdtp.shared.entity.SprintReference;
+
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+public class BugConverter {
+    private static final Pattern TP_DATE = Pattern.compile("/Date\\((\\d+)[+-]\\d{4}\\)/");
+
+    public BugDto toDto(Bug bug) {
+        return new BugDto(
+                bug.id(),
+                bug.name(),
+                bug.description(),
+                Optional.ofNullable(bug.project()).map(Project::name).orElse(null),
+                Optional.ofNullable(bug.state()).map(EntityState::name).orElse(null),
+                Optional.ofNullable(bug.owner()).map(Owner::login).orElse(null),
+                extractAssignee(bug),
+                bug.effort(),
+                parseDate(bug.createDate()),
+                parseDate(bug.endDate()),
+                Optional.ofNullable(bug.release()).map(ReleaseReference::id).orElse(null),
+                Optional.ofNullable(bug.release()).map(ReleaseReference::name).orElse(null),
+                Optional.ofNullable(bug.userStory()).map(Bug.UserStoryRef::id).orElse(null),
+                Optional.ofNullable(bug.userStory()).map(Bug.UserStoryRef::name).orElse(null),
+                Optional.ofNullable(bug.feature()).map(Bug.FeatureRef::id).orElse(null),
+                Optional.ofNullable(bug.feature()).map(Bug.FeatureRef::name).orElse(null),
+                Optional.ofNullable(bug.sprint()).map(SprintReference::id).orElse(null),
+                Optional.ofNullable(bug.sprint()).map(SprintReference::name).orElse(null)
+        );
+    }
+
+    private String extractAssignee(Bug bug) {
+        return Optional.ofNullable(bug.assignedUser())
+                .map(Bug.AssignedUserCollection::items)
+                .flatMap(items -> items.stream().findFirst())
+                .map(Owner::login)
+                .orElse(null);
+    }
+
+    private String parseDate(String raw) {
+        if (raw == null) return null;
+        var m = TP_DATE.matcher(raw);
+        if (m.find()) {
+            return Instant.ofEpochMilli(Long.parseLong(m.group(1)))
+                    .atZone(ZoneOffset.UTC).toLocalDate().toString();
+        }
+        return raw;
+    }
+}

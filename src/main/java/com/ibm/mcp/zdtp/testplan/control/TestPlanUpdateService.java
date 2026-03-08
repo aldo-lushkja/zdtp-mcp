@@ -19,10 +19,10 @@ public class TestPlanUpdateService extends BaseService {
     }
 
     public TestPlanDto updateTestPlan(int id, String name, String description, String stateName) {
-        return update(id, name, description, stateName);
+        return update(id, name, description, stateName, null);
     }
 
-    public TestPlanDto update(int id, String name, String description, String stateName) {
+    public TestPlanDto update(int id, String name, String description, String stateName, Integer stateId) {
         Map<String, Object> bodyMap = new LinkedHashMap<>();
         if (name != null && !name.isBlank()) {
             bodyMap.put("Name", name);
@@ -30,7 +30,9 @@ public class TestPlanUpdateService extends BaseService {
         if (description != null) {
             bodyMap.put("Description", convertMarkdown(description));
         }
-        if (stateName != null && !stateName.isBlank()) {
+        if (stateId != null && stateId > 0) {
+            bodyMap.put("EntityState", Map.of("Id", stateId));
+        } else if (stateName != null && !stateName.isBlank()) {
             bodyMap.put("EntityState", Map.of("Name", stateName));
         }
         
