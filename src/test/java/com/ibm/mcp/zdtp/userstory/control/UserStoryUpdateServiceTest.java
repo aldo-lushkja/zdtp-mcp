@@ -130,15 +130,29 @@ class UserStoryUpdateServiceTest {
     @Test
     void update_bodyContainsTeamIdWhenProvided() {
         givenApiReturns(STORY_RESPONSE);
-        service.update(123, null, null, null, null, null, null, 163894);
+        service.update(123, null, null, null, null, null, null, 163894, null);
         assertThat(captureBody()).contains("\"Team\":{\"Id\":163894}");
     }
 
     @Test
     void update_bodyOmitsTeamWhenNull() {
         givenApiReturns(STORY_RESPONSE);
-        service.update(123, null, null, null, null, null, null, null);
+        service.update(123, null, null, null, null, null, null, null, null);
         assertThat(captureBody()).doesNotContain("Team");
+    }
+
+    @Test
+    void update_bodyContainsReleaseIdWhenProvided() {
+        givenApiReturns(STORY_RESPONSE);
+        service.update(123, null, null, null, null, null, null, null, 555);
+        assertThat(captureBody()).contains("\"Release\":{\"Id\":555}");
+    }
+
+    @Test
+    void update_bodyOmitsReleaseWhenNull() {
+        givenApiReturns(STORY_RESPONSE);
+        service.update(123, null, null, null, null, null, null, null, null);
+        assertThat(captureBody()).doesNotContain("Release");
     }
 
     @Test

@@ -15,16 +15,20 @@ public class TaskCreateService extends BaseService {
         this.converter = converter;
     }
 
-    public TaskDto create(String name, int projectId, String description, int userStoryId) {
+    public TaskDto create(String name, int projectId, String description, int userStoryId, Double effort) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("Name", name);
         body.put("Project", Map.of("Id", projectId));
         body.put("UserStory", Map.of("Id", userStoryId));
-        
+
         if (description != null && !description.isBlank()) {
             body.put("Description", convertMarkdown(description));
         }
-        
+
+        if (effort != null) {
+            body.put("Effort", effort);
+        }
+
         return engine.create(QueryEngine.TASK, body, converter::toDto, Task.class);
     }
 }

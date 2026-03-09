@@ -20,10 +20,10 @@ public class FeatureSearchService extends BaseService {
         this.converter = converter;
     }
 
-    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer sprintId) {}
+    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer sprintId, Integer epicId) {}
 
     public List<FeatureDto> searchFeatures(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer teamIterationId) {
-        return search(new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, teamIterationId));
+        return search(new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, teamIterationId, null));
     }
 
     public List<FeatureDto> search(SearchCriteria criteria) {
@@ -34,6 +34,7 @@ public class FeatureSearchService extends BaseService {
                 .add(criteria.startDate() != null && !criteria.startDate().isBlank() ? "CreateDate gte '%s'".formatted(criteria.startDate()) : null)
                 .add(criteria.endDate() != null && !criteria.endDate().isBlank() ? "CreateDate lt '%s'".formatted(criteria.endDate()) : null)
                 .add(criteria.sprintId() != null && criteria.sprintId() > 0 ? "TeamIteration.Id eq %d".formatted(criteria.sprintId()) : null)
+                .add(criteria.epicId() != null && criteria.epicId() > 0 ? "Epic.Id eq %d".formatted(criteria.epicId()) : null)
                 .build();
 
         Map<String, String> parameters = new TreeMap<>();

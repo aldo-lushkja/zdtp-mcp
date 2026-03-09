@@ -5,9 +5,9 @@ This document provides a detailed reference for all tools exposed by the Targetp
 ## 📖 User Stories
 | Tool | Description | Parameters |
 | --- | --- | --- |
-| `user_story_search` | Search for user stories. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `releaseId`, `sprintId`, `take` (default: 10) |
-| `user_story_create` | Create a new user story. | `name`*, `projectId`*, `description`, `effort`, `featureId`, `teamIterationId`, `teamId` |
-| `user_story_update` | Update an existing user story. | `id`*, `name`, `description`, `stateName`, `effort`, `featureId`, `teamIterationId`, `teamId` |
+| `user_story_search` | Search for user stories. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `releaseId`, `sprintId`, `featureId`, `take` (default: 10) |
+| `user_story_create` | Create a new user story. | `name`*, `projectId`*, `description`, `effort`, `featureId`, `teamIterationId`, `teamId`, `releaseId` |
+| `user_story_update` | Update an existing user story. | `id`*, `name`, `description`, `stateName`, `effort`, `featureId`, `teamIterationId`, `teamId`, `releaseId` |
 | `user_story_get` | Get user story details. | `id`* |
 | `user_story_delete` | Delete a user story. | `id`* |
 
@@ -15,7 +15,7 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | Tool | Description | Parameters |
 | --- | --- | --- |
 | `task_search` | Search for tasks. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `userStoryId`, `take` (default: 10) |
-| `task_create` | Create a new task under a user story. | `name`*, `projectId`*, `userStoryId`*, `description` |
+| `task_create` | Create a new task under a user story. | `name`*, `projectId`*, `userStoryId`*, `description`, `effort` |
 | `task_update` | Update an existing task. | `id`*, `name`, `description`, `stateName` |
 | `task_get` | Get task details. | `id`* |
 | `task_delete` | Delete a task. | `id`* |
@@ -32,7 +32,7 @@ This document provides a detailed reference for all tools exposed by the Targetp
 ## ✨ Features
 | Tool | Description | Parameters |
 | --- | --- | --- |
-| `feature_search` | Search for features. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` (default: 10), `sprintId` |
+| `feature_search` | Search for features. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `sprintId`, `epicId`, `take` (default: 10) |
 | `feature_create` | Create a new feature. | `name`*, `projectId`*, `description`, `effort` |
 | `feature_update` | Update an existing feature. | `id`*, `name`, `description`, `stateName`, `effort` |
 | `feature_get` | Get feature details. | `id`* |
@@ -43,7 +43,7 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | --- | --- | --- |
 | `bug_search` | Search for bugs. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `userStoryId`, `featureId`, `take` (default: 10) |
 | `bug_create` | Create a new bug. | `name`*, `projectId`*, `description`, `effort`, `userStoryId`, `featureId` |
-| `bug_update` | Update an existing bug. | `id`*, `name`, `description`, `stateName`, `effort` |
+| `bug_update` | Update an existing bug. | `id`*, `name`, `description`, `stateName`, `effort`, `userStoryId`, `featureId` |
 | `bug_get` | Get bug details. | `id`* |
 | `bug_delete` | Delete a bug. | `id`* |
 

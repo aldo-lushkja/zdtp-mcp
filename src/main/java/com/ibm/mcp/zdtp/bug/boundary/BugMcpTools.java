@@ -37,9 +37,12 @@ public class BugMcpTools {
 
         server.registerTool("bug_update", "Update an existing bug.",
                 schema.object().prop("id", schema.integer().required()).prop("name", schema.string()).prop("description", schema.string())
-                        .prop("stateName", schema.string()).prop("effort", schema.number()).build(),
+                        .prop("stateName", schema.string()).prop("effort", schema.number())
+                        .prop("userStoryId", schema.integer()).prop("featureId", schema.integer()).build(),
                 args -> update(args.path("id").asInt(), args.path("name").asText(null), args.path("description").asText(null),
-                        args.path("stateName").asText(null), args.has("effort") ? args.path("effort").asDouble() : null));
+                        args.path("stateName").asText(null), args.has("effort") ? args.path("effort").asDouble() : null,
+                        args.has("userStoryId") ? args.path("userStoryId").asInt() : null,
+                        args.has("featureId") ? args.path("featureId").asInt() : null));
 
         server.registerTool("bug_get", "Get a bug by its numeric ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
@@ -54,7 +57,7 @@ public class BugMcpTools {
     }
 
     private String create(String n, int p, String d, Double e, Integer us, Integer f) { return "Created: " + format(createSvc.create(n, p, d, e, us, f)); }
-    private String update(int i, String n, String d, String s, Double e) { return "Updated: " + format(updateSvc.update(i, n, d, s, e)); }
+    private String update(int i, String n, String d, String s, Double e, Integer us, Integer f) { return "Updated: " + format(updateSvc.update(i, n, d, s, e, us, f)); }
     private String get(int i) { var s = getSvc.get(i); return format(s) + "\nDescription:\n" + (s.description() != null ? s.description() : "N/A"); }
 
     private String delete(int i) {

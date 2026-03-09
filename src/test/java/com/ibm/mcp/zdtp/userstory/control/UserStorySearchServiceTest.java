@@ -73,6 +73,13 @@ class UserStorySearchServiceTest {
         assertThat(results.get(0).id()).isEqualTo(1);
     }
 
+    @Test
+    void featureIdFilter_addsFeatureIdCondition() {
+        givenApiReturns(STORIES_RESPONSE);
+        service.search(new UserStorySearchService.SearchCriteria(null, null, null, null, null, 10, null, null, 99));
+        assertThat(URLDecoder.decode(captureUrl(), StandardCharsets.UTF_8)).contains("Feature.Id eq 99");
+    }
+
     private void givenApiReturns(String body) {
         when(httpClient.fetch(any())).thenReturn(body);
         when(httpClient.parse(eq(body), any())).thenCallRealMethod();

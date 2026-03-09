@@ -20,10 +20,11 @@ public class FeatureMcpTools {
         server.registerTool("feature_search", "Search for features.",
                 schema.object().prop("nameQuery", schema.string()).prop("projectName", schema.string()).prop("ownerLogin", schema.string())
                         .prop("startDate", schema.string()).prop("endDate", schema.string()).prop("sprintId", schema.integer())
-                        .prop("take", schema.integer().withDefault(10)).build(),
+                        .prop("epicId", schema.integer()).prop("take", schema.integer().withDefault(10)).build(),
                 args -> search(new FeatureSearchService.SearchCriteria(args.path("nameQuery").asText(null), args.path("projectName").asText(null),
                         args.path("ownerLogin").asText(null), args.path("startDate").asText(null), args.path("endDate").asText(null),
-                        args.path("take").asInt(10), args.has("sprintId") ? args.path("sprintId").asInt() : null)));
+                        args.path("take").asInt(10), args.has("sprintId") ? args.path("sprintId").asInt() : null,
+                        args.has("epicId") ? args.path("epicId").asInt() : null)));
 
         server.registerTool("feature_create", "Create a new feature.",
                 schema.object().prop("name", schema.string().required()).prop("projectId", schema.integer().required())
@@ -53,10 +54,11 @@ public class FeatureMcpTools {
     private String delete(int i) { deleteSvc.delete(i); return "Feature [%d] deleted successfully.".formatted(i); }
 
     private String format(FeatureDto f) {
-        return "[%d] %s (Project: %s, State: %s, Author: %s, Points: %s, Created: %s, Done: %s, Sprint: %s)"
+        return "[%d] %s (Project: %s, State: %s, Author: %s, Points: %s, Created: %s, Done: %s, Sprint: %s, Epic: %s)"
                 .formatted(f.id(), f.name(), ns(f.projectName()), ns(f.state()), ns(f.ownerLogin()),
                         f.effort() != null ? f.effort().toString() : "N/A", ns(f.createdAt()), ns(f.endDate()),
-                        f.sprintName() != null ? f.sprintId() + " " + f.sprintName() : "N/A");
+                        f.sprintName() != null ? f.sprintId() + " " + f.sprintName() : "N/A",
+                        f.epicName() != null ? f.epicId() + " " + f.epicName() : "N/A");
     }
 
     private String ns(String v) { return v != null ? v : "N/A"; }

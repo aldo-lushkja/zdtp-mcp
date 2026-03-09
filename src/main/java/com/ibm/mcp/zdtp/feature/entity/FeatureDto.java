@@ -11,5 +11,7 @@ public record FeatureDto(
     String createdAt,
     String endDate,
     Integer sprintId,
-    String sprintName
+    String sprintName,
+    Integer epicId,
+    String epicName
 ) {}

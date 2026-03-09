@@ -27,8 +27,10 @@ public class TaskMcpTools {
 
         server.registerTool("task_create", "Create a new task.",
                 schema.object().prop("name", schema.string().required()).prop("projectId", schema.integer().required())
-                        .prop("description", schema.string()).prop("userStoryId", schema.integer().required()).build(),
-                args -> create(args.path("name").asText(), args.path("projectId").asInt(), args.path("description").asText(null), args.path("userStoryId").asInt()));
+                        .prop("description", schema.string()).prop("userStoryId", schema.integer().required())
+                        .prop("effort", schema.number()).build(),
+                args -> create(args.path("name").asText(), args.path("projectId").asInt(), args.path("description").asText(null), args.path("userStoryId").asInt(),
+                        args.has("effort") ? args.path("effort").asDouble() : null));
 
         server.registerTool("task_update", "Update an existing task.",
                 schema.object().prop("id", schema.integer().required()).prop("name", schema.string()).prop("description", schema.string())
@@ -47,7 +49,7 @@ public class TaskMcpTools {
         return res.isEmpty() ? "No tasks found." : String.join("\n", res.stream().map(this::format).toList());
     }
 
-    private String create(String n, int p, String d, int us) { return "Created: " + format(createSvc.create(n, p, d, us)); }
+    private String create(String n, int p, String d, int us, Double e) { return "Created: " + format(createSvc.create(n, p, d, us, e)); }
     private String update(int i, String n, String d, String s) { return "Updated: " + format(updateSvc.update(i, n, d, s)); }
     private String get(int i) { var t = getSvc.get(i); return format(t) + "\nDescription:\n" + (t.description() != null ? t.description() : "N/A"); }
 

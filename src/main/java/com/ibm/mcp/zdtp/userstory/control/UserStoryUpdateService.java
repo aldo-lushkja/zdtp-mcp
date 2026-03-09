@@ -16,10 +16,10 @@ public class UserStoryUpdateService extends BaseService {
     }
 
     public UserStoryDto updateUserStory(int id, String name, String description, String stateName, Double effort) {
-        return update(id, name, description, stateName, effort, null, null, null);
+        return update(id, name, description, stateName, effort, null, null, null, null);
     }
 
-    public UserStoryDto update(int id, String name, String description, String stateName, Double effort, Integer featureId, Integer teamIterationId, Integer teamId) {
+    public UserStoryDto update(int id, String name, String description, String stateName, Double effort, Integer featureId, Integer teamIterationId, Integer teamId, Integer releaseId) {
         Map<String, Object> body = new LinkedHashMap<>();
         if (name != null && !name.isBlank()) {
             body.put("Name", name);
@@ -39,9 +39,11 @@ public class UserStoryUpdateService extends BaseService {
         if (teamIterationId != null && teamIterationId > 0) {
             body.put("TeamIteration", Map.of("Id", teamIterationId));
         }
-
         if (teamId != null && teamId > 0) {
             body.put("Team", Map.of("Id", teamId));
+        }
+        if (releaseId != null && releaseId > 0) {
+            body.put("Release", Map.of("Id", releaseId));
         }
 
         return engine.update(QueryEngine.USER_STORY, id, body, converter::toDto, UserStory.class);

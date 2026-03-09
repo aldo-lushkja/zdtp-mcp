@@ -125,15 +125,29 @@ class UserStoryCreateServiceTest {
     @Test
     void create_bodyContainsTeamIdWhenProvided() {
         givenApiReturns(STORY_RESPONSE);
-        service.create("New Story", 42, null, null, null, null, 163894);
+        service.create("New Story", 42, null, null, null, null, 163894, null);
         assertThat(captureBody()).contains("\"Team\":{\"Id\":163894}");
     }
 
     @Test
     void create_bodyOmitsTeamWhenNull() {
         givenApiReturns(STORY_RESPONSE);
-        service.create("New Story", 42, null, null, null, null, null);
+        service.create("New Story", 42, null, null, null, null, null, null);
         assertThat(captureBody()).doesNotContain("Team");
+    }
+
+    @Test
+    void create_bodyContainsReleaseIdWhenProvided() {
+        givenApiReturns(STORY_RESPONSE);
+        service.create("New Story", 42, null, null, null, null, null, 555);
+        assertThat(captureBody()).contains("\"Release\":{\"Id\":555}");
+    }
+
+    @Test
+    void create_bodyOmitsReleaseWhenNull() {
+        givenApiReturns(STORY_RESPONSE);
+        service.create("New Story", 42, null, null, null, null, null, null);
+        assertThat(captureBody()).doesNotContain("Release");
     }
 
     @Test

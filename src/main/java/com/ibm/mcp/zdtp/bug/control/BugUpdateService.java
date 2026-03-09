@@ -15,7 +15,7 @@ public class BugUpdateService extends BaseService {
         this.converter = converter;
     }
 
-    public BugDto update(int id, String name, String description, String stateName, Double effort) {
+    public BugDto update(int id, String name, String description, String stateName, Double effort, Integer userStoryId, Integer featureId) {
         Map<String, Object> body = new LinkedHashMap<>();
         if (name != null && !name.isBlank()) {
             body.put("Name", name);
@@ -29,7 +29,13 @@ public class BugUpdateService extends BaseService {
         if (effort != null) {
             body.put("Effort", effort);
         }
-        
+        if (userStoryId != null && userStoryId > 0) {
+            body.put("UserStory", Map.of("Id", userStoryId));
+        }
+        if (featureId != null && featureId > 0) {
+            body.put("Feature", Map.of("Id", featureId));
+        }
+
         return engine.update(QueryEngine.BUG, id, body, converter::toDto, Bug.class);
     }
 }
