@@ -5,6 +5,7 @@ import com.ibm.mcp.zdtp.shared.entity.Owner;
 import com.ibm.mcp.zdtp.shared.entity.Project;
 import com.ibm.mcp.zdtp.shared.entity.ReleaseReference;
 import com.ibm.mcp.zdtp.shared.entity.SprintReference;
+import com.ibm.mcp.zdtp.shared.entity.TeamReference;
 import com.ibm.mcp.zdtp.userstory.entity.UserStoryDto;
 import com.ibm.mcp.zdtp.userstory.entity.UserStory;
 
@@ -33,7 +34,8 @@ public class UserStoryConverter {
                 Optional.ofNullable(story.release()).map(ReleaseReference::id).orElse(null),
                 Optional.ofNullable(story.release()).map(ReleaseReference::name).orElse(null),
                 Optional.ofNullable(story.sprint()).map(SprintReference::id).orElse(null),
-                Optional.ofNullable(story.sprint()).map(SprintReference::name).orElse(null)
+                Optional.ofNullable(story.sprint()).map(SprintReference::name).orElse(null),
+                Optional.ofNullable(story.team()).map(TeamReference::name).orElse(null)
         );
     }
 

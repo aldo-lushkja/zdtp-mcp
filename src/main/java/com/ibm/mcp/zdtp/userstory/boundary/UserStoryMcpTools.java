@@ -28,13 +28,23 @@ public class UserStoryMcpTools {
 
         server.registerTool("user_story_create", "Create a new user story.",
                 schema.object().prop("name", schema.string().required()).prop("projectId", schema.integer().required())
-                        .prop("description", schema.string()).prop("effort", schema.number()).build(),
-                args -> create(args.path("name").asText(), args.path("projectId").asInt(), args.path("description").asText(null), args.has("effort") ? args.path("effort").asDouble() : null));
+                        .prop("description", schema.string()).prop("effort", schema.number())
+                        .prop("featureId", schema.integer()).prop("teamIterationId", schema.integer()).prop("teamId", schema.integer()).build(),
+                args -> create(args.path("name").asText(), args.path("projectId").asInt(), args.path("description").asText(null),
+                        args.has("effort") ? args.path("effort").asDouble() : null,
+                        args.has("featureId") ? args.path("featureId").asInt() : null,
+                        args.has("teamIterationId") ? args.path("teamIterationId").asInt() : null,
+                        args.has("teamId") ? args.path("teamId").asInt() : null));
 
         server.registerTool("user_story_update", "Update an existing user story.",
                 schema.object().prop("id", schema.integer().required()).prop("name", schema.string()).prop("description", schema.string())
-                        .prop("stateName", schema.string()).prop("effort", schema.number()).build(),
-                args -> update(args.path("id").asInt(), args.path("name").asText(null), args.path("description").asText(null), args.path("stateName").asText(null), args.has("effort") ? args.path("effort").asDouble() : null));
+                        .prop("stateName", schema.string()).prop("effort", schema.number())
+                        .prop("featureId", schema.integer()).prop("teamIterationId", schema.integer()).prop("teamId", schema.integer()).build(),
+                args -> update(args.path("id").asInt(), args.path("name").asText(null), args.path("description").asText(null),
+                        args.path("stateName").asText(null), args.has("effort") ? args.path("effort").asDouble() : null,
+                        args.has("featureId") ? args.path("featureId").asInt() : null,
+                        args.has("teamIterationId") ? args.path("teamIterationId").asInt() : null,
+                        args.has("teamId") ? args.path("teamId").asInt() : null));
 
         server.registerTool("user_story_get", "Get a user story by its numeric ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
@@ -48,8 +58,8 @@ public class UserStoryMcpTools {
         return stories.isEmpty() ? "No user stories found." : String.join("\n", stories.stream().map(this::format).toList());
     }
 
-    private String create(String n, int p, String d, Double e) { return "Created: " + format(createService.create(n, p, d, e)); }
-    private String update(int i, String n, String d, String s, Double e) { return "Updated: " + format(updateService.update(i, n, d, s, e)); }
+    private String create(String n, int p, String d, Double e, Integer fi, Integer ti, Integer team) { return "Created: " + format(createService.create(n, p, d, e, fi, ti, team)); }
+    private String update(int i, String n, String d, String s, Double e, Integer fi, Integer ti, Integer team) { return "Updated: " + format(updateService.update(i, n, d, s, e, fi, ti, team)); }
     private String get(int i) { var s = getByIdService.get(i); return format(s) + "\nDescription:\n" + (s.description() != null ? s.description() : "N/A"); }
 
     private String delete(int i) {
@@ -58,11 +68,12 @@ public class UserStoryMcpTools {
     }
 
     private String format(UserStoryDto s) {
-        return "[%d] %s (Project: %s, State: %s, Author: %s, Assignee: %s, Points: %s, Created: %s, Done: %s, Release: %s, Sprint: %s)"
+        return "[%d] %s (Project: %s, State: %s, Author: %s, Assignee: %s, Points: %s, Created: %s, Done: %s, Release: %s, Sprint: %s, Team: %s)"
                 .formatted(s.id(), s.name(), ns(s.projectName()), ns(s.state()), ns(s.ownerLogin()), ns(s.assigneeLogin()),
                         s.effort() != null ? s.effort().toString() : "N/A", ns(s.createdAt()), ns(s.endDate()),
                         s.releaseName() != null ? s.releaseId() + " " + s.releaseName() : "N/A",
-                        s.sprintName() != null ? s.sprintId() + " " + s.sprintName() : "N/A");
+                        s.sprintName() != null ? s.sprintId() + " " + s.sprintName() : "N/A",
+                        ns(s.teamName()));
     }
 
     private String ns(String v) { return v != null ? v : "N/A"; }

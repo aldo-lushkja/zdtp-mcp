@@ -61,7 +61,8 @@ public class ZdtpMcpApplication {
                 new EpicSearchService(engine, epicConverter),
                 new EpicCreateService(engine, epicConverter),
                 new EpicUpdateService(engine, epicConverter),
-                new EpicGetByIdService(engine, epicConverter)
+                new EpicGetByIdService(engine, epicConverter),
+                new EpicDeleteService(engine)
         );
 
         // Domain: Feature
@@ -70,7 +71,8 @@ public class ZdtpMcpApplication {
                 new FeatureSearchService(engine, featureConverter),
                 new FeatureCreateService(engine, featureConverter),
                 new FeatureUpdateService(engine, featureConverter),
-                new FeatureGetByIdService(engine, featureConverter)
+                new FeatureGetByIdService(engine, featureConverter),
+                new FeatureDeleteService(engine)
         );
 
         // Domain: Project
@@ -85,7 +87,8 @@ public class ZdtpMcpApplication {
                 new ReleaseSearchService(engine, releaseConverter),
                 new ReleaseCreateService(engine, releaseConverter),
                 new ReleaseUpdateService(engine, releaseConverter),
-                new ReleaseGetByIdService(engine, releaseConverter)
+                new ReleaseGetByIdService(engine, releaseConverter),
+                new ReleaseDeleteService(engine)
         );
 
         // Domain: Request
@@ -94,7 +97,8 @@ public class ZdtpMcpApplication {
                 new RequestSearchService(engine, requestConverter),
                 new RequestCreateService(engine, requestConverter),
                 new RequestUpdateService(engine, requestConverter),
-                new RequestGetByIdService(engine, requestConverter)
+                new RequestGetByIdService(engine, requestConverter),
+                new RequestDeleteService(engine)
         );
 
         // Domain: Team

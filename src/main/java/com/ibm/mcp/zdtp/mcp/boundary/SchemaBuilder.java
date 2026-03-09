@@ -28,6 +28,28 @@ public class SchemaBuilder {
         return new SchemaNodeBuilder(mapper, "number");
     }
 
+    public ArraySchemaBuilder array() {
+        return new ArraySchemaBuilder(mapper);
+    }
+
+    public class ArraySchemaBuilder {
+        private final ObjectNode node;
+
+        public ArraySchemaBuilder(ObjectMapper mapper) {
+            this.node = mapper.createObjectNode();
+            this.node.put("type", "array");
+        }
+
+        public ArraySchemaBuilder items(JsonNode itemSchema) {
+            this.node.set("items", itemSchema);
+            return this;
+        }
+
+        public JsonNode build() {
+            return node;
+        }
+    }
+
     public class ObjectSchemaBuilder {
         private final ObjectNode node;
         private final ObjectNode properties;
@@ -45,6 +67,11 @@ public class SchemaBuilder {
             if (builder.isRequired()) {
                 required.add(name);
             }
+            return this;
+        }
+
+        public ObjectSchemaBuilder prop(String name, ArraySchemaBuilder builder) {
+            properties.set(name, builder.build());
             return this;
         }
 

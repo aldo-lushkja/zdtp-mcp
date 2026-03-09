@@ -14,5 +14,6 @@ public record UserStoryDto(
     Integer releaseId,
     String releaseName,
     Integer sprintId,
-    String sprintName
+    String sprintName,
+    String teamName
 ) {}

@@ -1,6 +1,7 @@
 package com.ibm.mcp.zdtp.testcase.control;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
@@ -32,7 +33,7 @@ public class TestCaseCreateService extends BaseService {
         }
         
         if (testPlanId != null) {
-            bodyMap.put("TestPlan", Map.of("Id", testPlanId));
+            bodyMap.put("TestPlans", Map.of("Items", List.of(Map.of("Id", testPlanId))));
         }
         
         return engine.create(QueryEngine.TEST_CASE, bodyMap, converter::toDto, TestCase.class);

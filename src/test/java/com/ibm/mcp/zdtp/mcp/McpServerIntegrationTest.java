@@ -64,18 +64,18 @@ class McpServerIntegrationTest {
 
     private static final String EMPTY_ITEMS = "{\"Items\":[]}";
 
-    /** All 47 tool names registered across the 15 boundary modules. */
+    /** All 51 tool names registered across the 15 boundary modules. */
     private static final List<String> ALL_TOOL_NAMES = List.of(
-            // Epic (4)
-            "epic_search", "epic_create", "epic_update", "epic_get",
-            // Feature (4)
-            "feature_search", "feature_create", "feature_update", "feature_get",
+            // Epic (5)
+            "epic_search", "epic_create", "epic_update", "epic_get", "epic_delete",
+            // Feature (5)
+            "feature_search", "feature_create", "feature_update", "feature_get", "feature_delete",
             // Project (1)
             "project_search",
-            // Release (4)
-            "release_search", "release_create", "release_update", "release_get",
-            // Request (4)
-            "request_search", "request_create", "request_update", "request_get",
+            // Release (5)
+            "release_search", "release_create", "release_update", "release_get", "release_delete",
+            // Request (5)
+            "request_search", "request_create", "request_update", "request_get", "request_delete",
             // Team (2)
             "team_search", "team_get",
             // TeamIteration (2)
@@ -119,7 +119,7 @@ class McpServerIntegrationTest {
     // ── tools/list ──────────────────────────────────────────────────────
 
     @Test
-    void toolsList_returnsAll47Tools() throws Exception {
+    void toolsList_returnsAll51Tools() throws Exception {
         String request = jsonRpc("tools/list", mapper.createObjectNode(), 1);
         JsonNode response = sendAndReceive(request);
 
@@ -232,12 +232,14 @@ class McpServerIntegrationTest {
         // Epic
         EpicConverter epicC = new EpicConverter();
         new EpicMcpTools(new EpicSearchService(engine, epicC), new EpicCreateService(engine, epicC),
-                new EpicUpdateService(engine, epicC), new EpicGetByIdService(engine, epicC)).register(server, schema);
+                new EpicUpdateService(engine, epicC), new EpicGetByIdService(engine, epicC),
+                new EpicDeleteService(engine)).register(server, schema);
 
         // Feature
         FeatureConverter featureC = new FeatureConverter();
         new FeatureMcpTools(new FeatureSearchService(engine, featureC), new FeatureCreateService(engine, featureC),
-                new FeatureUpdateService(engine, featureC), new FeatureGetByIdService(engine, featureC)).register(server, schema);
+                new FeatureUpdateService(engine, featureC), new FeatureGetByIdService(engine, featureC),
+                new FeatureDeleteService(engine)).register(server, schema);
 
         // Project
         ProjectConverter projectC = new ProjectConverter();
@@ -246,12 +248,14 @@ class McpServerIntegrationTest {
         // Release
         ReleaseConverter releaseC = new ReleaseConverter();
         new ReleaseMcpTools(new ReleaseSearchService(engine, releaseC), new ReleaseCreateService(engine, releaseC),
-                new ReleaseUpdateService(engine, releaseC), new ReleaseGetByIdService(engine, releaseC)).register(server, schema);
+                new ReleaseUpdateService(engine, releaseC), new ReleaseGetByIdService(engine, releaseC),
+                new ReleaseDeleteService(engine)).register(server, schema);
 
         // Request
         RequestConverter requestC = new RequestConverter();
         new RequestMcpTools(new RequestSearchService(engine, requestC), new RequestCreateService(engine, requestC),
-                new RequestUpdateService(engine, requestC), new RequestGetByIdService(engine, requestC)).register(server, schema);
+                new RequestUpdateService(engine, requestC), new RequestGetByIdService(engine, requestC),
+                new RequestDeleteService(engine)).register(server, schema);
 
         // Team
         TeamConverter teamC = new TeamConverter();

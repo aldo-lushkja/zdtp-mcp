@@ -128,6 +128,20 @@ class UserStoryUpdateServiceTest {
     }
 
     @Test
+    void update_bodyContainsTeamIdWhenProvided() {
+        givenApiReturns(STORY_RESPONSE);
+        service.update(123, null, null, null, null, null, null, 163894);
+        assertThat(captureBody()).contains("\"Team\":{\"Id\":163894}");
+    }
+
+    @Test
+    void update_bodyOmitsTeamWhenNull() {
+        givenApiReturns(STORY_RESPONSE);
+        service.update(123, null, null, null, null, null, null, null);
+        assertThat(captureBody()).doesNotContain("Team");
+    }
+
+    @Test
     void update_apiError_throwsTargetProcessApiException() {
         when(httpClient.post(any(), any())).thenThrow(new TargetProcessApiException(400, "Bad Request"));
         assertThatThrownBy(() -> service.updateUserStory(123, "Name", null, null, null))

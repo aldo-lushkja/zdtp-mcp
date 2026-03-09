@@ -17,8 +17,8 @@ public class RelationSearchService extends BaseService {
     }
 
     public List<RelationDto> findByEntity(int entityId) {
-        String whereClause = "(InboundGeneral.Id eq %d) or (OutboundGeneral.Id eq %d)".formatted(entityId, entityId);
-        
+        String whereClause = "(Master.Id eq %d) or (Slave.Id eq %d)".formatted(entityId, entityId);
+
         Map<String, String> parameters = new TreeMap<>();
         parameters.put("where", whereClause);
 

@@ -33,7 +33,7 @@ class TestCaseCreateServiceTest {
     // 1736899200000 ms epoch = 2025-01-15T00:00:00Z
     private static final String CASE_RESPONSE = """
             {"Id":1,"Name":"New Case","Project":{"Id":42,"Name":"P1"},
-            "EntityState":{"Id":2,"Name":"Draft"},"CreateDate":"\\/Date(1736899200000+0000)\\/",
+            "CreateDate":"\\/Date(1736899200000+0000)\\/",
             "Owner":{"Id":5,"Login":"owner@test.com"}}
             """;
 
@@ -71,6 +71,13 @@ class TestCaseCreateServiceTest {
     }
 
     @Test
+    void create_includeDoesNotContainEntityState() {
+        givenApiReturns(CASE_RESPONSE);
+        service.createTestCase("New Case", 42, null, null);
+        assertThat(URLDecoder.decode(captureUrl(), StandardCharsets.UTF_8)).doesNotContain("EntityState");
+    }
+
+    @Test
     void create_bodyContainsNameAndProjectId() {
         givenApiReturns(CASE_RESPONSE);
         service.createTestCase("New Case", 42, null, null);
@@ -104,11 +111,11 @@ class TestCaseCreateServiceTest {
     void create_bodyContainsTestPlanIdWhenProvided() {
         givenApiReturns(CASE_RESPONSE);
         service.createTestCase("New Case", 42, null, 99);
-        assertThat(captureBody()).contains("\"TestPlan\":{\"Id\":99}");
+        assertThat(captureBody()).contains("\"TestPlans\":{\"Items\":[{\"Id\":99}]}");
     }
 
     @Test
-    void create_bodyOmitsTestPlanWhenNull() {
+    void create_bodyOmitsTestPlansWhenNull() {
         givenApiReturns(CASE_RESPONSE);
         service.createTestCase("New Case", 42, null, null);
         assertThat(captureBody()).doesNotContain("TestPlan");
@@ -149,9 +156,3 @@ class TestCaseCreateServiceTest {
         return captor.getValue();
     }
 }
-
-
-
-
-
-

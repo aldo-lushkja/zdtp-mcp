@@ -6,6 +6,7 @@ import com.ibm.mcp.zdtp.shared.entity.Owner;
 import com.ibm.mcp.zdtp.shared.entity.Project;
 import com.ibm.mcp.zdtp.shared.entity.ReleaseReference;
 import com.ibm.mcp.zdtp.shared.entity.SprintReference;
+import com.ibm.mcp.zdtp.shared.entity.TeamReference;
 
 import com.ibm.mcp.zdtp.shared.model.TargetProcessItems;
 
@@ -22,5 +23,6 @@ public record UserStory(
     @JsonProperty("Owner") Owner owner,
     @JsonProperty("AssignedUser") TargetProcessItems<Owner> assignedUser,
     @JsonProperty("Release") ReleaseReference release,
-    @JsonProperty("TeamIteration") SprintReference sprint
+    @JsonProperty("TeamIteration") SprintReference sprint,
+    @JsonProperty("Team") TeamReference team
 ) {}

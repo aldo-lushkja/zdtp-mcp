@@ -16,22 +16,34 @@ public class UserStoryCreateService extends BaseService {
     }
 
     public UserStoryDto createUserStory(String name, int projectId, String description, Double effort) {
-        return create(name, projectId, description, effort);
+        return create(name, projectId, description, effort, null, null, null);
     }
 
-    public UserStoryDto create(String name, int projectId, String description, Double effort) {
+    public UserStoryDto create(String name, int projectId, String description, Double effort, Integer featureId, Integer teamIterationId, Integer teamId) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("Name", name);
         body.put("Project", Map.of("Id", projectId));
-        
+
         if (description != null && !description.isBlank()) {
             body.put("Description", convertMarkdown(description));
         }
-        
+
         if (effort != null) {
             body.put("Effort", effort);
         }
-        
+
+        if (featureId != null && featureId > 0) {
+            body.put("Feature", Map.of("Id", featureId));
+        }
+
+        if (teamIterationId != null && teamIterationId > 0) {
+            body.put("TeamIteration", Map.of("Id", teamIterationId));
+        }
+
+        if (teamId != null && teamId > 0) {
+            body.put("Team", Map.of("Id", teamId));
+        }
+
         return engine.create(QueryEngine.USER_STORY, body, converter::toDto, UserStory.class);
     }
 }

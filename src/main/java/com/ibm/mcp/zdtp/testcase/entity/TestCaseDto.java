@@ -5,7 +5,6 @@ public record TestCaseDto(
     String name,
     String description,
     String projectName,
-    String state,
     String ownerLogin,
     String createdAt,
     String testPlanName

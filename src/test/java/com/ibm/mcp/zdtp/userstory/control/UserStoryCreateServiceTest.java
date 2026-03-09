@@ -123,6 +123,20 @@ class UserStoryCreateServiceTest {
     }
 
     @Test
+    void create_bodyContainsTeamIdWhenProvided() {
+        givenApiReturns(STORY_RESPONSE);
+        service.create("New Story", 42, null, null, null, null, 163894);
+        assertThat(captureBody()).contains("\"Team\":{\"Id\":163894}");
+    }
+
+    @Test
+    void create_bodyOmitsTeamWhenNull() {
+        givenApiReturns(STORY_RESPONSE);
+        service.create("New Story", 42, null, null, null, null, null);
+        assertThat(captureBody()).doesNotContain("Team");
+    }
+
+    @Test
     void create_apiError_throwsTargetProcessApiException() {
         when(httpClient.post(any(), any())).thenThrow(new TargetProcessApiException(400, "Bad Request"));
         assertThatThrownBy(() -> service.createUserStory("Bad", 0, null, null))

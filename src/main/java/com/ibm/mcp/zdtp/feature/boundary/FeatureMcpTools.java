@@ -10,9 +10,10 @@ public class FeatureMcpTools {
     private final FeatureCreateService createSvc;
     private final FeatureUpdateService updateSvc;
     private final FeatureGetByIdService getSvc;
+    private final FeatureDeleteService deleteSvc;
 
-    public FeatureMcpTools(FeatureSearchService s, FeatureCreateService c, FeatureUpdateService u, FeatureGetByIdService g) {
-        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g;
+    public FeatureMcpTools(FeatureSearchService s, FeatureCreateService c, FeatureUpdateService u, FeatureGetByIdService g, FeatureDeleteService d) {
+        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g; this.deleteSvc = d;
     }
 
     public void register(McpServer server, SchemaBuilder schema) {
@@ -36,6 +37,9 @@ public class FeatureMcpTools {
 
         server.registerTool("feature_get", "Get a feature by its numeric ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
+
+        server.registerTool("feature_delete", "Delete a feature by its numeric ID.",
+                schema.object().prop("id", schema.integer().required()).build(), args -> delete(args.path("id").asInt()));
     }
 
     private String search(FeatureSearchService.SearchCriteria c) {
@@ -46,6 +50,7 @@ public class FeatureMcpTools {
     private String create(String n, int p, String d, Double e) { return "Created: " + format(createSvc.create(n, p, d, e)); }
     private String update(int i, String n, String d, String s, Double e) { return "Updated: " + format(updateSvc.update(i, n, d, s, e)); }
     private String get(int i) { var f = getSvc.get(i); return format(f) + "\nDescription:\n" + (f.description() != null ? f.description() : "N/A"); }
+    private String delete(int i) { deleteSvc.delete(i); return "Feature [%d] deleted successfully.".formatted(i); }
 
     private String format(FeatureDto f) {
         return "[%d] %s (Project: %s, State: %s, Author: %s, Points: %s, Created: %s, Done: %s, Sprint: %s)"
