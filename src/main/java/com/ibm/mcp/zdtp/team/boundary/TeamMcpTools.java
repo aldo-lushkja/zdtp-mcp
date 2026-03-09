@@ -33,3 +33,4 @@ public class TeamMcpTools {
         return "[%d] %s".formatted(team.id(), team.name());
     }
 }
+

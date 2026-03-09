@@ -3,6 +3,7 @@ package com.ibm.mcp.zdtp.feature.control;
 import com.ibm.mcp.zdtp.feature.entity.FeatureDto;
 import com.ibm.mcp.zdtp.feature.entity.Feature;
 import com.ibm.mcp.zdtp.shared.entity.EntityState;
+import com.ibm.mcp.zdtp.shared.entity.EpicReference;
 import com.ibm.mcp.zdtp.shared.entity.Owner;
 import com.ibm.mcp.zdtp.shared.entity.Project;
 import com.ibm.mcp.zdtp.shared.entity.SprintReference;
@@ -27,7 +28,9 @@ public class FeatureConverter {
                 parseDate(feature.createDate()),
                 parseDate(feature.endDate()),
                 Optional.ofNullable(feature.sprint()).map(SprintReference::id).orElse(null),
-                Optional.ofNullable(feature.sprint()).map(SprintReference::name).orElse(null)
+                Optional.ofNullable(feature.sprint()).map(SprintReference::name).orElse(null),
+                Optional.ofNullable(feature.epic()).map(EpicReference::id).orElse(null),
+                Optional.ofNullable(feature.epic()).map(EpicReference::name).orElse(null)
         );
     }
 
@@ -53,3 +56,4 @@ public class FeatureConverter {
         return Optional.ofNullable(feature.owner()).map(Owner::login).orElse(null);
     }
 }
+

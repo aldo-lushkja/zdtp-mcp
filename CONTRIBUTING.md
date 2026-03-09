@@ -1,4 +1,4 @@
-# Contributing to Zero Dependency Targetprocess MCP Server
+# Contributing to Lightweight Targetprocess MCP Server
 
 Thank you for your interest in contributing! We welcome all contributions that improve the project.
 
@@ -20,7 +20,7 @@ We use JUnit 5 and Mockito. Please ensure that:
 ## 🎨 Coding Standards
 
 *   Follow standard Java naming conventions.
-*   Ensure zero external framework dependencies (standard Java only, except for core JSON/HTTP needs if absolutely necessary).
+*   **Zero Framework Policy**: Use standard Java APIs for HTTP and I/O. Avoid heavy frameworks like Spring or Micronaut. Specialized libraries for core features (e.g., Jackson for JSON, Commonmark for Markdown) are allowed.
 *   Keep the BCE (Boundary-Control-Entity) architectural pattern.
 
 ## 📝 Commit Messages

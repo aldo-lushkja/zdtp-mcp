@@ -1,10 +1,12 @@
 package com.ibm.mcp.zdtp.feature.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.feature.entity.FeatureDto;
 import com.ibm.mcp.zdtp.feature.entity.Feature;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +38,8 @@ class FeatureSearchServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new FeatureSearchService(props, httpClient, new FeatureConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new FeatureSearchService(engine, new FeatureConverter());
     }
 
     @Test
@@ -65,4 +68,24 @@ class FeatureSearchServiceTest {
         assertThat(url).contains("where=" + httpClient.encode("Name contains 'test' and Project.Name contains 'P1' and Owner.Login eq 'owner' and CreateDate gte '2024-01-01'"));
         assertThat(url).contains("take=5");
     }
+
+    @Test
+    void epicIdFilter_addsEpicIdCondition() {
+        when(httpClient.fetch(any())).thenReturn(FEATURES_RESPONSE);
+        when(httpClient.parse(any(), any())).thenCallRealMethod();
+
+        service.search(new FeatureSearchService.SearchCriteria(null, null, null, null, null, 10, null, 42));
+
+        ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
+        verify(httpClient).fetch(urlCaptor.capture());
+        String url = java.net.URLDecoder.decode(urlCaptor.getValue(), java.nio.charset.StandardCharsets.UTF_8);
+
+        assertThat(url).contains("Epic.Id eq 42");
+    }
 }
+
+
+
+
+
+

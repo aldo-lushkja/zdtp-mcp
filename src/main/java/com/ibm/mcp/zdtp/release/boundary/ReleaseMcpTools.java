@@ -10,9 +10,10 @@ public class ReleaseMcpTools {
     private final ReleaseCreateService createSvc;
     private final ReleaseUpdateService updateSvc;
     private final ReleaseGetByIdService getSvc;
+    private final ReleaseDeleteService deleteSvc;
 
-    public ReleaseMcpTools(ReleaseSearchService s, ReleaseCreateService c, ReleaseUpdateService u, ReleaseGetByIdService g) {
-        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g;
+    public ReleaseMcpTools(ReleaseSearchService s, ReleaseCreateService c, ReleaseUpdateService u, ReleaseGetByIdService g, ReleaseDeleteService d) {
+        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g; this.deleteSvc = d;
     }
 
     public void register(McpServer server, SchemaBuilder schema) {
@@ -36,6 +37,9 @@ public class ReleaseMcpTools {
 
         server.registerTool("release_get", "Get a release by its numeric ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
+
+        server.registerTool("release_delete", "Delete a release by its numeric ID.",
+                schema.object().prop("id", schema.integer().required()).build(), args -> delete(args.path("id").asInt()));
     }
 
     private String search(ReleaseSearchService.SearchCriteria c) {
@@ -46,6 +50,7 @@ public class ReleaseMcpTools {
     private String create(String n, int p, String d, Double e) { return "Created: " + format(createSvc.create(n, p, d, e)); }
     private String update(int i, String n, String d, String s, Double e) { return "Updated: " + format(updateSvc.update(i, n, d, s, e)); }
     private String get(int i) { var r = getSvc.get(i); return format(r) + "\nDescription:\n" + (r.description() != null ? r.description() : "N/A"); }
+    private String delete(int i) { deleteSvc.delete(i); return "Release [%d] deleted successfully.".formatted(i); }
 
     private String format(ReleaseDto r) {
         return "[%d] %s (Project: %s, State: %s, Author: %s, Points: %s, Created: %s, Start: %s, End: %s)"
@@ -55,3 +60,4 @@ public class ReleaseMcpTools {
 
     private String ns(String v) { return v != null ? v : "N/A"; }
 }
+

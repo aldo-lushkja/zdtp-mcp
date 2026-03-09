@@ -1,14 +1,11 @@
 package com.ibm.mcp.zdtp.userstory.control;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
 
 public class UserStoryDeleteService extends BaseService {
-    public UserStoryDeleteService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public UserStoryDeleteService(QueryEngine engine) {
+        super(engine);
     }
 
     public void delete(int id) {

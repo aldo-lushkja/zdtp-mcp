@@ -1,8 +1,10 @@
 package com.ibm.mcp.zdtp.userstory.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.userstory.entity.UserStoryDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +40,8 @@ class UserStorySearchServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new UserStorySearchService(props, httpClient, new UserStoryConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new UserStorySearchService(engine, new UserStoryConverter());
     }
 
     @Test
@@ -70,6 +73,13 @@ class UserStorySearchServiceTest {
         assertThat(results.get(0).id()).isEqualTo(1);
     }
 
+    @Test
+    void featureIdFilter_addsFeatureIdCondition() {
+        givenApiReturns(STORIES_RESPONSE);
+        service.search(new UserStorySearchService.SearchCriteria(null, null, null, null, null, 10, null, null, 99));
+        assertThat(URLDecoder.decode(captureUrl(), StandardCharsets.UTF_8)).contains("Feature.Id eq 99");
+    }
+
     private void givenApiReturns(String body) {
         when(httpClient.fetch(any())).thenReturn(body);
         when(httpClient.parse(eq(body), any())).thenCallRealMethod();
@@ -81,3 +91,9 @@ class UserStorySearchServiceTest {
         return captor.getValue();
     }
 }
+
+
+
+
+
+

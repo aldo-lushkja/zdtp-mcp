@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.ibm.mcp.zdtp'
-version = '1.0.0'
+version = '1.0.7'
 
 application {
     mainClass = 'com.ibm.mcp.zdtp.ZdtpMcpApplication'
@@ -23,9 +23,13 @@ repositories {
 }
 
 dependencies {
-    // Zero framework dependency! Just Jackson for JSON.
+    // Zero-Framework Policy: No Spring/heavy frameworks. 
+    // Specialized libraries for core features are allowed.
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
+
+    // Markdown support
+    implementation 'org.commonmark:commonmark:0.21.0'
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'

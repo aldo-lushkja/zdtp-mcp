@@ -135,3 +135,4 @@ public class McpServer {
 
     private record ToolDefinition(String name, String description, JsonNode inputSchema, Function<JsonNode, String> handler) {}
 }
+

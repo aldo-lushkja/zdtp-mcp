@@ -1,8 +1,10 @@
 package com.ibm.mcp.zdtp.team.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.team.entity.TeamDto;
 import com.ibm.mcp.zdtp.team.entity.Team;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +37,8 @@ class TeamSearchServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new TeamSearchService(props, httpClient, new TeamConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new TeamSearchService(engine, new TeamConverter());
     }
 
     @Test
@@ -51,3 +54,9 @@ class TeamSearchServiceTest {
         when(httpClient.parse(any(), any())).thenCallRealMethod();
     }
 }
+
+
+
+
+
+

@@ -1,8 +1,10 @@
 package com.ibm.mcp.zdtp.teamiteration.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.teamiteration.entity.TeamIterationDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +39,8 @@ class TeamIterationSearchServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new TeamIterationSearchService(props, httpClient, new TeamIterationConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new TeamIterationSearchService(engine, new TeamIterationConverter());
     }
 
     @Test
@@ -84,3 +87,9 @@ class TeamIterationSearchServiceTest {
         return captor.getValue();
     }
 }
+
+
+
+
+
+

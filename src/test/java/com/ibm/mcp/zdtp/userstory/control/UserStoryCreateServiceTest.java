@@ -1,9 +1,11 @@
 package com.ibm.mcp.zdtp.userstory.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessApiException;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.exception.TargetProcessApiException;
 import com.ibm.mcp.zdtp.userstory.control.UserStoryConverter;
 import com.ibm.mcp.zdtp.userstory.entity.UserStoryDto;
 import com.ibm.mcp.zdtp.userstory.entity.UserStory;
@@ -45,7 +47,8 @@ class UserStoryCreateServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new UserStoryCreateService(props, httpClient, new UserStoryConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new UserStoryCreateService(engine, new UserStoryConverter());
     }
 
     @Test
@@ -120,6 +123,34 @@ class UserStoryCreateServiceTest {
     }
 
     @Test
+    void create_bodyContainsTeamIdWhenProvided() {
+        givenApiReturns(STORY_RESPONSE);
+        service.create("New Story", 42, null, null, null, null, 163894, null);
+        assertThat(captureBody()).contains("\"Team\":{\"Id\":163894}");
+    }
+
+    @Test
+    void create_bodyOmitsTeamWhenNull() {
+        givenApiReturns(STORY_RESPONSE);
+        service.create("New Story", 42, null, null, null, null, null, null);
+        assertThat(captureBody()).doesNotContain("Team");
+    }
+
+    @Test
+    void create_bodyContainsReleaseIdWhenProvided() {
+        givenApiReturns(STORY_RESPONSE);
+        service.create("New Story", 42, null, null, null, null, null, 555);
+        assertThat(captureBody()).contains("\"Release\":{\"Id\":555}");
+    }
+
+    @Test
+    void create_bodyOmitsReleaseWhenNull() {
+        givenApiReturns(STORY_RESPONSE);
+        service.create("New Story", 42, null, null, null, null, null, null);
+        assertThat(captureBody()).doesNotContain("Release");
+    }
+
+    @Test
     void create_apiError_throwsTargetProcessApiException() {
         when(httpClient.post(any(), any())).thenThrow(new TargetProcessApiException(400, "Bad Request"));
         assertThatThrownBy(() -> service.createUserStory("Bad", 0, null, null))
@@ -144,3 +175,9 @@ class UserStoryCreateServiceTest {
         return captor.getValue();
     }
 }
+
+
+
+
+
+

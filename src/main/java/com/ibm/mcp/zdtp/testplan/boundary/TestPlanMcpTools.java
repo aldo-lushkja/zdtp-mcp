@@ -30,8 +30,9 @@ public class TestPlanMcpTools {
 
         server.registerTool("test_plan_update", "Update an existing test plan.",
                 schema.object().prop("id", schema.integer().required()).prop("name", schema.string()).prop("description", schema.string())
-                        .prop("stateName", schema.string()).build(),
-                args -> update(args.path("id").asInt(), args.path("name").asText(null), args.path("description").asText(null), args.path("stateName").asText(null)));
+                        .prop("stateName", schema.string()).prop("stateId", schema.integer()).build(),
+                args -> update(args.path("id").asInt(), args.path("name").asText(null), args.path("description").asText(null),
+                        args.path("stateName").asText(null), args.has("stateId") ? args.path("stateId").asInt() : null));
 
         server.registerTool("test_plan_get", "Get a test plan by ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
@@ -46,7 +47,7 @@ public class TestPlanMcpTools {
     }
 
     private String create(String n, int p, String d) { return "Created: " + format(createSvc.create(n, p, d)); }
-    private String update(int i, String n, String d, String s) { return "Updated: " + format(updateSvc.update(i, n, d, s)); }
+    private String update(int i, String n, String d, String s, Integer si) { return "Updated: " + format(updateSvc.update(i, n, d, s, si)); }
     private String get(int i) { var t = getSvc.get(i); return format(t) + "\nDescription:\n" + (t.description() != null ? t.description() : "N/A"); }
 
     private String delete(int i) {
@@ -55,9 +56,10 @@ public class TestPlanMcpTools {
     }
 
     private String format(TestPlanDto t) {
-        return "[%d] %s (Project: %s, State: %s, Author: %s, Created: %s)"
-                .formatted(t.id(), t.name(), ns(t.projectName()), ns(t.state()), ns(t.ownerLogin()), ns(t.createdAt()));
+        return "[%d] %s (Project: %s, State: %s [%s], Author: %s, Created: %s)"
+                .formatted(t.id(), t.name(), ns(t.projectName()), ns(t.state()), t.stateId() != null ? t.stateId() : "N/A", ns(t.ownerLogin()), ns(t.createdAt()));
     }
 
     private String ns(String v) { return v != null ? v : "N/A"; }
 }
+

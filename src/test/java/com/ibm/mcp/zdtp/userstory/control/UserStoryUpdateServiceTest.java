@@ -1,9 +1,11 @@
 package com.ibm.mcp.zdtp.userstory.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessApiException;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.exception.TargetProcessApiException;
 import com.ibm.mcp.zdtp.userstory.entity.UserStoryDto;
 import com.ibm.mcp.zdtp.userstory.entity.UserStory;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +45,8 @@ class UserStoryUpdateServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new UserStoryUpdateService(props, httpClient, new UserStoryConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new UserStoryUpdateService(engine, new UserStoryConverter());
     }
 
     @Test
@@ -125,6 +128,34 @@ class UserStoryUpdateServiceTest {
     }
 
     @Test
+    void update_bodyContainsTeamIdWhenProvided() {
+        givenApiReturns(STORY_RESPONSE);
+        service.update(123, null, null, null, null, null, null, 163894, null);
+        assertThat(captureBody()).contains("\"Team\":{\"Id\":163894}");
+    }
+
+    @Test
+    void update_bodyOmitsTeamWhenNull() {
+        givenApiReturns(STORY_RESPONSE);
+        service.update(123, null, null, null, null, null, null, null, null);
+        assertThat(captureBody()).doesNotContain("Team");
+    }
+
+    @Test
+    void update_bodyContainsReleaseIdWhenProvided() {
+        givenApiReturns(STORY_RESPONSE);
+        service.update(123, null, null, null, null, null, null, null, 555);
+        assertThat(captureBody()).contains("\"Release\":{\"Id\":555}");
+    }
+
+    @Test
+    void update_bodyOmitsReleaseWhenNull() {
+        givenApiReturns(STORY_RESPONSE);
+        service.update(123, null, null, null, null, null, null, null, null);
+        assertThat(captureBody()).doesNotContain("Release");
+    }
+
+    @Test
     void update_apiError_throwsTargetProcessApiException() {
         when(httpClient.post(any(), any())).thenThrow(new TargetProcessApiException(400, "Bad Request"));
         assertThatThrownBy(() -> service.updateUserStory(123, "Name", null, null, null))
@@ -149,3 +180,9 @@ class UserStoryUpdateServiceTest {
         return captor.getValue();
     }
 }
+
+
+
+
+
+

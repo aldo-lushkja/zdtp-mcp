@@ -21,6 +21,7 @@ public class TestPlanConverter {
                 testPlan.description(),
                 extractProjectName(testPlan),
                 extractState(testPlan),
+                extractStateId(testPlan),
                 extractOwnerLogin(testPlan),
                 parseDate(testPlan.createDate())
         );
@@ -44,7 +45,12 @@ public class TestPlanConverter {
         return Optional.ofNullable(testPlan.state()).map(EntityState::name).orElse(null);
     }
 
+    private Integer extractStateId(TestPlan testPlan) {
+        return Optional.ofNullable(testPlan.state()).map(EntityState::id).orElse(null);
+    }
+
     private String extractOwnerLogin(TestPlan testPlan) {
         return Optional.ofNullable(testPlan.owner()).map(Owner::login).orElse(null);
     }
 }
+

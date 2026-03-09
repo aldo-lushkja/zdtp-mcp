@@ -1,9 +1,11 @@
 package com.ibm.mcp.zdtp.release.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessApiException;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.exception.TargetProcessApiException;
 import com.ibm.mcp.zdtp.release.entity.ReleaseDto;
 import com.ibm.mcp.zdtp.release.entity.Release;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +46,8 @@ class ReleaseUpdateServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new ReleaseUpdateService(props, httpClient, new ReleaseConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new ReleaseUpdateService(engine, new ReleaseConverter());
     }
 
     @Test
@@ -150,3 +153,9 @@ class ReleaseUpdateServiceTest {
         return captor.getValue();
     }
 }
+
+
+
+
+
+

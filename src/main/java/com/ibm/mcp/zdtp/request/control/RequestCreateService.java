@@ -2,19 +2,19 @@ package com.ibm.mcp.zdtp.request.control;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
+
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.request.entity.Request;
 import com.ibm.mcp.zdtp.request.entity.RequestDto;
 import com.ibm.mcp.zdtp.shared.control.BaseService;
-import com.ibm.mcp.zdtp.shared.control.QueryEngine;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 
 public class RequestCreateService extends BaseService {
     private final RequestConverter converter;
 
-    public RequestCreateService(TargetProcessProperties properties, TargetProcessHttpClient httpClient, RequestConverter converter, ObjectMapper mapper) {
-        super(properties, httpClient, mapper);
+    public RequestCreateService(QueryEngine engine, RequestConverter converter) {
+        super(engine);
         this.converter = converter;
     }
 
@@ -28,7 +28,7 @@ public class RequestCreateService extends BaseService {
         bodyMap.put("Project", Map.of("Id", projectId));
         
         if (description != null && !description.isBlank()) {
-            bodyMap.put("Description", description);
+            bodyMap.put("Description", convertMarkdown(description));
         }
         
         if (effort != null) {
@@ -38,3 +38,5 @@ public class RequestCreateService extends BaseService {
         return engine.create(QueryEngine.REQUEST, bodyMap, converter::toDto, Request.class);
     }
 }
+
+

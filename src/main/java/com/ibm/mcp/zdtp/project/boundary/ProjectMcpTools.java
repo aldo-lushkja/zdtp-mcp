@@ -21,3 +21,4 @@ public class ProjectMcpTools {
         return res.isEmpty() ? "No projects found." : String.join("\n", res.stream().map(p -> "[%d] %s".formatted(p.id(), p.name())).toList());
     }
 }
+

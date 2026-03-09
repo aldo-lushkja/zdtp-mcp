@@ -10,9 +10,10 @@ public class EpicMcpTools {
     private final EpicCreateService createSvc;
     private final EpicUpdateService updateSvc;
     private final EpicGetByIdService getSvc;
+    private final EpicDeleteService deleteSvc;
 
-    public EpicMcpTools(EpicSearchService s, EpicCreateService c, EpicUpdateService u, EpicGetByIdService g) {
-        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g;
+    public EpicMcpTools(EpicSearchService s, EpicCreateService c, EpicUpdateService u, EpicGetByIdService g, EpicDeleteService d) {
+        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g; this.deleteSvc = d;
     }
 
     public void register(McpServer server, SchemaBuilder schema) {
@@ -34,6 +35,9 @@ public class EpicMcpTools {
 
         server.registerTool("epic_get", "Get an epic by its numeric ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
+
+        server.registerTool("epic_delete", "Delete an epic by its numeric ID.",
+                schema.object().prop("id", schema.integer().required()).build(), args -> delete(args.path("id").asInt()));
     }
 
     private String search(EpicSearchService.SearchCriteria c) {
@@ -44,6 +48,7 @@ public class EpicMcpTools {
     private String create(String n, int p, String d, Double e) { return "Created: " + format(createSvc.create(n, p, d, e)); }
     private String update(int i, String n, String d, String s, Double e) { return "Updated: " + format(updateSvc.update(i, n, d, s, e)); }
     private String get(int i) { var e = getSvc.get(i); return format(e) + "\nDescription:\n" + (e.description() != null ? e.description() : "N/A"); }
+    private String delete(int i) { deleteSvc.delete(i); return "Epic [%d] deleted successfully.".formatted(i); }
 
     private String format(EpicDto e) {
         return "[%d] %s (Project: %s, State: %s, Author: %s, Points: %s, Created: %s, Done: %s)"
@@ -53,3 +58,4 @@ public class EpicMcpTools {
 
     private String ns(String v) { return v != null ? v : "N/A"; }
 }
+

@@ -1,6 +1,5 @@
 package com.ibm.mcp.zdtp.testcase.control;
 
-import com.ibm.mcp.zdtp.shared.entity.EntityState;
 import com.ibm.mcp.zdtp.shared.entity.Owner;
 import com.ibm.mcp.zdtp.shared.entity.Project;
 import com.ibm.mcp.zdtp.testcase.entity.TestCaseDto;
@@ -20,7 +19,6 @@ public class TestCaseConverter {
                 testCase.name(),
                 testCase.description(),
                 extractProjectName(testCase),
-                extractState(testCase),
                 extractOwnerLogin(testCase),
                 parseDate(testCase.createDate()),
                 extractTestPlanName(testCase)
@@ -41,10 +39,6 @@ public class TestCaseConverter {
         return Optional.ofNullable(testCase.project()).map(Project::name).orElse(null);
     }
 
-    private String extractState(TestCase testCase) {
-        return Optional.ofNullable(testCase.state()).map(EntityState::name).orElse(null);
-    }
-
     private String extractOwnerLogin(TestCase testCase) {
         return Optional.ofNullable(testCase.owner()).map(Owner::login).orElse(null);
     }
@@ -57,3 +51,4 @@ public class TestCaseConverter {
                 .orElse(null);
     }
 }
+

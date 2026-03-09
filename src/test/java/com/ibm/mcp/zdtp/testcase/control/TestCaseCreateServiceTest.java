@@ -1,9 +1,11 @@
 package com.ibm.mcp.zdtp.testcase.control;
 
+import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.mcp.zdtp.config.TargetProcessProperties;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessHttpClient;
-import com.ibm.mcp.zdtp.shared.control.TargetProcessApiException;
+import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
+import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
+import com.ibm.mcp.zdtp.shared.exception.TargetProcessApiException;
 import com.ibm.mcp.zdtp.testcase.entity.TestCaseDto;
 import com.ibm.mcp.zdtp.testcase.entity.TestCase;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +33,7 @@ class TestCaseCreateServiceTest {
     // 1736899200000 ms epoch = 2025-01-15T00:00:00Z
     private static final String CASE_RESPONSE = """
             {"Id":1,"Name":"New Case","Project":{"Id":42,"Name":"P1"},
-            "EntityState":{"Id":2,"Name":"Draft"},"CreateDate":"\\/Date(1736899200000+0000)\\/",
+            "CreateDate":"\\/Date(1736899200000+0000)\\/",
             "Owner":{"Id":5,"Login":"owner@test.com"}}
             """;
 
@@ -43,7 +45,8 @@ class TestCaseCreateServiceTest {
     @BeforeEach
     void setUp() {
         TargetProcessProperties props = new TargetProcessProperties(BASE_URL, TOKEN);
-        service = new TestCaseCreateService(props, httpClient, new TestCaseConverter(), new ObjectMapper());
+        QueryEngine engine = new QueryEngine(props, httpClient, new ObjectMapper());
+        service = new TestCaseCreateService(engine, new TestCaseConverter());
     }
 
     @Test
@@ -65,6 +68,13 @@ class TestCaseCreateServiceTest {
         givenApiReturns(CASE_RESPONSE);
         service.createTestCase("New Case", 42, null, null);
         assertThat(URLDecoder.decode(captureUrl(), StandardCharsets.UTF_8)).contains("Owner");
+    }
+
+    @Test
+    void create_includeDoesNotContainEntityState() {
+        givenApiReturns(CASE_RESPONSE);
+        service.createTestCase("New Case", 42, null, null);
+        assertThat(URLDecoder.decode(captureUrl(), StandardCharsets.UTF_8)).doesNotContain("EntityState");
     }
 
     @Test
@@ -101,11 +111,11 @@ class TestCaseCreateServiceTest {
     void create_bodyContainsTestPlanIdWhenProvided() {
         givenApiReturns(CASE_RESPONSE);
         service.createTestCase("New Case", 42, null, 99);
-        assertThat(captureBody()).contains("\"TestPlan\":{\"Id\":99}");
+        assertThat(captureBody()).contains("\"TestPlans\":{\"Items\":[{\"Id\":99}]}");
     }
 
     @Test
-    void create_bodyOmitsTestPlanWhenNull() {
+    void create_bodyOmitsTestPlansWhenNull() {
         givenApiReturns(CASE_RESPONSE);
         service.createTestCase("New Case", 42, null, null);
         assertThat(captureBody()).doesNotContain("TestPlan");

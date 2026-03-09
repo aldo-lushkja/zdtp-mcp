@@ -1,6 +1,6 @@
-# 🎯 Zero Dependency Targetprocess MCP Server
+# 🎯 Lightweight Targetprocess MCP Server
 
-A lightweight Java application implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) to expose Targetprocess data to AI assistants.
+A high-performance Java application implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) to expose Targetprocess data to AI assistants. Built with a **Zero-Framework** policy for maximum speed and portability.
 
 ---
 
@@ -39,7 +39,7 @@ Set the following environment variables:
 
 ## 🛠️ Available Tools
 
-The server exposes a comprehensive set of tools for interacting with Targetprocess entities, including **User Stories, Epics, Features, Releases, Sprints, Test Plans/Cases, Teams, and Projects**.
+The server exposes a comprehensive set of tools for interacting with Targetprocess entities, including **User Stories, Tasks, Bugs, Epics, Features, Releases, Sprints, Test Plans/Cases, Teams, Projects, Users, Relations, and Comments**.
 
 For a complete list of tools, their descriptions, and parameters, please refer to the:
 👉 **[Available Tools Reference](docs/TOOLS.md)**
@@ -58,6 +58,7 @@ For a complete list of tools, their descriptions, and parameters, please refer t
 - [🏗️ Architecture](docs/ARCHITECTURE.md)
 - [🗂️ Data Model](docs/DATA_MODEL.md)
 - [🛠️ Development & Build](docs/DEVELOPMENT.md)
+- [🤖 CI/CD & Git Flow](docs/CICD.md)
 
 ---
 
