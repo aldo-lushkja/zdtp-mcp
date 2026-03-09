@@ -1,6 +1,7 @@
 package com.ibm.mcp.zdtp.shared.http;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ibm.mcp.zdtp.shared.model.TargetProcessResponse;
@@ -19,7 +20,9 @@ public class TargetProcessHttpClient {
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
-    private static final ObjectMapper DEFAULT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
+    private static final ObjectMapper DEFAULT_MAPPER = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     public TargetProcessHttpClient(HttpClient httpClient, ObjectMapper objectMapper) {
         this.httpClient = httpClient;
@@ -28,7 +31,7 @@ public class TargetProcessHttpClient {
 
     public String fetch(String url) {
         return send(HttpRequest.newBuilder()
-                .uri(URI.create(url))
+                .uri(URI.create(url.trim()))
                 .header("Accept", "application/json")
                 .timeout(Duration.ofSeconds(30))
                 .GET()

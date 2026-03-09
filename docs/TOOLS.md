@@ -5,7 +5,7 @@ This document provides a detailed reference for all tools exposed by the Targetp
 ## 📖 User Stories
 | Tool | Description | Parameters |
 | --- | --- | --- |
-| `user_story_search` | Search for user stories. | `nameQuery`, `projectName`, `creatorLogin`, `startDate`, `endDate`, `releaseId`, `sprintId`, `take` (default: 10) |
+| `user_story_search` | Search for user stories. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `releaseId`, `sprintId`, `take` (default: 10) |
 | `user_story_create` | Create a new user story. | `name`*, `projectId`*, `description`, `effort` |
 | `user_story_update` | Update an existing user story. | `id`*, `name`, `description`, `stateName`, `effort` |
 | `user_story_get` | Get user story details. | `id`* |

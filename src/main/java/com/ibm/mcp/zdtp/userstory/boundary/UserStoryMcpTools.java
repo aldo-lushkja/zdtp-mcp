@@ -18,11 +18,11 @@ public class UserStoryMcpTools {
 
     public void register(McpServer server, SchemaBuilder schema) {
         server.registerTool("user_story_search", "Search for user stories in Targetprocess.",
-                schema.object().prop("nameQuery", schema.string()).prop("projectName", schema.string()).prop("creatorLogin", schema.string())
+                schema.object().prop("nameQuery", schema.string()).prop("projectName", schema.string()).prop("ownerLogin", schema.string())
                         .prop("startDate", schema.string()).prop("endDate", schema.string()).prop("releaseId", schema.integer())
                         .prop("sprintId", schema.integer()).prop("take", schema.integer().withDefault(10)).build(),
                 args -> search(new UserStorySearchService.SearchCriteria(args.path("nameQuery").asText(null), args.path("projectName").asText(null),
-                        args.path("creatorLogin").asText(null), args.path("startDate").asText(null), args.path("endDate").asText(null),
+                        args.path("ownerLogin").asText(null), args.path("startDate").asText(null), args.path("endDate").asText(null),
                         args.path("take").asInt(10), args.has("releaseId") ? args.path("releaseId").asInt() : null,
                         args.has("sprintId") ? args.path("sprintId").asInt() : null)));
 

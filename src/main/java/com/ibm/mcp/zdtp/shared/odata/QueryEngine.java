@@ -1,6 +1,7 @@
 package com.ibm.mcp.zdtp.shared.odata;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -25,7 +26,11 @@ public class QueryEngine {
         this.mapper = mapper;
     }
 
-    public record Domain(String resource, String include) {}
+    public record Domain(String resource, String include, String where) {
+        public Domain(String resource, String include) {
+            this(resource, include, null);
+        }
+    }
 
     public static final Domain USER_STORY = new Domain("UserStories", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],AssignedUser[Id,Login],Release[Id,Name],TeamIteration[Id,Name]]");
     public static final Domain TASK = new Domain("Tasks", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,Owner[Id,Login],UserStory[Id,Name]]");
@@ -46,8 +51,11 @@ public class QueryEngine {
 
     public <T, D> List<D> list(Domain domain, Map<String, String> params, TypeReference<TargetProcessResponse<T>> typeRef, Function<T, D> mapper) {
         Map<String, String> parameters = new TreeMap<>(params);
-        if (!domain.include().isBlank()) {
-            parameters.putIfAbsent("include", domain.include());
+        if (domain.include() != null && !domain.include().isBlank()) {
+            parameters.put("include", domain.include());
+        }
+        if (domain.where() != null && !domain.where().isBlank()) {
+            parameters.put("where", domain.where());
         }
         
         String url = buildUrl(domain.resource(), parameters);
@@ -93,16 +101,30 @@ public class QueryEngine {
     }
 
     private String buildUrl(String path, Map<String, String> query) {
-        Map<String, String> params = new TreeMap<>(query);
-        params.put("format", "json");
-        params.put("access_token", properties.accessToken());
+        StringBuilder sb = new StringBuilder();
+        sb.append(properties.baseUrl());
+        sb.append("/api/v1/");
+        sb.append(path);
+        sb.append("?access_token=");
+        sb.append(properties.accessToken());
+        sb.append("&format=json");
         
-        String queryString = params.entrySet().stream()
-                .filter(e -> e.getValue() != null && !e.getValue().isBlank())
-                .map(e -> e.getKey() + "=" + TargetProcessHttpClient.encode(e.getValue()))
-                .collect(Collectors.joining("&"));
-                
-        return properties.baseUrl() + "/api/v1/" + path + (queryString.isEmpty() ? "" : "?" + queryString);
+        // Use a linked map to ensure deterministic order if needed, 
+        // but the key is to ensure we don't have any strange characters.
+        List<String> queryParams = new ArrayList<>();
+        for (Map.Entry<String, String> entry : query.entrySet()) {
+            String value = entry.getValue();
+            if (value != null && !value.isBlank()) {
+                queryParams.add(entry.getKey() + "=" + TargetProcessHttpClient.encode(value));
+            }
+        }
+        
+        if (!queryParams.isEmpty()) {
+            sb.append("&");
+            sb.append(String.join("&", queryParams));
+        }
+        
+        return sb.toString();
     }
 
     private String toJson(Map<String, Object> body) {

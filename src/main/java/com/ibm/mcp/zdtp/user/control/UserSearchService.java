@@ -18,8 +18,7 @@ public class UserSearchService extends BaseService {
 
     public List<UserDto> search(String query, int take) {
         String whereClause = query()
-                .add("(Login contains '%s' or FirstName contains '%s' or LastName contains '%s' or Email contains '%s')".formatted(query, query, query, query))
-                .add("IsActive eq 'true'")
+                .add("(FirstName contains '%s') or (Login contains '%s')".formatted(query, query))
                 .build();
 
         Map<String, String> parameters = new TreeMap<>();
