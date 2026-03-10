@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.ibm.mcp.zdtp'
-version = '1.0.7'
+version = '1.0.8'
 
 application {
     mainClass = 'com.ibm.mcp.zdtp.ZdtpMcpApplication'
