@@ -37,7 +37,7 @@ public class QueryEngine {
     public static final Domain BUG = new Domain("Bugs", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],AssignedUser[Id,Login],Release[Id,Name],UserStory[Id,Name],Feature[Id,Name],TeamIteration[Id,Name]]");
     public static final Domain FEATURE = new Domain("Features", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login],TeamIteration[Id,Name],Epic[Id,Name]]");
     public static final Domain EPIC = new Domain("Epics", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login]]");
-    public static final Domain RELEASE = new Domain("Releases", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,StartDate,EndDate,Effort,Owner[Id,Login]]");
+    public static final Domain RELEASE = new Domain("Releases", "[Id,Name,Description,Project[Id,Name],CreateDate,StartDate,EndDate,Effort,Owner[Id,Login]]");
     public static final Domain REQUEST = new Domain("Requests", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,EndDate,Effort,Owner[Id,Login]]");
     public static final Domain TEST_PLAN = new Domain("TestPlans", "[Id,Name,Description,Project[Id,Name],EntityState[Id,Name],CreateDate,Owner[Id,Login]]");
     public static final Domain TEST_CASE = new Domain("TestCases", "[Id,Name,Description,Project[Id,Name],CreateDate,Owner[Id,Login],TestPlans[Id,Name]]");
