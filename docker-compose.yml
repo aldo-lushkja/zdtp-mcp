@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  zdtp-mcp:
+    build: .
+    image: zdtp-mcp:local
+    environment:
+      - TP_URL=${TP_URL}
+      - TP_TOKEN=${TP_TOKEN}
