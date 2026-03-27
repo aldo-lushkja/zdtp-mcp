@@ -13,9 +13,6 @@ application {
 }
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
 }
@@ -42,7 +39,6 @@ dependencies {
 
 tasks.withType(Test) {
     useJUnitPlatform()
-    jvmArgs '-Dnet.bytebuddy.experimental=true'
 }
 
 tasks.withType(JavaCompile) {
