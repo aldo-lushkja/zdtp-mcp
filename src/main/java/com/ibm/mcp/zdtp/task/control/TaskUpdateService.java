@@ -21,7 +21,7 @@ public class TaskUpdateService extends BaseService {
             body.put("Name", name);
         }
         if (description != null) {
-            body.put("Description", description);
+            body.put("Description", convertMarkdown(description));
         }
         if (stateName != null && !stateName.isBlank()) {
             body.put("EntityState", Map.of("Name", stateName));

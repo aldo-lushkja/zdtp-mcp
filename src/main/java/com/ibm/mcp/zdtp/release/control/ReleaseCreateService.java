@@ -28,7 +28,7 @@ public class ReleaseCreateService extends BaseService {
         bodyMap.put("Project", Map.of("Id", projectId));
         
         if (description != null && !description.isBlank()) {
-            bodyMap.put("Description", description);
+            bodyMap.put("Description", convertMarkdown(description));
         }
         
         if (effort != null) {

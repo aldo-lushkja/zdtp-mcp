@@ -26,7 +26,7 @@ public class TestCaseUpdateService extends BaseService {
             bodyMap.put("Name", name);
         }
         if (description != null) {
-            bodyMap.put("Description", description);
+            bodyMap.put("Description", convertMarkdown(description));
         }
 
         return engine.update(QueryEngine.TEST_CASE, id, bodyMap, converter::toDto, TestCase.class);
