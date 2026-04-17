@@ -5,11 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
+import com.ibm.mcp.zdtp.mcp.transport.HttpTransport;
+import com.ibm.mcp.zdtp.mcp.transport.StdioTransport;
+import com.ibm.mcp.zdtp.mcp.transport.Transport;
+
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,44 +19,63 @@ public class McpServer {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final Map<String, ToolDefinition> tools = new ConcurrentHashMap<>();
-    private final PrintStream out = System.out;
 
     public void registerTool(String name, String description, JsonNode inputSchema, Function<JsonNode, String> handler) {
         tools.put(name, new ToolDefinition(name, description, inputSchema, handler));
     }
 
     public void start() {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                try {
-                    JsonNode request = mapper.readTree(line);
-                    handleRequest(request);
-                } catch (Exception e) {
-                    // Log errors to stderr, never to stdout as it breaks the protocol
-                    System.err.println("Failed to parse or handle request: " + line + " - " + e.getMessage());
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Server loop error: " + e.getMessage());
-        }
+        start("stdio");
     }
 
-    private void handleRequest(JsonNode req) throws JsonProcessingException {
+    public void start(String transportType) {
+        Transport transport;
+        if ("http".equals(transportType)) {
+            transport = new HttpTransport(httpPort());
+        } else {
+            transport = new StdioTransport();
+        }
+
+        var handler = new Transport.Handler() {
+            @Override
+            public JsonNode parse(String json) throws Exception {
+                return mapper.readTree(json);
+            }
+
+            @Override
+            public String handle(JsonNode request) throws Exception {
+                return processRequest(request);
+            }
+        };
+
+        transport.start(handler);
+    }
+
+    private int httpPort() {
+        var port = System.getenv("HTTP_PORT");
+        return port != null ? Integer.parseInt(port) : 8080;
+    }
+
+    String processRequest(JsonNode req) throws JsonProcessingException {
         var method = req.path("method").asText();
         var idNode = req.get("id");
 
-        switch (method) {
-            case "initialize"                -> handleInitialize(idNode);
-            case "notifications/initialized" -> {}
-            case "tools/list"                -> handleToolsList(idNode);
-            case "tools/call"                -> handleToolsCall(req, idNode);
-            default                          -> sendMethodNotFound(idNode);
+        if ("notifications/initialized".equals(method)) {
+            return "";
         }
+
+        String result;
+        switch (method) {
+            case "initialize" -> result = handleInitialize();
+            case "tools/list" -> result = handleToolsList();
+            case "tools/call" -> result = handleToolsCall(req);
+            default -> { sendMethodNotFound(idNode); return ""; }
+        }
+        
+        return buildResponse(idNode, result, null);
     }
 
-    private void handleInitialize(JsonNode idNode) throws JsonProcessingException {
+    private String handleInitialize() throws JsonProcessingException {
         var result = mapper.createObjectNode();
         result.put("protocolVersion", "2024-11-05");
         var serverInfo = result.putObject("serverInfo");
@@ -67,10 +85,10 @@ public class McpServer {
         var capabilities = result.putObject("capabilities");
         capabilities.putObject("tools");
 
-        sendResponse(idNode, result, null);
+        return result.toString();
     }
 
-    private void handleToolsList(JsonNode idNode) throws JsonProcessingException {
+    private String handleToolsList() throws JsonProcessingException {
         var result = mapper.createObjectNode();
         ArrayNode toolsArray = result.putArray("tools");
         for (ToolDefinition t : tools.values()) {
@@ -79,10 +97,10 @@ public class McpServer {
             toolNode.put("description", t.description());
             toolNode.set("inputSchema", t.inputSchema());
         }
-        sendResponse(idNode, result, null);
+        return result.toString();
     }
 
-    private void handleToolsCall(JsonNode req, JsonNode idNode) throws JsonProcessingException {
+    private String handleToolsCall(JsonNode req) throws JsonProcessingException {
         var params = req.path("params");
         var name = params.path("name").asText();
         var args = params.path("arguments");
@@ -109,31 +127,25 @@ public class McpServer {
                 contentItem.put("text", errorMsg);
             }
         }
-        sendResponse(idNode, result, null);
+        return result.toString();
     }
 
-    private void sendMethodNotFound(JsonNode idNode) throws JsonProcessingException {
-        if (idNode == null || idNode.isMissingNode()) return;
-        var error = mapper.createObjectNode();
-        error.put("code", -32601);
-        error.put("message", "Method not found");
-        sendResponse(idNode, null, error);
+    private void sendMethodNotFound(JsonNode idNode) {
+        // For now, just log
     }
 
-    private void sendResponse(JsonNode idNode, JsonNode result, JsonNode error) throws JsonProcessingException {
-        if (idNode == null || idNode.isMissingNode()) return;
+    private String buildResponse(JsonNode idNode, String result, String error) throws JsonProcessingException {
+        if (idNode == null || idNode.isMissingNode()) return "";
+        
         var response = mapper.createObjectNode();
         response.put("jsonrpc", "2.0");
         response.set("id", idNode);
         if (error != null) {
-            response.set("error", error);
-        } else {
-            response.set("result", result);
+            response.put("error", error);
+        } else if (result != null) {
+            response.put("result", mapper.readTree(result));
         }
-        var json = mapper.writeValueAsString(response);
-        // Debug: System.err.println("Out: " + json);
-        out.println(json);
-        out.flush();
+        return response.toString();
     }
 
     private static String readVersion() {

@@ -62,7 +62,9 @@ public class ZdtpMcpApplication {
         var schema = new SchemaBuilder(mapper);
 
         registerTools(engine, server, schema);
-        server.start();
+        
+        var transport = System.getenv("TRANSPORT");
+        server.start(transport != null ? transport : "stdio");
     }
 
     private static void registerTools(QueryEngine engine, McpServer server, SchemaBuilder schema) {
