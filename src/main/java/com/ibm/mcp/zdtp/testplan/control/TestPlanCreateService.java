@@ -28,7 +28,7 @@ public class TestPlanCreateService extends BaseService {
         bodyMap.put("Project", Map.of("Id", projectId));
         
         if (description != null && !description.isBlank()) {
-            bodyMap.put("Description", convertMarkdown(description));
+            bodyMap.put("Description", description);
         }
         
         return engine.create(QueryEngine.TEST_PLAN, bodyMap, converter::toDto, TestPlan.class);

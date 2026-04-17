@@ -22,7 +22,7 @@ public class TaskCreateService extends BaseService {
         body.put("UserStory", Map.of("Id", userStoryId));
 
         if (description != null && !description.isBlank()) {
-            body.put("Description", convertMarkdown(description));
+            body.put("Description", description);
         }
 
         if (effort != null) {

@@ -25,7 +25,7 @@ public class UserStoryUpdateService extends BaseService {
             body.put("Name", name);
         }
         if (description != null) {
-            body.put("Description", convertMarkdown(description));
+            body.put("Description", description);
         }
         if (stateName != null && !stateName.isBlank()) {
             body.put("EntityState", Map.of("Name", stateName));
