@@ -7,7 +7,8 @@ import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
 import com.ibm.mcp.zdtp.comment.boundary.CommentMcpTools;
-import com.ibm.mcp.zdtp.comment.control.*;
+import com.ibm.mcp.zdtp.comment.control.CommentConverter;
+import com.ibm.mcp.zdtp.comment.control.CommentCreateService;
 import com.ibm.mcp.zdtp.bug.boundary.BugMcpTools;
 import com.ibm.mcp.zdtp.bug.control.*;
 import com.ibm.mcp.zdtp.task.boundary.TaskMcpTools;
@@ -46,183 +47,153 @@ import java.util.concurrent.Executors;
 public class ZdtpMcpApplication {
 
     public static void main(String[] args) {
-        var properties = TargetProcessProperties.fromEnv();
         var mapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        var javaHttpClient = HttpClient.newBuilder()
+
+        var httpClient = HttpClient.newBuilder()
                 .executor(Executors.newVirtualThreadPerTaskExecutor())
                 .build();
-        var tpHttpClient = new TargetProcessHttpClient(javaHttpClient, mapper);
-        var engine = new QueryEngine(properties, tpHttpClient, mapper);
+
+        var tpClient = new TargetProcessHttpClient(httpClient, mapper);
+        var engine = new QueryEngine(TargetProcessProperties.fromEnv(), tpClient, mapper);
 
         var server = new McpServer();
         var schema = new SchemaBuilder(mapper);
 
-        // Domain: Epic
-        var epicConverter = new EpicConverter();
-        var epicMcpTools = new EpicMcpTools(
-                new EpicSearchService(engine, epicConverter),
-                new EpicCreateService(engine, epicConverter),
-                new EpicUpdateService(engine, epicConverter),
-                new EpicGetByIdService(engine, epicConverter),
-                new EpicDeleteService(engine)
-        );
+        registerTools(engine, server, schema);
+        server.start();
+    }
 
-        // Domain: Feature
-        var featureConverter = new FeatureConverter();
-        var featureMcpTools = new FeatureMcpTools(
-                new FeatureSearchService(engine, featureConverter),
-                new FeatureCreateService(engine, featureConverter),
-                new FeatureUpdateService(engine, featureConverter),
-                new FeatureGetByIdService(engine, featureConverter),
-                new FeatureDeleteService(engine)
-        );
-
-        // Domain: Project
-        var projectConverter = new ProjectConverter();
-        var projectMcpTools = new ProjectMcpTools(
-                new ProjectSearchService(engine, projectConverter)
-        );
-
-        // Domain: Release
-        var releaseConverter = new ReleaseConverter();
-        var releaseMcpTools = new ReleaseMcpTools(
-                new ReleaseSearchService(engine, releaseConverter),
-                new ReleaseCreateService(engine, releaseConverter),
-                new ReleaseUpdateService(engine, releaseConverter),
-                new ReleaseGetByIdService(engine, releaseConverter),
-                new ReleaseDeleteService(engine)
-        );
-
-        // Domain: Request
-        var requestConverter = new RequestConverter();
-        var requestMcpTools = new RequestMcpTools(
-                new RequestSearchService(engine, requestConverter),
-                new RequestCreateService(engine, requestConverter),
-                new RequestUpdateService(engine, requestConverter),
-                new RequestGetByIdService(engine, requestConverter),
-                new RequestDeleteService(engine)
-        );
-
-        // Domain: Team
-        var teamConverter = new TeamConverter();
-        var teamMcpTools = new TeamMcpTools(
-                new TeamSearchService(engine, teamConverter),
-                new TeamGetByIdService(engine, teamConverter)
-        );
-
-        // Domain: TeamIteration
-        var teamIterationConverter = new TeamIterationConverter();
-        var teamIterationMcpTools = new TeamIterationMcpTools(
-                new TeamIterationSearchService(engine, teamIterationConverter),
-                new TeamIterationGetByIdService(engine, teamIterationConverter)
-        );
-
-        // Domain: TestCase
-        var testCaseConverter = new TestCaseConverter();
-        var testStepConverter = new TestStepConverter();
-        var testCaseMcpTools = new TestCaseMcpTools(
-                new TestCaseSearchService(engine, testCaseConverter),
-                new TestCaseCreateService(engine, testCaseConverter),
-                new TestCaseUpdateService(engine, testCaseConverter),
-                new TestCaseGetByIdService(engine, testCaseConverter),
-                new TestStepCreateService(engine, testStepConverter),
-                new TestCaseDeleteService(engine),
-                new TestStepDeleteService(engine)
-        );
-
-        // Domain: TestPlan
-        var testPlanConverter = new TestPlanConverter();
-        var testPlanMcpTools = new TestPlanMcpTools(
-                new TestPlanSearchService(engine, testPlanConverter),
-                new TestPlanCreateService(engine, testPlanConverter),
-                new TestPlanUpdateService(engine, testPlanConverter),
-                new TestPlanGetByIdService(engine, testPlanConverter),
-                new TestPlanDeleteService(engine)
-        );
-
-        // Domain: UserStory
-        var userStoryConverter = new UserStoryConverter();
-        var userStoryMcpTools = new UserStoryMcpTools(
-                new UserStorySearchService(engine, userStoryConverter),
-                new UserStoryCreateService(engine, userStoryConverter),
-                new UserStoryUpdateService(engine, userStoryConverter),
-                new UserStoryGetByIdService(engine, userStoryConverter),
-                new UserStoryDeleteService(engine)
-        );
-
-        // Domain: Comment
-        var commentConverter = new CommentConverter();
-        var commentMcpTools = new CommentMcpTools(
-                new CommentCreateService(engine, commentConverter)
-        );
-
-        // Domain: Bug
-        var bugConverter = new BugConverter();
-        var bugMcpTools = new BugMcpTools(
-                new BugSearchService(engine, bugConverter),
-                new BugCreateService(engine, bugConverter),
-                new BugUpdateService(engine, bugConverter),
-                new BugGetByIdService(engine, bugConverter),
-                new BugDeleteService(engine)
-        );
-
-        // Domain: Task
-        var taskConverter = new TaskConverter();
-        var taskMcpTools = new TaskMcpTools(
-                new TaskSearchService(engine, taskConverter),
-                new TaskCreateService(engine, taskConverter),
-                new TaskUpdateService(engine, taskConverter),
-                new TaskGetByIdService(engine, taskConverter),
-                new TaskDeleteService(engine)
-        );
-
-        // Domain: User
-        var userConverter = new UserConverter();
-        var userMcpTools = new UserMcpTools(
-                new UserSearchService(engine, userConverter)
-        );
-
-        // Domain: Relation
-        var relationConverter = new RelationConverter();
-        var relationMcpTools = new RelationMcpTools(
-                new RelationSearchService(engine, relationConverter),
-                new RelationCreateService(engine, relationConverter)
-        );
-
-        // Register server meta tools
-        server.registerTool(
-            "server_changelog",
-            "Returns the full zdtp-mcp changelog listing all versions and their changes.",
-            schema.object().build(),
-            ignored -> {
+    private static void registerTools(QueryEngine engine, McpServer server, SchemaBuilder schema) {
+        // Server meta tool
+        server.registerTool("server_changelog",
+            "Returns the full zdtp-mcp changelog.",
+            schema.object().build(), ignored -> {
                 try (var is = ZdtpMcpApplication.class.getResourceAsStream("/CHANGELOG.md")) {
-                    if (is == null) return "Changelog not available.";
-                    return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                    return is == null ? "Changelog not available." 
+                        : new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 } catch (Exception e) {
                     return "Failed to read changelog: " + e.getMessage();
                 }
-            }
-        );
+            });
 
-        // Register tools
-        epicMcpTools.register(server, schema);
-        featureMcpTools.register(server, schema);
-        projectMcpTools.register(server, schema);
-        releaseMcpTools.register(server, schema);
-        requestMcpTools.register(server, schema);
-        teamMcpTools.register(server, schema);
-        teamIterationMcpTools.register(server, schema);
-        testCaseMcpTools.register(server, schema);
-        testPlanMcpTools.register(server, schema);
-        userStoryMcpTools.register(server, schema);
-        commentMcpTools.register(server, schema);
-        bugMcpTools.register(server, schema);
-        taskMcpTools.register(server, schema);
-        userMcpTools.register(server, schema);
-        relationMcpTools.register(server, schema);
+        // Domain tools
+        var ec = new EpicConverter();
+        epics(engine, ec).register(server, schema);
 
-        server.start();
+        var fc = new FeatureConverter();
+        features(engine, fc).register(server, schema);
+
+        var pc = new ProjectConverter();
+        projects(engine, pc).register(server, schema);
+
+        var rc = new ReleaseConverter();
+        releases(engine, rc).register(server, schema);
+
+        var reqc = new RequestConverter();
+        requests(engine, reqc).register(server, schema);
+
+        var tc = new TeamConverter();
+        teams(engine, tc).register(server, schema);
+
+        var tic = new TeamIterationConverter();
+        teamIterations(engine, tic).register(server, schema);
+
+        var tcc = new TestCaseConverter();
+        var tsc = new TestStepConverter();
+        testCases(engine, tcc, tsc).register(server, schema);
+
+        var tplc = new TestPlanConverter();
+        testPlans(engine, tplc).register(server, schema);
+
+        var usc = new UserStoryConverter();
+        userStories(engine, usc).register(server, schema);
+
+        var cc = new CommentConverter();
+        comments(engine, cc).register(server, schema);
+
+        var bc = new BugConverter();
+        bugs(engine, bc).register(server, schema);
+
+        var taskc = new TaskConverter();
+        tasks(engine, taskc).register(server, schema);
+
+        var uc = new UserConverter();
+        users(engine, uc).register(server, schema);
+
+        var relc = new RelationConverter();
+        relations(engine, relc).register(server, schema);
+    }
+
+    // Factory methods for each domain
+    private static EpicMcpTools epics(QueryEngine e, EpicConverter c) {
+        return new EpicMcpTools(new EpicSearchService(e, c), new EpicCreateService(e, c),
+            new EpicUpdateService(e, c), new EpicGetByIdService(e, c), new EpicDeleteService(e));
+    }
+
+    private static FeatureMcpTools features(QueryEngine e, FeatureConverter c) {
+        return new FeatureMcpTools(new FeatureSearchService(e, c), new FeatureCreateService(e, c),
+            new FeatureUpdateService(e, c), new FeatureGetByIdService(e, c), new FeatureDeleteService(e));
+    }
+
+    private static ProjectMcpTools projects(QueryEngine e, ProjectConverter c) {
+        return new ProjectMcpTools(new ProjectSearchService(e, c));
+    }
+
+    private static ReleaseMcpTools releases(QueryEngine e, ReleaseConverter c) {
+        return new ReleaseMcpTools(new ReleaseSearchService(e, c), new ReleaseCreateService(e, c),
+            new ReleaseUpdateService(e, c), new ReleaseGetByIdService(e, c), new ReleaseDeleteService(e));
+    }
+
+    private static RequestMcpTools requests(QueryEngine e, RequestConverter c) {
+        return new RequestMcpTools(new RequestSearchService(e, c), new RequestCreateService(e, c),
+            new RequestUpdateService(e, c), new RequestGetByIdService(e, c), new RequestDeleteService(e));
+    }
+
+    private static TeamMcpTools teams(QueryEngine e, TeamConverter c) {
+        return new TeamMcpTools(new TeamSearchService(e, c), new TeamGetByIdService(e, c));
+    }
+
+    private static TeamIterationMcpTools teamIterations(QueryEngine e, TeamIterationConverter c) {
+        return new TeamIterationMcpTools(new TeamIterationSearchService(e, c), new TeamIterationGetByIdService(e, c));
+    }
+
+    private static TestCaseMcpTools testCases(QueryEngine e, TestCaseConverter c, TestStepConverter s) {
+        return new TestCaseMcpTools(new TestCaseSearchService(e, c), new TestCaseCreateService(e, c),
+            new TestCaseUpdateService(e, c), new TestCaseGetByIdService(e, c),
+            new TestStepCreateService(e, s), new TestCaseDeleteService(e), new TestStepDeleteService(e));
+    }
+
+    private static TestPlanMcpTools testPlans(QueryEngine e, TestPlanConverter c) {
+        return new TestPlanMcpTools(new TestPlanSearchService(e, c), new TestPlanCreateService(e, c),
+            new TestPlanUpdateService(e, c), new TestPlanGetByIdService(e, c), new TestPlanDeleteService(e));
+    }
+
+    private static UserStoryMcpTools userStories(QueryEngine e, UserStoryConverter c) {
+        return new UserStoryMcpTools(new UserStorySearchService(e, c), new UserStoryCreateService(e, c),
+            new UserStoryUpdateService(e, c), new UserStoryGetByIdService(e, c), new UserStoryDeleteService(e));
+    }
+
+    private static CommentMcpTools comments(QueryEngine e, CommentConverter c) {
+        return new CommentMcpTools(new CommentCreateService(e, c));
+    }
+
+    private static BugMcpTools bugs(QueryEngine e, BugConverter c) {
+        return new BugMcpTools(new BugSearchService(e, c), new BugCreateService(e, c),
+            new BugUpdateService(e, c), new BugGetByIdService(e, c), new BugDeleteService(e));
+    }
+
+    private static TaskMcpTools tasks(QueryEngine e, TaskConverter c) {
+        return new TaskMcpTools(new TaskSearchService(e, c), new TaskCreateService(e, c),
+            new TaskUpdateService(e, c), new TaskGetByIdService(e, c), new TaskDeleteService(e));
+    }
+
+    private static UserMcpTools users(QueryEngine e, UserConverter c) {
+        return new UserMcpTools(new UserSearchService(e, c));
+    }
+
+    private static RelationMcpTools relations(QueryEngine e, RelationConverter c) {
+        return new RelationMcpTools(new RelationSearchService(e, c), new RelationCreateService(e, c));
     }
 }
