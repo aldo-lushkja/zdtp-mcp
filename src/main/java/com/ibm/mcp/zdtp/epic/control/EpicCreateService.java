@@ -21,7 +21,7 @@ public class EpicCreateService extends BaseService {
         bodyMap.put("Project", Map.of("Id", projectId));
         
         if (description != null && !description.isBlank()) {
-            bodyMap.put("Description", convertMarkdown(description));
+            bodyMap.put("Description", description);
         }
         
         if (effort != null) {

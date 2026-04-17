@@ -28,7 +28,7 @@ public class TestPlanUpdateService extends BaseService {
             bodyMap.put("Name", name);
         }
         if (description != null) {
-            bodyMap.put("Description", convertMarkdown(description));
+            bodyMap.put("Description", description);
         }
         if (stateId != null && stateId > 0) {
             bodyMap.put("EntityState", Map.of("Id", stateId));

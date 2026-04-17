@@ -21,7 +21,7 @@ public class BugCreateService extends BaseService {
         body.put("Project", Map.of("Id", projectId));
         
         if (description != null && !description.isBlank()) {
-            body.put("Description", convertMarkdown(description));
+            body.put("Description", description);
         }
         
         if (effort != null) {

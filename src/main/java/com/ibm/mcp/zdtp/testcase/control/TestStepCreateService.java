@@ -21,9 +21,9 @@ public class TestStepCreateService extends BaseService {
     public TestStepDto create(int testCaseId, String description, String expectedResult, Integer runOrder) {
         Map<String, Object> bodyMap = new LinkedHashMap<>();
         bodyMap.put("TestCase", Map.of("Id", testCaseId));
-        bodyMap.put("Description", convertMarkdown(description));
+        bodyMap.put("Description", description);
         if (expectedResult != null) {
-            bodyMap.put("Result", convertMarkdown(expectedResult));
+            bodyMap.put("Result", expectedResult);
         }
         if (runOrder != null) {
             bodyMap.put("RunOrder", runOrder);

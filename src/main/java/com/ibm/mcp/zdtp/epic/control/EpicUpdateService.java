@@ -21,7 +21,7 @@ public class EpicUpdateService extends BaseService {
             bodyMap.put("Name", name);
         }
         if (description != null) {
-            bodyMap.put("Description", convertMarkdown(description));
+            bodyMap.put("Description", description);
         }
         if (stateName != null && !stateName.isBlank()) {
             bodyMap.put("EntityState", Map.of("Name", stateName));

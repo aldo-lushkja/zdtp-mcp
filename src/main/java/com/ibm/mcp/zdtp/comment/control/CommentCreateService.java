@@ -18,7 +18,7 @@ public class CommentCreateService extends BaseService {
 
     public CommentDto addComment(int entityId, String text) {
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("Description", convertMarkdown(text));
+        body.put("Description", text);
         body.put("General", Map.of("Id", entityId));
 
         return engine.create(QueryEngine.COMMENT, body, converter::toDto, Comment.class);
