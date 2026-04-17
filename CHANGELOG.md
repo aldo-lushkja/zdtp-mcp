@@ -5,6 +5,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.2.0] - 2026-04-18
+
+### Added
+- HTTP transport for MCP server (`TRANSPORT=http` env var)
+- `/health` endpoint for health checks
+- `/mcp` endpoint for JSON-RPC 2.0 over HTTP
+- `HTTP_PORT` env var to configure port (default 8080)
+
+### Changed
+- Descriptions sent to Targetprocess now use raw text instead of HTML
+
+---
+
 ## [1.1.0] - 2026-03-27
 
 ### Changed
