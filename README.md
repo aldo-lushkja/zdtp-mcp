@@ -6,7 +6,7 @@
 
 [![Version](https://img.shields.io/github/v/tag/aldo-lushkja/zdtp-mcp?label=version&color=blue)](https://github.com/aldo-lushkja/zdtp-mcp/releases)
 [![License](https://img.shields.io/github/license/aldo-lushkja/zdtp-mcp)](LICENSE)
-[![Java](https://img.shields.io/badge/Java-21-orange)](https://openjdk.org/projects/jdk/21/)
+[![Java](https://img.shields.io/badge/Java-25-orange)](https://openjdk.org/projects/jdk/25/)
 [![Platforms](https://img.shields.io/badge/docker-amd64%20%7C%20arm64-blue)](https://ghcr.io/aldo-lushkja/zdtp-mcp)
 
 Manage your Targetprocess projects directly from any MCP-compatible AI assistant.
@@ -22,7 +22,7 @@ Manage your Targetprocess projects directly from any MCP-compatible AI assistant
 
 | | |
 |---|---|
-| **Zero framework** | Pure Java 21 — no Spring, no Quarkus. Minimal footprint, instant startup |
+| **Zero framework** | Pure Java 25 — no Spring, no Quarkus. Minimal footprint, instant startup |
 | **52 tools** | Full CRUD across User Stories, Tasks, Bugs, Epics, Features, Releases, Test Plans, and more |
 | **Multi-platform** | Single Docker image for both `linux/amd64` and `linux/arm64` (Apple Silicon native) |
 | **Any AI client** | Works with Claude Code, Gemini CLI, Claude Desktop, and any MCP-compatible assistant |

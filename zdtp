@@ -1,0 +1,49 @@
+#!/bin/bash
+#
+# zdtp - Targetprocess MCP Server Launcher
+#
+# Usage: ./zdtp [arguments]
+#        Simply runs the fat JAR with any provided arguments.
+#
+# Options:
+#   -h, --help     Show this help message
+#
+# Environment:
+#   TP_URL         Targetprocess instance URL
+#   TP_TOKEN      API access token
+#
+
+# Get script directory (resolve symlinks)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Find the fat JAR
+JAR_DIR="$SCRIPT_DIR/build/libs"
+if [ ! -d "$JAR_DIR" ]; then
+    JAR_DIR="$SCRIPT_DIR"
+fi
+
+# Look for the all.jar (shadowJar output)
+JAR=$(ls "$JAR_DIR"/zdtp-mcp-*-all.jar 2>/dev/null | head -1)
+
+if [ -z "$JAR" ]; then
+    echo "Error: zdtp-mcp-*-all.jar not found in $JAR_DIR" >&2
+    echo "Run './gradlew shadowJar' first to build the JAR." >&2
+    exit 1
+fi
+
+# Show help if requested
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    echo "Targetprocess MCP Server"
+    echo ""
+    echo "Usage: $0 [arguments]"
+    echo ""
+    echo "Environment:"
+    echo "  TP_URL         Targetprocess instance URL (e.g., https://youraccount.tpondemand.com)"
+    echo "  TP_TOKEN     API access token"
+    echo ""
+    echo "JAR: $JAR"
+    exit 0
+fi
+
+# Run the MCP server
+exec java -jar "$JAR" "$@"
