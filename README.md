@@ -73,6 +73,32 @@ gemini mcp add zdtp docker run -i --rm \
 | --- | --- |
 | `TP_URL` | Your Targetprocess instance URL (e.g., `https://youraccount.tpondemand.com`) |
 | `TP_TOKEN` | Your API token — Profile → Settings → API Access Tokens |
+| `TRANSPORT` | Transport mode: `stdio` (default) or `http` |
+| `HTTP_PORT` | Port for HTTP transport (default: 8080) |
+
+### Running Locally (stdio)
+
+```bash
+./gradlew shadowJar
+java -jar build/libs/zdtp-mcp-1.2.0-all.jar
+```
+
+### Running with HTTP Transport
+
+```bash
+# Default port 8080
+TRANSPORT=http java -jar build/libs/zdtp-mcp-1.2.0-all.jar
+
+# Custom port
+TRANSPORT=http HTTP_PORT=9090 java -jar build/libs/zdtp-mcp-1.2.0-all.jar
+
+# Test endpoints
+curl http://localhost:8080/health
+curl -X POST http://localhost:8080/mcp -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}'
+```
+
+**Artifacts:** `build/libs/zdtp-mcp-1.2.0-all.jar`
 
 ---
 
