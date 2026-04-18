@@ -11,8 +11,8 @@
 - **Build native** (GraalVM): `./gradlew nativeBuild` → `build/native/zdtp-mcp`
 - **Build installer** (jpackage): `./gradlew jpackage` → platform-specific installer
 - **Run tests**: `./gradlew test`
-- **Run locally**: `./zdtp` or `java -jar build/libs/zdtp-mcp-1.2.0-all.jar`
-- **Run with HTTP**: `TRANSPORT=http java -jar build/libs/zdtp-mcp-1.2.0-all.jar`
+- **Run locally**: `./zdtp` or `java -jar build/libs/zdtp-mcp-*-all.jar`
+- **Run with HTTP**: `TRANSPORT=http java -jar build/libs/zdtp-mcp-*-all.jar`
 - **Docker build**: `docker build -t zdtp-mcp .`
 
 ## Architecture

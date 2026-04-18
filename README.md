@@ -98,7 +98,34 @@ curl -X POST http://localhost:8080/mcp -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}'
 ```
 
-**Artifacts:** `build/libs/zdtp-mcp-1.2.0-all.jar`
+### Native Binary (GraalVM)
+
+Requires [GraalVM](https://www.graalvm.org/) installed:
+
+```bash
+# Install GraalVM first
+sdk install graalce 25.0.2
+
+# Build native binary
+./gradlew nativeBuild
+
+# Run native binary
+./build/native/zdtp-mcp
+```
+
+### Native Installer (jpackage)
+
+Creates platform-specific installers:
+
+```bash
+./gradlew jpackage
+# Output: build/jpackage/
+```
+
+**Artifacts:**
+- JAR: `build/libs/zdtp-mcp-1.2.0-all.jar`
+- Native binary: `build/native/zdtp-mcp` (after GraalVM build)
+- Installer: `build/jpackage/` (after jpackage build)
 
 ---
 
