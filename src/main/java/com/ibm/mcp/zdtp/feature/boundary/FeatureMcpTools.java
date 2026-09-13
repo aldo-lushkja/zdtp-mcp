@@ -11,8 +11,10 @@ public class FeatureMcpTools {
     private final FeatureUpdateService updateSvc;
     private final FeatureGetByIdService getSvc;
 
-    public FeatureMcpTools(FeatureSearchService s, FeatureCreateService c, FeatureUpdateService u, FeatureGetByIdService g) {
-        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g;
+    private final FeatureDeleteService deleteSvc;
+
+    public FeatureMcpTools(FeatureSearchService s, FeatureCreateService c, FeatureUpdateService u, FeatureGetByIdService g, FeatureDeleteService d) {
+        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g; this.deleteSvc = d;
     }
 
     public static Builder builder() { return new Builder(); }
@@ -22,14 +24,16 @@ public class FeatureMcpTools {
         private FeatureCreateService createSvc;
         private FeatureUpdateService updateSvc;
         private FeatureGetByIdService getSvc;
+        private FeatureDeleteService deleteSvc;
 
         public Builder searchSvc(FeatureSearchService s) { this.searchSvc = s; return this; }
         public Builder createSvc(FeatureCreateService c) { this.createSvc = c; return this; }
         public Builder updateSvc(FeatureUpdateService u) { this.updateSvc = u; return this; }
         public Builder getSvc(FeatureGetByIdService g) { this.getSvc = g; return this; }
+        public Builder deleteSvc(FeatureDeleteService d) { this.deleteSvc = d; return this; }
 
         public FeatureMcpTools build() {
-            return new FeatureMcpTools(searchSvc, createSvc, updateSvc, getSvc);
+            return new FeatureMcpTools(searchSvc, createSvc, updateSvc, getSvc, deleteSvc);
         }
     }
 
@@ -60,6 +64,14 @@ public class FeatureMcpTools {
 
         server.registerTool("feature_get", "Get a feature by its numeric ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
+
+        server.registerTool("feature_delete", "Delete a feature by its numeric ID.",
+                schema.object().prop("id", schema.integer().required()).build(), args -> delete(args.path("id").asInt()));
+    }
+
+    private String delete(int i) {
+        if (deleteSvc != null) deleteSvc.delete(i);
+        return "Feature [%d] deleted successfully.".formatted(i);
     }
 
     private String search(FeatureSearchService.SearchCriteria c) {

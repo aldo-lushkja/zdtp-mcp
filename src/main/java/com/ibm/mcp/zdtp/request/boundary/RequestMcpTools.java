@@ -11,8 +11,10 @@ public class RequestMcpTools {
     private final RequestUpdateService updateSvc;
     private final RequestGetByIdService getSvc;
 
-    public RequestMcpTools(RequestSearchService s, RequestCreateService c, RequestUpdateService u, RequestGetByIdService g) {
-        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g;
+    private final RequestDeleteService deleteSvc;
+
+    public RequestMcpTools(RequestSearchService s, RequestCreateService c, RequestUpdateService u, RequestGetByIdService g, RequestDeleteService d) {
+        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g; this.deleteSvc = d;
     }
 
     public static Builder builder() { return new Builder(); }
@@ -22,14 +24,16 @@ public class RequestMcpTools {
         private RequestCreateService createSvc;
         private RequestUpdateService updateSvc;
         private RequestGetByIdService getSvc;
+        private RequestDeleteService deleteSvc;
 
         public Builder searchSvc(RequestSearchService s) { this.searchSvc = s; return this; }
         public Builder createSvc(RequestCreateService c) { this.createSvc = c; return this; }
         public Builder updateSvc(RequestUpdateService u) { this.updateSvc = u; return this; }
         public Builder getSvc(RequestGetByIdService g) { this.getSvc = g; return this; }
+        public Builder deleteSvc(RequestDeleteService d) { this.deleteSvc = d; return this; }
 
         public RequestMcpTools build() {
-            return new RequestMcpTools(searchSvc, createSvc, updateSvc, getSvc);
+            return new RequestMcpTools(searchSvc, createSvc, updateSvc, getSvc, deleteSvc);
         }
     }
 
@@ -58,6 +62,14 @@ public class RequestMcpTools {
 
         server.registerTool("request_get", "Get a request by its numeric ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
+
+        server.registerTool("request_delete", "Delete a request by its numeric ID.",
+                schema.object().prop("id", schema.integer().required()).build(), args -> delete(args.path("id").asInt()));
+    }
+
+    private String delete(int i) {
+        if (deleteSvc != null) deleteSvc.delete(i);
+        return "Request [%d] deleted successfully.".formatted(i);
     }
 
     private String search(RequestSearchService.SearchCriteria c) {

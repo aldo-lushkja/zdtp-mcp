@@ -7,6 +7,7 @@ import com.ibm.mcp.zdtp.shared.config.TargetProcessProperties;
 import com.ibm.mcp.zdtp.shared.http.TargetProcessHttpClient;
 import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
 import com.ibm.mcp.zdtp.mcp.boundary.McpServer;
+import com.ibm.mcp.zdtp.mcp.boundary.McpToolsRegistry;
 import com.ibm.mcp.zdtp.mcp.boundary.SchemaBuilder;
 import com.ibm.mcp.zdtp.bug.boundary.BugMcpTools;
 import com.ibm.mcp.zdtp.bug.control.*;
@@ -64,23 +65,23 @@ class McpServerIntegrationTest {
 
     private static final String EMPTY_ITEMS = "{\"Items\":[]}";
 
-    /** All 47 tool names registered across the 15 boundary modules. */
+    /** All 55 tool names registered across the 17 boundary modules. */
     private static final List<String> ALL_TOOL_NAMES = List.of(
-            // Epic (4)
-            "epic_search", "epic_create", "epic_update", "epic_get",
-            // Feature (4)
-            "feature_search", "feature_create", "feature_update", "feature_get",
-            // Project (1)
-            "project_search",
-            // Release (4)
-            "release_search", "release_create", "release_update", "release_get",
-            // Request (4)
-            "request_search", "request_create", "request_update", "request_get",
+            // Epic (5)
+            "epic_search", "epic_create", "epic_update", "epic_get", "epic_delete",
+            // Feature (5)
+            "feature_search", "feature_create", "feature_update", "feature_get", "feature_delete",
+            // Project (2)
+            "project_search", "workflow_state_list",
+            // Release (5)
+            "release_search", "release_create", "release_update", "release_get", "release_delete",
+            // Request (5)
+            "request_search", "request_create", "request_update", "request_get", "request_delete",
             // Team (2)
             "team_search", "team_get",
             // TeamIteration (2)
             "team_iteration_search", "team_iteration_get",
-            // TestCase (6)
+            // TestCase (7)
             "test_case_search", "test_case_create", "test_case_update", "test_case_get", "test_case_delete", "test_step_create", "test_step_delete",
             // TestPlan (5)
             "test_plan_search", "test_plan_create", "test_plan_update", "test_plan_get", "test_plan_delete",
@@ -95,14 +96,19 @@ class McpServerIntegrationTest {
             // User (1)
             "user_search",
             // Relation (2)
-            "relation_search", "relation_link"
+            "relation_search", "relation_link",
+            // Time (1)
+            "time_log",
+            // Impediment (2)
+            "impediment_create", "impediment_search"
     );
 
     /** Search tools that accept empty/optional arguments — used for smoke-test calls. */
     private static final List<String> SEARCH_TOOLS = List.of(
             "epic_search", "feature_search", "project_search", "release_search",
             "request_search", "team_search", "team_iteration_search",
-            "test_case_search", "test_plan_search", "user_story_search", "bug_search", "task_search"
+            "test_case_search", "test_plan_search", "user_story_search", "bug_search", "task_search",
+            "impediment_search"
     );
 
     @Mock TargetProcessHttpClient httpClient;
@@ -119,7 +125,7 @@ class McpServerIntegrationTest {
     // ── tools/list ──────────────────────────────────────────────────────
 
     @Test
-    void toolsList_returnsAll47Tools() throws Exception {
+    void toolsList_returnsAll55Tools() throws Exception {
         String request = jsonRpc("tools/list", mapper.createObjectNode(), 1);
         JsonNode response = sendAndReceive(request);
 
@@ -229,84 +235,7 @@ class McpServerIntegrationTest {
         McpServer server = new McpServer();
         SchemaBuilder schema = new SchemaBuilder(mapper);
 
-        // Epic
-        EpicConverter epicC = new EpicConverter();
-        new EpicMcpTools(new EpicSearchService(engine, epicC), new EpicCreateService(engine, epicC),
-                new EpicUpdateService(engine, epicC), new EpicGetByIdService(engine, epicC)).register(server, schema);
-
-        // Feature
-        FeatureConverter featureC = new FeatureConverter();
-        new FeatureMcpTools(new FeatureSearchService(engine, featureC), new FeatureCreateService(engine, featureC),
-                new FeatureUpdateService(engine, featureC), new FeatureGetByIdService(engine, featureC)).register(server, schema);
-
-        // Project
-        ProjectConverter projectC = new ProjectConverter();
-        new ProjectMcpTools(new ProjectSearchService(engine, projectC)).register(server, schema);
-
-        // Release
-        ReleaseConverter releaseC = new ReleaseConverter();
-        new ReleaseMcpTools(new ReleaseSearchService(engine, releaseC), new ReleaseCreateService(engine, releaseC),
-                new ReleaseUpdateService(engine, releaseC), new ReleaseGetByIdService(engine, releaseC)).register(server, schema);
-
-        // Request
-        RequestConverter requestC = new RequestConverter();
-        new RequestMcpTools(new RequestSearchService(engine, requestC), new RequestCreateService(engine, requestC),
-                new RequestUpdateService(engine, requestC), new RequestGetByIdService(engine, requestC)).register(server, schema);
-
-        // Team
-        TeamConverter teamC = new TeamConverter();
-        new TeamMcpTools(new TeamSearchService(engine, teamC), new TeamGetByIdService(engine, teamC)).register(server, schema);
-
-        // TeamIteration
-        TeamIterationConverter tiC = new TeamIterationConverter();
-        new TeamIterationMcpTools(new TeamIterationSearchService(engine, tiC),
-                new TeamIterationGetByIdService(engine, tiC)).register(server, schema);
-
-        // TestCase
-        TestCaseConverter tcC = new TestCaseConverter();
-        TestStepConverter tsC = new TestStepConverter();
-        new TestCaseMcpTools(new TestCaseSearchService(engine, tcC), new TestCaseCreateService(engine, tcC),
-                new TestCaseUpdateService(engine, tcC), new TestCaseGetByIdService(engine, tcC),
-                new TestStepCreateService(engine, tsC), new TestCaseDeleteService(engine),
-                new TestStepDeleteService(engine)).register(server, schema);
-
-        // TestPlan
-        TestPlanConverter tpC = new TestPlanConverter();
-        new TestPlanMcpTools(new TestPlanSearchService(engine, tpC), new TestPlanCreateService(engine, tpC),
-                new TestPlanUpdateService(engine, tpC), new TestPlanGetByIdService(engine, tpC),
-                new TestPlanDeleteService(engine)).register(server, schema);
-
-        // UserStory
-        UserStoryConverter usC = new UserStoryConverter();
-        new UserStoryMcpTools(new UserStorySearchService(engine, usC), new UserStoryCreateService(engine, usC),
-                new UserStoryUpdateService(engine, usC), new UserStoryGetByIdService(engine, usC),
-                new UserStoryDeleteService(engine)).register(server, schema);
-
-        // Comment
-        CommentConverter cmC = new CommentConverter();
-        new CommentMcpTools(new CommentCreateService(engine, cmC)).register(server, schema);
-
-        // Bug
-        BugConverter bugC = new BugConverter();
-        new BugMcpTools(new BugSearchService(engine, bugC), new BugCreateService(engine, bugC),
-                new BugUpdateService(engine, bugC), new BugGetByIdService(engine, bugC),
-                new BugDeleteService(engine)).register(server, schema);
-
-        // Task
-        TaskConverter taskC = new TaskConverter();
-        new TaskMcpTools(new TaskSearchService(engine, taskC), new TaskCreateService(engine, taskC),
-                new TaskUpdateService(engine, taskC), new TaskGetByIdService(engine, taskC),
-                new TaskDeleteService(engine)).register(server, schema);
-
-        // User
-        UserConverter userC = new UserConverter();
-        new UserMcpTools(new UserSearchService(engine, userC)).register(server, schema);
-
-        // Relation
-        RelationConverter relC = new RelationConverter();
-        new RelationMcpTools(new RelationSearchService(engine, relC),
-                new RelationCreateService(engine, relC)).register(server, schema);
-
+        new McpToolsRegistry(engine).registerAllTools(server, schema);
         return server;
     }
 

@@ -11,8 +11,10 @@ public class ReleaseMcpTools {
     private final ReleaseUpdateService updateSvc;
     private final ReleaseGetByIdService getSvc;
 
-    public ReleaseMcpTools(ReleaseSearchService s, ReleaseCreateService c, ReleaseUpdateService u, ReleaseGetByIdService g) {
-        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g;
+    private final ReleaseDeleteService deleteSvc;
+
+    public ReleaseMcpTools(ReleaseSearchService s, ReleaseCreateService c, ReleaseUpdateService u, ReleaseGetByIdService g, ReleaseDeleteService d) {
+        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g; this.deleteSvc = d;
     }
 
     public static Builder builder() { return new Builder(); }
@@ -22,14 +24,16 @@ public class ReleaseMcpTools {
         private ReleaseCreateService createSvc;
         private ReleaseUpdateService updateSvc;
         private ReleaseGetByIdService getSvc;
+        private ReleaseDeleteService deleteSvc;
 
         public Builder searchSvc(ReleaseSearchService s) { this.searchSvc = s; return this; }
         public Builder createSvc(ReleaseCreateService c) { this.createSvc = c; return this; }
         public Builder updateSvc(ReleaseUpdateService u) { this.updateSvc = u; return this; }
         public Builder getSvc(ReleaseGetByIdService g) { this.getSvc = g; return this; }
+        public Builder deleteSvc(ReleaseDeleteService d) { this.deleteSvc = d; return this; }
 
         public ReleaseMcpTools build() {
-            return new ReleaseMcpTools(searchSvc, createSvc, updateSvc, getSvc);
+            return new ReleaseMcpTools(searchSvc, createSvc, updateSvc, getSvc, deleteSvc);
         }
     }
 
@@ -60,6 +64,14 @@ public class ReleaseMcpTools {
 
         server.registerTool("release_get", "Get a release by its numeric ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
+
+        server.registerTool("release_delete", "Delete a release by its numeric ID.",
+                schema.object().prop("id", schema.integer().required()).build(), args -> delete(args.path("id").asInt()));
+    }
+
+    private String delete(int i) {
+        if (deleteSvc != null) deleteSvc.delete(i);
+        return "Release [%d] deleted successfully.".formatted(i);
     }
 
     private String search(ReleaseSearchService.SearchCriteria c) {

@@ -11,8 +11,10 @@ public class EpicMcpTools {
     private final EpicUpdateService updateSvc;
     private final EpicGetByIdService getSvc;
 
-    public EpicMcpTools(EpicSearchService s, EpicCreateService c, EpicUpdateService u, EpicGetByIdService g) {
-        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g;
+    private final EpicDeleteService deleteSvc;
+
+    public EpicMcpTools(EpicSearchService s, EpicCreateService c, EpicUpdateService u, EpicGetByIdService g, EpicDeleteService d) {
+        this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g; this.deleteSvc = d;
     }
 
     public static Builder builder() { return new Builder(); }
@@ -22,14 +24,16 @@ public class EpicMcpTools {
         private EpicCreateService createSvc;
         private EpicUpdateService updateSvc;
         private EpicGetByIdService getSvc;
+        private EpicDeleteService deleteSvc;
 
         public Builder searchSvc(EpicSearchService s) { this.searchSvc = s; return this; }
         public Builder createSvc(EpicCreateService c) { this.createSvc = c; return this; }
         public Builder updateSvc(EpicUpdateService u) { this.updateSvc = u; return this; }
         public Builder getSvc(EpicGetByIdService g) { this.getSvc = g; return this; }
+        public Builder deleteSvc(EpicDeleteService d) { this.deleteSvc = d; return this; }
 
         public EpicMcpTools build() {
-            return new EpicMcpTools(searchSvc, createSvc, updateSvc, getSvc);
+            return new EpicMcpTools(searchSvc, createSvc, updateSvc, getSvc, deleteSvc);
         }
     }
 
@@ -58,6 +62,14 @@ public class EpicMcpTools {
 
         server.registerTool("epic_get", "Get an epic by its numeric ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));
+
+        server.registerTool("epic_delete", "Delete an epic by its numeric ID.",
+                schema.object().prop("id", schema.integer().required()).build(), args -> delete(args.path("id").asInt()));
+    }
+
+    private String delete(int i) {
+        if (deleteSvc != null) deleteSvc.delete(i);
+        return "Epic [%d] deleted successfully.".formatted(i);
     }
 
     private String search(EpicSearchService.SearchCriteria c) {

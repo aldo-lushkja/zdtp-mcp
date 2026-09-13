@@ -27,6 +27,7 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | `epic_create` | Create a new epic. | `name`*, `projectId`*, `description`, `effort` |
 | `epic_update` | Update an existing epic. | `id`*, `name`, `description`, `stateName`, `effort` |
 | `epic_get` | Get epic details. | `id`* |
+| `epic_delete` | Delete an epic. | `id`* |
 
 ## ✨ Features
 | Tool | Description | Parameters |
@@ -35,6 +36,7 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | `feature_create` | Create a new feature. | `name`*, `projectId`*, `description`, `effort` |
 | `feature_update` | Update an existing feature. | `id`*, `name`, `description`, `stateName`, `effort` |
 | `feature_get` | Get feature details. | `id`* |
+| `feature_delete` | Delete a feature. | `id`* |
 
 ## 🐛 Bugs
 | Tool | Description | Parameters |
@@ -52,6 +54,7 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | `release_create` | Create a new release. | `name`*, `projectId`*, `description`, `effort` |
 | `release_update` | Update an existing release. | `id`*, `name`, `description`, `stateName`, `effort` |
 | `release_get` | Get release details. | `id`* |
+| `release_delete` | Delete a release. | `id`* |
 
 ## 📬 Requests
 | Tool | Description | Parameters |
@@ -60,6 +63,7 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | `request_create` | Create a new request. | `name`*, `projectId`*, `description`, `effort` |
 | `request_update` | Update an existing request. | `id`*, `name`, `description`, `stateName`, `effort` |
 | `request_get` | Get request details. | `id`* |
+| `request_delete` | Delete a request. | `id`* |
 
 ## 🧪 Quality Assurance (Test Plans & Cases)
 | Tool | Description | Parameters |
@@ -85,10 +89,22 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | `team_iteration_search` | Search for team iterations (sprints). | `nameQuery`, `teamId`, `teamName`, `startDate`, `endDate`, `take` (default: 10) |
 | `team_iteration_get` | Get sprint details. | `id`* |
 
-## 📁 Projects
+## 📁 Projects & Workflows
 | Tool | Description | Parameters |
 | --- | --- | --- |
 | `project_search` | Search for projects. | `nameQuery`, `startDate`, `endDate`, `take` (default: 10) |
+| `workflow_state_list` | List available workflow states for an entity type (e.g. UserStory, Task, Bug). | `entityTypeName`*, `processId` |
+
+## ⏱️ Time Tracking
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `time_log` | Log time spent/remaining on an assignable entity. | `entityId`*, `spent`*, `remain`, `description`, `date`, `userId` |
+
+## ⚠️ Impediments
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `impediment_create` | Create a new impediment on an entity. | `entityId`*, `name`*, `description`, `assignedToId`, `stateName` |
+| `impediment_search` | Search for impediments. | `nameQuery`, `entityId`, `take` (default: 10) |
 
 ## 👤 Users
 | Tool | Description | Parameters |

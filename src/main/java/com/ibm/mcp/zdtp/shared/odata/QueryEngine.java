@@ -48,6 +48,11 @@ public class QueryEngine {
     public static final Domain PROJECT = new Domain("Projects", "[Id,Name]");
     public static final Domain USER = new Domain("Users", "[Id,FirstName,LastName,Login,Email,IsActive]");
     public static final Domain RELATION = new Domain("GeneralRelations", "[Id,RelationType[Id,Name],InboundGeneral[Id,Name,ResourceType],OutboundGeneral[Id,Name,ResourceType]]");
+    public static final Domain TIME = new Domain("Times", "[Id,Spent,Description,Date,User[Id,Login],Assignable[Id,Name]]");
+    public static final Domain IMPEDIMENT = new Domain("Impediments", "[Id,Name,Description,EntityState[Id,Name],Assignable[Id,Name]]");
+    public static final Domain TEST_RUN = new Domain("TestPlanRuns", "[Id,Name,CreateDate,TestPlan[Id,Name]]");
+    public static final Domain TEST_CASE_RUN = new Domain("TestCaseRuns", "[Id,Status,TestCase[Id,Name],TestPlanRun[Id,Name]]");
+    public static final Domain ENTITY_STATE = new Domain("EntityStates", "[Id,Name,IsInitial,IsFinal,Process[Id,Name]]");
 
     public <T, D> List<D> list(Domain domain, Map<String, String> params, TypeReference<TargetProcessResponse<T>> typeRef, Function<T, D> mapper) {
         Map<String, String> parameters = new TreeMap<>(params);

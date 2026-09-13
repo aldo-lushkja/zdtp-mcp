@@ -2,20 +2,28 @@ package com.ibm.mcp.zdtp.project.boundary;
 
 import com.ibm.mcp.zdtp.project.entity.ProjectDto;
 import com.ibm.mcp.zdtp.project.control.ProjectSearchService;
+import com.ibm.mcp.zdtp.shared.control.EntityStateSearchService;
 import com.ibm.mcp.zdtp.mcp.boundary.McpServer;
 import com.ibm.mcp.zdtp.mcp.boundary.SchemaBuilder;
 
 public class ProjectMcpTools {
     private final ProjectSearchService searchSvc;
 
-    public ProjectMcpTools(ProjectSearchService s) { this.searchSvc = s; }
+    private final EntityStateSearchService stateSvc;
+
+    public ProjectMcpTools(ProjectSearchService s, EntityStateSearchService stateSvc) {
+        this.searchSvc = s;
+        this.stateSvc = stateSvc;
+    }
 
     public static Builder builder() { return new Builder(); }
 
     public static class Builder {
         private ProjectSearchService searchSvc;
+        private EntityStateSearchService stateSvc;
         public Builder searchSvc(ProjectSearchService s) { this.searchSvc = s; return this; }
-        public ProjectMcpTools build() { return new ProjectMcpTools(searchSvc); }
+        public Builder stateSvc(EntityStateSearchService stateSvc) { this.stateSvc = stateSvc; return this; }
+        public ProjectMcpTools build() { return new ProjectMcpTools(searchSvc, stateSvc); }
     }
 
     public void register(McpServer server, SchemaBuilder schema) {
@@ -27,11 +35,21 @@ public class ProjectMcpTools {
                         .endDate(args.path("endDate").asText(null))
                         .take(args.path("take").asInt(10))
                         .build()));
+
+        server.registerTool("workflow_state_list", "List valid workflow states (EntityStates) available in Targetprocess.",
+                schema.object().build(),
+                args -> listStates());
     }
 
     private String search(ProjectSearchService.SearchCriteria c) {
         var res = searchSvc.search(c);
         return res.isEmpty() ? "No projects found." : String.join("\n", res.stream().map(p -> "[%d] %s".formatted(p.id(), p.name())).toList());
+    }
+
+    private String listStates() {
+        if (stateSvc == null) return "No states service configured.";
+        var states = stateSvc.listStates();
+        return states.isEmpty() ? "No states found." : String.join("\n", states.stream().map(s -> "[%d] %s".formatted(s.id(), s.name())).toList());
     }
 }
 

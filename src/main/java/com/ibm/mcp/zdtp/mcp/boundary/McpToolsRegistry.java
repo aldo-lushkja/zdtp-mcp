@@ -9,6 +9,10 @@ import com.ibm.mcp.zdtp.epic.boundary.EpicMcpTools;
 import com.ibm.mcp.zdtp.epic.control.*;
 import com.ibm.mcp.zdtp.feature.boundary.FeatureMcpTools;
 import com.ibm.mcp.zdtp.feature.control.*;
+import com.ibm.mcp.zdtp.impediment.boundary.ImpedimentMcpTools;
+import com.ibm.mcp.zdtp.impediment.control.ImpedimentConverter;
+import com.ibm.mcp.zdtp.impediment.control.ImpedimentCreateService;
+import com.ibm.mcp.zdtp.impediment.control.ImpedimentSearchService;
 import com.ibm.mcp.zdtp.project.boundary.ProjectMcpTools;
 import com.ibm.mcp.zdtp.project.control.ProjectConverter;
 import com.ibm.mcp.zdtp.project.control.ProjectSearchService;
@@ -20,6 +24,7 @@ import com.ibm.mcp.zdtp.release.boundary.ReleaseMcpTools;
 import com.ibm.mcp.zdtp.release.control.*;
 import com.ibm.mcp.zdtp.request.boundary.RequestMcpTools;
 import com.ibm.mcp.zdtp.request.control.*;
+import com.ibm.mcp.zdtp.shared.control.EntityStateSearchService;
 import com.ibm.mcp.zdtp.shared.odata.QueryEngine;
 import com.ibm.mcp.zdtp.task.boundary.TaskMcpTools;
 import com.ibm.mcp.zdtp.task.control.*;
@@ -35,6 +40,9 @@ import com.ibm.mcp.zdtp.testcase.boundary.TestCaseMcpTools;
 import com.ibm.mcp.zdtp.testcase.control.*;
 import com.ibm.mcp.zdtp.testplan.boundary.TestPlanMcpTools;
 import com.ibm.mcp.zdtp.testplan.control.*;
+import com.ibm.mcp.zdtp.time.boundary.TimeMcpTools;
+import com.ibm.mcp.zdtp.time.control.TimeConverter;
+import com.ibm.mcp.zdtp.time.control.TimeLogService;
 import com.ibm.mcp.zdtp.user.boundary.UserMcpTools;
 import com.ibm.mcp.zdtp.user.control.UserConverter;
 import com.ibm.mcp.zdtp.user.control.UserSearchService;
@@ -84,6 +92,8 @@ public class McpToolsRegistry {
         registerCommentTools(server, schema);
         registerUserTools(server, schema);
         registerRelationTools(server, schema);
+        registerTimeTools(server, schema);
+        registerImpedimentTools(server, schema);
     }
 
     private void registerEpicTools(McpServer server, SchemaBuilder schema) {
@@ -91,7 +101,7 @@ public class McpToolsRegistry {
         EpicMcpTools.builder()
                 .searchSvc(new EpicSearchService(engine, c)).createSvc(new EpicCreateService(engine, c))
                 .updateSvc(new EpicUpdateService(engine, c)).getSvc(new EpicGetByIdService(engine, c))
-                .build().register(server, schema);
+                .deleteSvc(new EpicDeleteService(engine)).build().register(server, schema);
     }
 
     private void registerFeatureTools(McpServer server, SchemaBuilder schema) {
@@ -99,7 +109,7 @@ public class McpToolsRegistry {
         FeatureMcpTools.builder()
                 .searchSvc(new FeatureSearchService(engine, c)).createSvc(new FeatureCreateService(engine, c))
                 .updateSvc(new FeatureUpdateService(engine, c)).getSvc(new FeatureGetByIdService(engine, c))
-                .build().register(server, schema);
+                .deleteSvc(new FeatureDeleteService(engine)).build().register(server, schema);
     }
 
     private void registerUserStoryTools(McpServer server, SchemaBuilder schema) {
@@ -146,7 +156,10 @@ public class McpToolsRegistry {
 
     private void registerProjectTools(McpServer server, SchemaBuilder schema) {
         var c = new ProjectConverter();
-        ProjectMcpTools.builder().searchSvc(new ProjectSearchService(engine, c)).build().register(server, schema);
+        ProjectMcpTools.builder()
+                .searchSvc(new ProjectSearchService(engine, c))
+                .stateSvc(new EntityStateSearchService(engine))
+                .build().register(server, schema);
     }
 
     private void registerReleaseTools(McpServer server, SchemaBuilder schema) {
@@ -154,7 +167,7 @@ public class McpToolsRegistry {
         ReleaseMcpTools.builder()
                 .searchSvc(new ReleaseSearchService(engine, c)).createSvc(new ReleaseCreateService(engine, c))
                 .updateSvc(new ReleaseUpdateService(engine, c)).getSvc(new ReleaseGetByIdService(engine, c))
-                .build().register(server, schema);
+                .deleteSvc(new ReleaseDeleteService(engine)).build().register(server, schema);
     }
 
     private void registerTeamTools(McpServer server, SchemaBuilder schema) {
@@ -176,7 +189,7 @@ public class McpToolsRegistry {
         RequestMcpTools.builder()
                 .searchSvc(new RequestSearchService(engine, c)).createSvc(new RequestCreateService(engine, c))
                 .updateSvc(new RequestUpdateService(engine, c)).getSvc(new RequestGetByIdService(engine, c))
-                .build().register(server, schema);
+                .deleteSvc(new RequestDeleteService(engine)).build().register(server, schema);
     }
 
     private void registerCommentTools(McpServer server, SchemaBuilder schema) {
@@ -193,6 +206,19 @@ public class McpToolsRegistry {
         var c = new RelationConverter();
         RelationMcpTools.builder()
                 .searchSvc(new RelationSearchService(engine, c)).createSvc(new RelationCreateService(engine, c))
+                .build().register(server, schema);
+    }
+
+    private void registerTimeTools(McpServer server, SchemaBuilder schema) {
+        var c = new TimeConverter();
+        TimeMcpTools.builder().logService(new TimeLogService(engine, c)).build().register(server, schema);
+    }
+
+    private void registerImpedimentTools(McpServer server, SchemaBuilder schema) {
+        var c = new ImpedimentConverter();
+        ImpedimentMcpTools.builder()
+                .createSvc(new ImpedimentCreateService(engine, c))
+                .searchSvc(new ImpedimentSearchService(engine, c))
                 .build().register(server, schema);
     }
 }
