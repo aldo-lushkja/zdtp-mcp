@@ -14,10 +14,27 @@ public class TeamMcpTools {
         this.getService = getService;
     }
 
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private TeamSearchService searchService;
+        private TeamGetByIdService getService;
+
+        public Builder searchService(TeamSearchService searchService) { this.searchService = searchService; return this; }
+        public Builder getService(TeamGetByIdService getService) { this.getService = getService; return this; }
+
+        public TeamMcpTools build() {
+            return new TeamMcpTools(searchService, getService);
+        }
+    }
+
     public void register(McpServer server, SchemaBuilder schema) {
         server.registerTool("team_search", "Search for teams.",
                 schema.object().prop("nameQuery", schema.string()).prop("take", schema.integer().withDefault(10)).build(),
-                args -> search(new TeamSearchService.SearchCriteria(args.path("nameQuery").asText(null), args.path("take").asInt(10))));
+                args -> search(TeamSearchService.SearchCriteria.builder()
+                        .nameQuery(args.path("nameQuery").asText(null))
+                        .take(args.path("take").asInt(10))
+                        .build()));
 
         server.registerTool("team_get", "Get a team by ID.",
                 schema.object().prop("id", schema.integer().required()).build(), args -> get(args.path("id").asInt()));

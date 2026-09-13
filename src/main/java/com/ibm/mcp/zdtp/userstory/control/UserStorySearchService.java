@@ -16,7 +16,23 @@ public class UserStorySearchService extends BaseService {
         this.converter = converter;
     }
 
-    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer releaseId, Integer sprintId) {}
+    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer releaseId, Integer sprintId) {
+        public static Builder builder() { return new Builder(); }
+        public static class Builder {
+            private String nameQuery; private String projectName; private String ownerLogin;
+            private String startDate; private String endDate; private int take = 10;
+            private Integer releaseId; private Integer sprintId;
+            public Builder nameQuery(String val) { this.nameQuery = val; return this; }
+            public Builder projectName(String val) { this.projectName = val; return this; }
+            public Builder ownerLogin(String val) { this.ownerLogin = val; return this; }
+            public Builder startDate(String val) { this.startDate = val; return this; }
+            public Builder endDate(String val) { this.endDate = val; return this; }
+            public Builder take(int val) { this.take = val; return this; }
+            public Builder releaseId(Integer val) { this.releaseId = val; return this; }
+            public Builder sprintId(Integer val) { this.sprintId = val; return this; }
+            public SearchCriteria build() { return new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, releaseId, sprintId); }
+        }
+    }
 
     public List<UserStoryDto> searchUserStories(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer releaseId, Integer sprintId) {
         return search(new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, releaseId, sprintId));

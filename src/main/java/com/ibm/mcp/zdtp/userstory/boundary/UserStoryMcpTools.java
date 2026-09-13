@@ -16,15 +16,41 @@ public class UserStoryMcpTools {
         this.searchService = s; this.createService = c; this.updateService = u; this.getByIdService = g; this.deleteService = d;
     }
 
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private UserStorySearchService searchService;
+        private UserStoryCreateService createService;
+        private UserStoryUpdateService updateService;
+        private UserStoryGetByIdService getByIdService;
+        private UserStoryDeleteService deleteService;
+
+        public Builder searchService(UserStorySearchService s) { this.searchService = s; return this; }
+        public Builder createService(UserStoryCreateService c) { this.createService = c; return this; }
+        public Builder updateService(UserStoryUpdateService u) { this.updateService = u; return this; }
+        public Builder getByIdService(UserStoryGetByIdService g) { this.getByIdService = g; return this; }
+        public Builder deleteService(UserStoryDeleteService d) { this.deleteService = d; return this; }
+
+        public UserStoryMcpTools build() {
+            return new UserStoryMcpTools(searchService, createService, updateService, getByIdService, deleteService);
+        }
+    }
+
     public void register(McpServer server, SchemaBuilder schema) {
         server.registerTool("user_story_search", "Search for user stories in Targetprocess.",
                 schema.object().prop("nameQuery", schema.string()).prop("projectName", schema.string()).prop("ownerLogin", schema.string())
                         .prop("startDate", schema.string()).prop("endDate", schema.string()).prop("releaseId", schema.integer())
                         .prop("sprintId", schema.integer()).prop("take", schema.integer().withDefault(10)).build(),
-                args -> search(new UserStorySearchService.SearchCriteria(args.path("nameQuery").asText(null), args.path("projectName").asText(null),
-                        args.path("ownerLogin").asText(null), args.path("startDate").asText(null), args.path("endDate").asText(null),
-                        args.path("take").asInt(10), args.has("releaseId") ? args.path("releaseId").asInt() : null,
-                        args.has("sprintId") ? args.path("sprintId").asInt() : null)));
+                args -> search(UserStorySearchService.SearchCriteria.builder()
+                        .nameQuery(args.path("nameQuery").asText(null))
+                        .projectName(args.path("projectName").asText(null))
+                        .ownerLogin(args.path("ownerLogin").asText(null))
+                        .startDate(args.path("startDate").asText(null))
+                        .endDate(args.path("endDate").asText(null))
+                        .take(args.path("take").asInt(10))
+                        .releaseId(args.has("releaseId") ? args.path("releaseId").asInt() : null)
+                        .sprintId(args.has("sprintId") ? args.path("sprintId").asInt() : null)
+                        .build()));
 
         server.registerTool("user_story_create", "Create a new user story.",
                 schema.object().prop("name", schema.string().required()).prop("projectId", schema.integer().required())

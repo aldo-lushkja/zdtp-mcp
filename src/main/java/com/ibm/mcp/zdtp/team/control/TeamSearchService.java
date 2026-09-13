@@ -20,7 +20,15 @@ public class TeamSearchService extends BaseService {
         this.converter = converter;
     }
 
-    public record SearchCriteria(String nameQuery, int take) {}
+    public record SearchCriteria(String nameQuery, int take) {
+        public static Builder builder() { return new Builder(); }
+        public static class Builder {
+            private String nameQuery; private int take = 10;
+            public Builder nameQuery(String val) { this.nameQuery = val; return this; }
+            public Builder take(int val) { this.take = val; return this; }
+            public SearchCriteria build() { return new SearchCriteria(nameQuery, take); }
+        }
+    }
 
     public List<TeamDto> searchTeams(String nameQuery, int take) {
         return search(new SearchCriteria(nameQuery, take));

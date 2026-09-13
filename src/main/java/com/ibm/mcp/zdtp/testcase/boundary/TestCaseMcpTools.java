@@ -18,12 +18,42 @@ public class TestCaseMcpTools {
         this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g; this.stepCreateSvc = sc; this.deleteSvc = ds; this.stepDeleteSvc = sds;
     }
 
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private TestCaseSearchService searchSvc;
+        private TestCaseCreateService createSvc;
+        private TestCaseUpdateService updateSvc;
+        private TestCaseGetByIdService getSvc;
+        private TestStepCreateService stepCreateSvc;
+        private TestCaseDeleteService deleteSvc;
+        private TestStepDeleteService stepDeleteSvc;
+
+        public Builder searchSvc(TestCaseSearchService s) { this.searchSvc = s; return this; }
+        public Builder createSvc(TestCaseCreateService c) { this.createSvc = c; return this; }
+        public Builder updateSvc(TestCaseUpdateService u) { this.updateSvc = u; return this; }
+        public Builder getSvc(TestCaseGetByIdService g) { this.getSvc = g; return this; }
+        public Builder stepCreateSvc(TestStepCreateService sc) { this.stepCreateSvc = sc; return this; }
+        public Builder deleteSvc(TestCaseDeleteService ds) { this.deleteSvc = ds; return this; }
+        public Builder stepDeleteSvc(TestStepDeleteService sds) { this.stepDeleteSvc = sds; return this; }
+
+        public TestCaseMcpTools build() {
+            return new TestCaseMcpTools(searchSvc, createSvc, updateSvc, getSvc, stepCreateSvc, deleteSvc, stepDeleteSvc);
+        }
+    }
+
     public void register(McpServer server, SchemaBuilder schema) {
         server.registerTool("test_case_search", "Search for test cases.",
                 schema.object().prop("nameQuery", schema.string()).prop("projectName", schema.string()).prop("ownerLogin", schema.string())
                         .prop("startDate", schema.string()).prop("endDate", schema.string()).prop("take", schema.integer().withDefault(10)).build(),
-                args -> search(new TestCaseSearchService.SearchCriteria(args.path("nameQuery").asText(null), args.path("projectName").asText(null),
-                        args.path("ownerLogin").asText(null), args.path("startDate").asText(null), args.path("endDate").asText(null), args.path("take").asInt(10))));
+                args -> search(TestCaseSearchService.SearchCriteria.builder()
+                        .nameQuery(args.path("nameQuery").asText(null))
+                        .projectName(args.path("projectName").asText(null))
+                        .ownerLogin(args.path("ownerLogin").asText(null))
+                        .startDate(args.path("startDate").asText(null))
+                        .endDate(args.path("endDate").asText(null))
+                        .take(args.path("take").asInt(10))
+                        .build()));
 
         server.registerTool("test_case_create", "Create a new test case.",
                 schema.object().prop("name", schema.string().required()).prop("projectId", schema.integer().required())

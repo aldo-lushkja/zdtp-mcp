@@ -14,6 +14,14 @@ public class UserMcpTools {
         this.searchSvc = searchSvc;
     }
 
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private UserSearchService searchSvc;
+        public Builder searchSvc(UserSearchService searchSvc) { this.searchSvc = searchSvc; return this; }
+        public UserMcpTools build() { return new UserMcpTools(searchSvc); }
+    }
+
     public void register(McpServer server, SchemaBuilder schema) {
         server.registerTool("user_search", "Search for active users by name, login or email.",
                 schema.object()

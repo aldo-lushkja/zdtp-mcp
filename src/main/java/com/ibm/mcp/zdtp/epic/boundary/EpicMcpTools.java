@@ -15,12 +15,36 @@ public class EpicMcpTools {
         this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g;
     }
 
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private EpicSearchService searchSvc;
+        private EpicCreateService createSvc;
+        private EpicUpdateService updateSvc;
+        private EpicGetByIdService getSvc;
+
+        public Builder searchSvc(EpicSearchService s) { this.searchSvc = s; return this; }
+        public Builder createSvc(EpicCreateService c) { this.createSvc = c; return this; }
+        public Builder updateSvc(EpicUpdateService u) { this.updateSvc = u; return this; }
+        public Builder getSvc(EpicGetByIdService g) { this.getSvc = g; return this; }
+
+        public EpicMcpTools build() {
+            return new EpicMcpTools(searchSvc, createSvc, updateSvc, getSvc);
+        }
+    }
+
     public void register(McpServer server, SchemaBuilder schema) {
         server.registerTool("epic_search", "Search for epics.",
                 schema.object().prop("nameQuery", schema.string()).prop("projectName", schema.string()).prop("ownerLogin", schema.string())
                         .prop("startDate", schema.string()).prop("endDate", schema.string()).prop("take", schema.integer().withDefault(10)).build(),
-                args -> search(new EpicSearchService.SearchCriteria(args.path("nameQuery").asText(null), args.path("projectName").asText(null),
-                        args.path("ownerLogin").asText(null), args.path("startDate").asText(null), args.path("endDate").asText(null), args.path("take").asInt(10))));
+                args -> search(EpicSearchService.SearchCriteria.builder()
+                        .nameQuery(args.path("nameQuery").asText(null))
+                        .projectName(args.path("projectName").asText(null))
+                        .ownerLogin(args.path("ownerLogin").asText(null))
+                        .startDate(args.path("startDate").asText(null))
+                        .endDate(args.path("endDate").asText(null))
+                        .take(args.path("take").asInt(10))
+                        .build()));
 
         server.registerTool("epic_create", "Create a new epic.",
                 schema.object().prop("name", schema.string().required()).prop("projectId", schema.integer().required())

@@ -20,7 +20,20 @@ public class TeamIterationSearchService extends BaseService {
         this.converter = converter;
     }
 
-    public record SearchCriteria(String nameQuery, Integer teamId, String teamName, String startDate, String endDate, int take) {}
+    public record SearchCriteria(String nameQuery, Integer teamId, String teamName, String startDate, String endDate, int take) {
+        public static Builder builder() { return new Builder(); }
+        public static class Builder {
+            private String nameQuery; private Integer teamId; private String teamName;
+            private String startDate; private String endDate; private int take = 10;
+            public Builder nameQuery(String val) { this.nameQuery = val; return this; }
+            public Builder teamId(Integer val) { this.teamId = val; return this; }
+            public Builder teamName(String val) { this.teamName = val; return this; }
+            public Builder startDate(String val) { this.startDate = val; return this; }
+            public Builder endDate(String val) { this.endDate = val; return this; }
+            public Builder take(int val) { this.take = val; return this; }
+            public SearchCriteria build() { return new SearchCriteria(nameQuery, teamId, teamName, startDate, endDate, take); }
+        }
+    }
 
     public List<TeamIterationDto> searchTeamIterations(String nameQuery, Integer teamId, String teamName, String startDate, String endDate, int take) {
         return search(new SearchCriteria(nameQuery, teamId, teamName, startDate, endDate, take));

@@ -12,6 +12,14 @@ public class CommentMcpTools {
         this.createService = createService;
     }
 
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private CommentCreateService createService;
+        public Builder createService(CommentCreateService createService) { this.createService = createService; return this; }
+        public CommentMcpTools build() { return new CommentMcpTools(createService); }
+    }
+
     public void register(McpServer server, SchemaBuilder schema) {
         server.registerTool("comment_add", "Add a comment to any Targetprocess entity (User Story, Task, Bug, Test Case, etc.).",
                 schema.object()

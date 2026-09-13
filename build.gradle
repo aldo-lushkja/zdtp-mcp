@@ -12,6 +12,12 @@ application {
     mainClass = 'com.ibm.mcp.zdtp.ZdtpMcpApplication'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor

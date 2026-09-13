@@ -17,6 +17,16 @@ public class RelationMcpTools {
         this.createSvc = createSvc;
     }
 
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private RelationSearchService searchSvc;
+        private RelationCreateService createSvc;
+        public Builder searchSvc(RelationSearchService searchSvc) { this.searchSvc = searchSvc; return this; }
+        public Builder createSvc(RelationCreateService createSvc) { this.createSvc = createSvc; return this; }
+        public RelationMcpTools build() { return new RelationMcpTools(searchSvc, createSvc); }
+    }
+
     public void register(McpServer server, SchemaBuilder schema) {
         server.registerTool("relation_search", "Find relations linked to a specific entity.",
                 schema.object()

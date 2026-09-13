@@ -16,12 +16,38 @@ public class TestPlanMcpTools {
         this.searchSvc = s; this.createSvc = c; this.updateSvc = u; this.getSvc = g; this.deleteSvc = d;
     }
 
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private TestPlanSearchService searchSvc;
+        private TestPlanCreateService createSvc;
+        private TestPlanUpdateService updateSvc;
+        private TestPlanGetByIdService getSvc;
+        private TestPlanDeleteService deleteSvc;
+
+        public Builder searchSvc(TestPlanSearchService s) { this.searchSvc = s; return this; }
+        public Builder createSvc(TestPlanCreateService c) { this.createSvc = c; return this; }
+        public Builder updateSvc(TestPlanUpdateService u) { this.updateSvc = u; return this; }
+        public Builder getSvc(TestPlanGetByIdService g) { this.getSvc = g; return this; }
+        public Builder deleteSvc(TestPlanDeleteService d) { this.deleteSvc = d; return this; }
+
+        public TestPlanMcpTools build() {
+            return new TestPlanMcpTools(searchSvc, createSvc, updateSvc, getSvc, deleteSvc);
+        }
+    }
+
     public void register(McpServer server, SchemaBuilder schema) {
         server.registerTool("test_plan_search", "Search for test plans.",
                 schema.object().prop("nameQuery", schema.string()).prop("projectName", schema.string()).prop("ownerLogin", schema.string())
                         .prop("startDate", schema.string()).prop("endDate", schema.string()).prop("take", schema.integer().withDefault(10)).build(),
-                args -> search(new TestPlanSearchService.SearchCriteria(args.path("nameQuery").asText(null), args.path("projectName").asText(null),
-                        args.path("ownerLogin").asText(null), args.path("startDate").asText(null), args.path("endDate").asText(null), args.path("take").asInt(10))));
+                args -> search(TestPlanSearchService.SearchCriteria.builder()
+                        .nameQuery(args.path("nameQuery").asText(null))
+                        .projectName(args.path("projectName").asText(null))
+                        .ownerLogin(args.path("ownerLogin").asText(null))
+                        .startDate(args.path("startDate").asText(null))
+                        .endDate(args.path("endDate").asText(null))
+                        .take(args.path("take").asInt(10))
+                        .build()));
 
         server.registerTool("test_plan_create", "Create a new test plan.",
                 schema.object().prop("name", schema.string().required()).prop("projectId", schema.integer().required())
