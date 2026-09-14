@@ -25,23 +25,36 @@ public class McpServer {
     }
 
     public void start() {
+        start("stdio");
+    }
+
+    public void start(String transportType) {
         registerShutdownHook();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-            String line;
-            while (running && (line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                try {
-                    JsonNode request = mapper.readTree(line);
-                    handleRequest(request);
-                } catch (Exception e) {
-                    System.err.println("Failed to parse or handle request: " + line + " - " + e.getMessage());
-                }
-            }
-        } catch (Exception e) {
-            if (running) {
-                System.err.println("Server loop error: " + e.getMessage());
-            }
+        com.ibm.mcp.zdtp.mcp.transport.Transport transport;
+        if ("http".equalsIgnoreCase(transportType)) {
+            transport = new com.ibm.mcp.zdtp.mcp.transport.HttpTransport(httpPort());
+        } else {
+            transport = new com.ibm.mcp.zdtp.mcp.transport.StdioTransport();
         }
+
+        var handler = new com.ibm.mcp.zdtp.mcp.transport.Transport.Handler() {
+            @Override
+            public JsonNode parse(String json) throws Exception {
+                return mapper.readTree(json);
+            }
+
+            @Override
+            public String handle(JsonNode request) throws Exception {
+                return processRequest(request);
+            }
+        };
+
+        transport.start(handler);
+    }
+
+    private int httpPort() {
+        var port = System.getenv("HTTP_PORT");
+        return port != null ? Integer.parseInt(port) : 8080;
     }
 
     private void registerShutdownHook() {
@@ -51,13 +64,12 @@ public class McpServer {
         }));
     }
 
-    private void handleRequest(JsonNode req) throws JsonProcessingException {
+    String processRequest(JsonNode req) throws JsonProcessingException {
         String method = req.path("method").asText();
         JsonNode idNode = req.get("id");
 
         if ("ping".equals(method)) {
-            sendResponse(idNode, mapper.createObjectNode(), null);
-            return;
+            return formatResponse(idNode, mapper.createObjectNode(), null);
         }
 
         if ("initialize".equals(method)) {
@@ -70,12 +82,11 @@ public class McpServer {
             ObjectNode capabilities = result.putObject("capabilities");
             capabilities.putObject("tools");
 
-            sendResponse(idNode, result, null);
-            return;
+            return formatResponse(idNode, result, null);
         }
 
         if ("notifications/initialized".equals(method)) {
-            return;
+            return null;
         }
 
         if ("tools/list".equals(method)) {
@@ -87,8 +98,7 @@ public class McpServer {
                 toolNode.put("description", t.description());
                 toolNode.set("inputSchema", t.inputSchema());
             }
-            sendResponse(idNode, result, null);
-            return;
+            return formatResponse(idNode, result, null);
         }
 
         if ("tools/call".equals(method)) {
@@ -118,20 +128,20 @@ public class McpServer {
                     contentItem.put("text", errorMsg);
                 }
             }
-            sendResponse(idNode, result, null);
-            return;
+            return formatResponse(idNode, result, null);
         }
 
         if (idNode != null && !idNode.isMissingNode()) {
             ObjectNode error = mapper.createObjectNode();
             error.put("code", -32601);
             error.put("message", "Method not found");
-            sendResponse(idNode, null, error);
+            return formatResponse(idNode, null, error);
         }
+        return null;
     }
 
-    private void sendResponse(JsonNode idNode, JsonNode result, JsonNode error) throws JsonProcessingException {
-        if (idNode == null || idNode.isMissingNode()) return;
+    private String formatResponse(JsonNode idNode, JsonNode result, JsonNode error) throws JsonProcessingException {
+        if (idNode == null || idNode.isMissingNode()) return null;
         ObjectNode response = mapper.createObjectNode();
         response.put("jsonrpc", "2.0");
         response.set("id", idNode);
@@ -140,9 +150,7 @@ public class McpServer {
         } else {
             response.set("result", result);
         }
-        String json = mapper.writeValueAsString(response);
-        out.println(json);
-        out.flush();
+        return mapper.writeValueAsString(response);
     }
 
     private record ToolDefinition(String name, String description, JsonNode inputSchema, Function<JsonNode, String> handler) {}

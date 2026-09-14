@@ -41,7 +41,8 @@ public class ZdtpMcpApplication {
         McpToolsRegistry toolsRegistry = new McpToolsRegistry(engine);
         toolsRegistry.registerAllTools(server, schema);
 
-        server.start();
+        String transport = System.getenv("TRANSPORT");
+        server.start(transport != null ? transport : "stdio");
     }
 
     private static void printUsage() {
