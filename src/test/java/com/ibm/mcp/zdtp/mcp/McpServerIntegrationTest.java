@@ -65,7 +65,7 @@ class McpServerIntegrationTest {
 
     private static final String EMPTY_ITEMS = "{\"Items\":[]}";
 
-    /** All 55 tool names registered across the 17 boundary modules. */
+    /** All 67 tool names registered across the 23 boundary modules. */
     private static final List<String> ALL_TOOL_NAMES = List.of(
             // Epic (5)
             "epic_search", "epic_create", "epic_update", "epic_get", "epic_delete",
@@ -85,6 +85,8 @@ class McpServerIntegrationTest {
             "test_case_search", "test_case_create", "test_case_update", "test_case_get", "test_case_delete", "test_step_create", "test_step_delete",
             // TestPlan (5)
             "test_plan_search", "test_plan_create", "test_plan_update", "test_plan_get", "test_plan_delete",
+            // TestRun (3)
+            "test_run_create", "test_run_search", "test_case_run_update",
             // UserStory (5)
             "user_story_search", "user_story_create", "user_story_update", "user_story_get", "user_story_delete",
             // Comment (1)
@@ -100,7 +102,17 @@ class McpServerIntegrationTest {
             // Time (1)
             "time_log",
             // Impediment (2)
-            "impediment_create", "impediment_search"
+            "impediment_create", "impediment_search",
+            // Tag (2)
+            "tag_add", "tag_remove",
+            // CustomField (2)
+            "custom_field_list", "custom_field_update",
+            // Assignment (2)
+            "assignment_add", "assignment_remove",
+            // Attachment (1)
+            "attachment_search",
+            // Iteration (2)
+            "iteration_search", "iteration_get"
     );
 
     /** Search tools that accept empty/optional arguments — used for smoke-test calls. */
@@ -108,7 +120,7 @@ class McpServerIntegrationTest {
             "epic_search", "feature_search", "project_search", "release_search",
             "request_search", "team_search", "team_iteration_search",
             "test_case_search", "test_plan_search", "user_story_search", "bug_search", "task_search",
-            "impediment_search"
+            "impediment_search", "test_run_search", "iteration_search", "custom_field_list"
     );
 
     @Mock TargetProcessHttpClient httpClient;
@@ -125,7 +137,7 @@ class McpServerIntegrationTest {
     // ── tools/list ──────────────────────────────────────────────────────
 
     @Test
-    void toolsList_returnsAll55Tools() throws Exception {
+    void toolsList_returnsAll67Tools() throws Exception {
         String request = jsonRpc("tools/list", mapper.createObjectNode(), 1);
         JsonNode response = sendAndReceive(request);
 

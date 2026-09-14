@@ -43,6 +43,24 @@ import com.ibm.mcp.zdtp.testplan.control.*;
 import com.ibm.mcp.zdtp.time.boundary.TimeMcpTools;
 import com.ibm.mcp.zdtp.time.control.TimeConverter;
 import com.ibm.mcp.zdtp.time.control.TimeLogService;
+import com.ibm.mcp.zdtp.assignment.boundary.AssignmentMcpTools;
+import com.ibm.mcp.zdtp.assignment.control.AssignmentAddService;
+import com.ibm.mcp.zdtp.assignment.control.AssignmentRemoveService;
+import com.ibm.mcp.zdtp.attachment.boundary.AttachmentMcpTools;
+import com.ibm.mcp.zdtp.attachment.control.AttachmentSearchService;
+import com.ibm.mcp.zdtp.customfield.boundary.CustomFieldMcpTools;
+import com.ibm.mcp.zdtp.customfield.control.CustomFieldListService;
+import com.ibm.mcp.zdtp.customfield.control.CustomFieldUpdateService;
+import com.ibm.mcp.zdtp.iteration.boundary.IterationMcpTools;
+import com.ibm.mcp.zdtp.iteration.control.IterationGetService;
+import com.ibm.mcp.zdtp.iteration.control.IterationSearchService;
+import com.ibm.mcp.zdtp.tag.boundary.TagMcpTools;
+import com.ibm.mcp.zdtp.tag.control.TagAddService;
+import com.ibm.mcp.zdtp.tag.control.TagRemoveService;
+import com.ibm.mcp.zdtp.testrun.boundary.TestRunMcpTools;
+import com.ibm.mcp.zdtp.testrun.control.TestCaseRunUpdateService;
+import com.ibm.mcp.zdtp.testrun.control.TestRunCreateService;
+import com.ibm.mcp.zdtp.testrun.control.TestRunSearchService;
 import com.ibm.mcp.zdtp.user.boundary.UserMcpTools;
 import com.ibm.mcp.zdtp.user.control.UserConverter;
 import com.ibm.mcp.zdtp.user.control.UserSearchService;
@@ -65,6 +83,7 @@ public class McpToolsRegistry {
         registerQualityTools(server, schema);
         registerPlanningTools(server, schema);
         registerSupportTools(server, schema);
+        registerExtendedTools(server, schema);
     }
 
     private void registerWorkItemTools(McpServer server, SchemaBuilder schema) {
@@ -78,6 +97,7 @@ public class McpToolsRegistry {
     private void registerQualityTools(McpServer server, SchemaBuilder schema) {
         registerTestCaseTools(server, schema);
         registerTestPlanTools(server, schema);
+        registerTestRunTools(server, schema);
     }
 
     private void registerPlanningTools(McpServer server, SchemaBuilder schema) {
@@ -85,6 +105,7 @@ public class McpToolsRegistry {
         registerReleaseTools(server, schema);
         registerTeamTools(server, schema);
         registerTeamIterationTools(server, schema);
+        registerIterationTools(server, schema);
     }
 
     private void registerSupportTools(McpServer server, SchemaBuilder schema) {
@@ -94,6 +115,13 @@ public class McpToolsRegistry {
         registerRelationTools(server, schema);
         registerTimeTools(server, schema);
         registerImpedimentTools(server, schema);
+    }
+
+    private void registerExtendedTools(McpServer server, SchemaBuilder schema) {
+        registerTagTools(server, schema);
+        registerCustomFieldTools(server, schema);
+        registerAssignmentTools(server, schema);
+        registerAttachmentTools(server, schema);
     }
 
     private void registerEpicTools(McpServer server, SchemaBuilder schema) {
@@ -219,6 +247,48 @@ public class McpToolsRegistry {
         ImpedimentMcpTools.builder()
                 .createSvc(new ImpedimentCreateService(engine, c))
                 .searchSvc(new ImpedimentSearchService(engine, c))
+                .build().register(server, schema);
+    }
+
+    private void registerTestRunTools(McpServer server, SchemaBuilder schema) {
+        TestRunMcpTools.builder()
+                .createService(new TestRunCreateService(engine))
+                .searchService(new TestRunSearchService(engine))
+                .updateCaseRunService(new TestCaseRunUpdateService(engine))
+                .build().register(server, schema);
+    }
+
+    private void registerIterationTools(McpServer server, SchemaBuilder schema) {
+        IterationMcpTools.builder()
+                .searchService(new IterationSearchService(engine))
+                .getService(new IterationGetService(engine))
+                .build().register(server, schema);
+    }
+
+    private void registerTagTools(McpServer server, SchemaBuilder schema) {
+        TagMcpTools.builder()
+                .addService(new TagAddService(engine))
+                .removeService(new TagRemoveService(engine))
+                .build().register(server, schema);
+    }
+
+    private void registerCustomFieldTools(McpServer server, SchemaBuilder schema) {
+        CustomFieldMcpTools.builder()
+                .listService(new CustomFieldListService(engine))
+                .updateService(new CustomFieldUpdateService(engine))
+                .build().register(server, schema);
+    }
+
+    private void registerAssignmentTools(McpServer server, SchemaBuilder schema) {
+        AssignmentMcpTools.builder()
+                .addService(new AssignmentAddService(engine))
+                .removeService(new AssignmentRemoveService(engine))
+                .build().register(server, schema);
+    }
+
+    private void registerAttachmentTools(McpServer server, SchemaBuilder schema) {
+        AttachmentMcpTools.builder()
+                .searchService(new AttachmentSearchService(engine))
                 .build().register(server, schema);
     }
 }

@@ -65,7 +65,7 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | `request_get` | Get request details. | `id`* |
 | `request_delete` | Delete a request. | `id`* |
 
-## 🧪 Quality Assurance (Test Plans & Cases)
+## 🧪 Quality Assurance (Test Plans, Cases & Execution Runs)
 | Tool | Description | Parameters |
 | --- | --- | --- |
 | `test_plan_search` | Search for test plans. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` (default: 10) |
@@ -74,26 +74,54 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | `test_plan_get` | Get test plan details. | `id`* |
 | `test_plan_delete` | Delete a test plan. | `id`* |
 | `test_case_search` | Search for test cases. | `nameQuery`, `projectName`, `ownerLogin`, `startDate`, `endDate`, `take` (default: 10) |
-| `test_case_create" | Create a new test case. | `name`*, `projectId`*, `description`, `testPlanId` |
+| `test_case_create` | Create a new test case. | `name`*, `projectId`*, `description`, `testPlanId` |
 | `test_case_update` | Update an existing test case. | `id`*, `name`, `description`, `stateName` |
 | `test_case_get` | Get test case details. | `id`* |
 | `test_case_delete` | Delete a test case. | `id`* |
 | `test_step_create` | Add a step to a test case. | `testCaseId`*, `description`*, `expectedResult`, `runOrder` |
 | `test_step_delete` | Delete a test step. | `id`* |
+| `test_run_create` | Create a new test run for a test plan. | `name`*, `projectId`*, `testPlanId`*, `description` |
+| `test_run_search` | Search for test runs. | `nameQuery`, `projectId`, `testPlanId`, `take` (default: 10) |
+| `test_case_run_update` | Update status or comment of a test case run. | `id`*, `status`*, `comment` |
 
-## 👥 Teams & 🔄 Sprints
+## 👥 Teams & 🔄 Sprints / Iterations
 | Tool | Description | Parameters |
 | --- | --- | --- |
 | `team_search` | Search for teams. | `nameQuery`, `take` (default: 10) |
 | `team_get` | Get team details. | `id`* |
-| `team_iteration_search` | Search for team iterations (sprints). | `nameQuery`, `teamId`, `teamName`, `startDate`, `endDate`, `take` (default: 10) |
-| `team_iteration_get` | Get sprint details. | `id`* |
+| `team_iteration_search` | Search for team iterations (team sprints). | `nameQuery`, `teamId`, `teamName`, `startDate`, `endDate`, `take` (default: 10) |
+| `team_iteration_get` | Get team sprint details. | `id`* |
+| `iteration_search` | Search for project iterations (global sprints). | `nameQuery`, `projectId`, `startDate`, `endDate`, `take` (default: 10) |
+| `iteration_get` | Get project iteration details. | `id`* |
 
 ## 📁 Projects & Workflows
 | Tool | Description | Parameters |
 | --- | --- | --- |
 | `project_search` | Search for projects. | `nameQuery`, `startDate`, `endDate`, `take` (default: 10) |
 | `workflow_state_list` | List available workflow states for an entity type (e.g. UserStory, Task, Bug). | `entityTypeName`*, `processId` |
+
+## 🏷️ Tagging
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `tag_add` | Add a tag to an entity (User Story, Task, Bug, Feature, Epic, Request). | `entityId`*, `tag`* |
+| `tag_remove` | Remove a tag from an entity. | `entityId`*, `tag`* |
+
+## 🧩 Custom Fields
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `custom_field_list` | List custom field definitions for an entity type or process. | `entityTypeName`, `processId`, `take` (default: 10) |
+| `custom_field_update` | Update a custom field value on an entity. | `entityId`*, `fieldName`*, `fieldValue`* |
+
+## 👥 Role Assignments
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `assignment_add` | Assign a user to an entity with an optional role. | `entityId`*, `userId`*, `roleId` |
+| `assignment_remove` | Remove an assignment by ID. | `id`* |
+
+## 📎 Attachments
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `attachment_search` | List attachments linked to an entity. | `entityId`*, `take` (default: 10) |
 
 ## ⏱️ Time Tracking
 | Tool | Description | Parameters |

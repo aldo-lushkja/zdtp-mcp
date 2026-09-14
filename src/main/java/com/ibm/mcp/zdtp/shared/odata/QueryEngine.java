@@ -50,9 +50,13 @@ public class QueryEngine {
     public static final Domain RELATION = new Domain("GeneralRelations", "[Id,RelationType[Id,Name],InboundGeneral[Id,Name,ResourceType],OutboundGeneral[Id,Name,ResourceType]]");
     public static final Domain TIME = new Domain("Times", "[Id,Spent,Description,Date,User[Id,Login],Assignable[Id,Name]]");
     public static final Domain IMPEDIMENT = new Domain("Impediments", "[Id,Name,Description,EntityState[Id,Name],Assignable[Id,Name]]");
-    public static final Domain TEST_RUN = new Domain("TestPlanRuns", "[Id,Name,CreateDate,TestPlan[Id,Name]]");
-    public static final Domain TEST_CASE_RUN = new Domain("TestCaseRuns", "[Id,Status,TestCase[Id,Name],TestPlanRun[Id,Name]]");
+    public static final Domain TEST_RUN = new Domain("TestPlanRuns", "[Id,Name,CreateDate,TestPlan[Id,Name],Project[Id,Name]]");
+    public static final Domain TEST_CASE_RUN = new Domain("TestCaseRuns", "[Id,Status,Comment,TestCase[Id,Name],TestPlanRun[Id,Name]]");
     public static final Domain ENTITY_STATE = new Domain("EntityStates", "[Id,Name,IsInitial,IsFinal,Process[Id,Name]]");
+    public static final Domain ASSIGNMENT = new Domain("Assignments", "[Id,Role[Id,Name],General[Id,Name],GeneralUser[Id,Login]]");
+    public static final Domain ATTACHMENT = new Domain("Attachments", "[Id,Name,Description,CreateDate,Owner[Id,Login],General[Id,Name]]");
+    public static final Domain ITERATION = new Domain("Iterations", "[Id,Name,StartDate,EndDate,Project[Id,Name]]");
+    public static final Domain CUSTOM_FIELD = new Domain("CustomFields", "[Id,Name,FieldType,EntityKind]");
 
     public <T, D> List<D> list(Domain domain, Map<String, String> params, TypeReference<TargetProcessResponse<T>> typeRef, Function<T, D> mapper) {
         Map<String, String> parameters = new TreeMap<>(params);
