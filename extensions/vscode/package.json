@@ -1,0 +1,45 @@
+{
+  "name": "zdtp-mcp-vscode",
+  "displayName": "Targetprocess MCP Assistant",
+  "description": "Model Context Protocol (MCP) server integration for Targetprocess — manage User Stories, Bugs, Epics, Tasks, Test Plans & Time Logs directly inside VS Code and Cursor.",
+  "version": "1.2.0",
+  "publisher": "aldo-lushkja",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aldo-lushkja/zdtp-mcp.git"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Targetprocess MCP",
+      "properties": {
+        "zdtp.tpUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Your Targetprocess instance URL (e.g., https://youraccount.tpondemand.com)"
+        },
+        "zdtp.tpToken": {
+          "type": "string",
+          "default": "",
+          "description": "Your Targetprocess API Access Token"
+        },
+        "zdtp.useDocker": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use Docker container (ghcr.io/aldo-lushkja/zdtp-mcp:latest) instead of local Java JAR"
+        }
+      }
+    }
+  }
+}

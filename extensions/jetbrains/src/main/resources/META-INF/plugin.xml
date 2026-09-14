@@ -1,0 +1,17 @@
+<idea-plugin>
+    <id>com.ibm.mcp.zdtp</id>
+    <name>Targetprocess MCP Assistant</name>
+    <version>1.2.0</version>
+    <vendor email="support@example.com" url="https://github.com/aldo-lushkja/zdtp-mcp">aldo-lushkja</vendor>
+
+    <description><![CDATA[
+    Model Context Protocol (MCP) server integration for Targetprocess.
+    Exposes 69 project management tools (User Stories, Bugs, Epics, Tasks, Test Plans, Time Logs) to AI assistants in JetBrains IDEs.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="com.ibm.mcp.zdtp.plugin.TargetProcessSettingsService"/>
+    </extensions>
+</idea-plugin>
