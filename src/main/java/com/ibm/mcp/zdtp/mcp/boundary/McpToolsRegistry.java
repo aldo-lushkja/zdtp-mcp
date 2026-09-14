@@ -79,11 +79,41 @@ public class McpToolsRegistry {
     }
 
     public void registerAllTools(McpServer server, SchemaBuilder schema) {
+        registerSystemTools(server, schema);
         registerWorkItemTools(server, schema);
         registerQualityTools(server, schema);
         registerPlanningTools(server, schema);
         registerSupportTools(server, schema);
         registerExtendedTools(server, schema);
+    }
+
+    private void registerSystemTools(McpServer server, SchemaBuilder schema) {
+        server.registerTool("server_changelog",
+            "Returns the full zdtp-mcp changelog.",
+            schema.object().build(), ignored -> {
+                try (var is = McpToolsRegistry.class.getResourceAsStream("/CHANGELOG.md")) {
+                    return is == null ? "Changelog not available."
+                        : new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                } catch (Exception e) {
+                    return "Failed to read changelog: " + e.getMessage();
+                }
+            });
+
+        server.registerTool("server_health",
+            "Returns runtime health status, JVM memory metrics (used/total/max MB), thread count, and uptime.",
+            schema.object().build(), ignored -> {
+                Runtime runtime = Runtime.getRuntime();
+                long totalMem = runtime.totalMemory() / (1024 * 1024);
+                long freeMem = runtime.freeMemory() / (1024 * 1024);
+                long usedMem = totalMem - freeMem;
+                long maxMem = runtime.maxMemory() / (1024 * 1024);
+                long uptimeSec = java.lang.management.ManagementFactory.getRuntimeMXBean().getUptime() / 1000;
+                int threadCount = Thread.activeCount();
+
+                return String.format(
+                    "{\"status\":\"UP\",\"version\":\"1.2.0\",\"uptimeSeconds\":%d,\"heapUsedMb\":%d,\"heapTotalMb\":%d,\"heapMaxMb\":%d,\"activeThreads\":%d,\"javaVersion\":\"%s\"}",
+                    uptimeSec, usedMem, totalMem, maxMem, threadCount, System.getProperty("java.version"));
+            });
     }
 
     private void registerWorkItemTools(McpServer server, SchemaBuilder schema) {

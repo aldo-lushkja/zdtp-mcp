@@ -112,7 +112,9 @@ class McpServerIntegrationTest {
             // Attachment (1)
             "attachment_search",
             // Iteration (2)
-            "iteration_search", "iteration_get"
+            "iteration_search", "iteration_get",
+            // System Meta (2)
+            "server_changelog", "server_health"
     );
 
     /** Search tools that accept empty/optional arguments — used for smoke-test calls. */

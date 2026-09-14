@@ -107,7 +107,7 @@ public class TargetProcessHttpClient {
             try {
                 if (debug) {
                     System.err.printf("[TP-HTTP DEBUG] [%s] %s (Attempt %d/%d)%n",
-                            request.method(), request.uri(), attempt, maxRetries);
+                            request.method(), maskToken(request.uri().toString()), attempt, maxRetries);
                 }
 
                 HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -161,5 +161,10 @@ public class TargetProcessHttpClient {
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    static String maskToken(String uri) {
+        if (uri == null) return null;
+        return uri.replaceAll("(?i)(access_token=)[^&]+", "$1••••••••");
     }
 }
