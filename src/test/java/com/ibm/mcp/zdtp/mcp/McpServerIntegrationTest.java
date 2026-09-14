@@ -198,7 +198,19 @@ class McpServerIntegrationTest {
         JsonNode response = sendAndReceive(request);
 
         assertThat(response.path("result").path("serverInfo").path("name").asText()).isEqualTo("zdtp-mcp");
+        assertThat(response.path("result").path("serverInfo").path("version").asText()).isEqualTo("1.0.5");
         assertThat(response.path("result").path("protocolVersion").asText()).isEqualTo("2024-11-05");
+    }
+
+    // ── ping ────────────────────────────────────────────────────────────
+
+    @Test
+    void ping_returnsEmptyResult() throws Exception {
+        String request = jsonRpc("ping", mapper.createObjectNode(), 1);
+        JsonNode response = sendAndReceive(request);
+
+        assertThat(response.has("error")).isFalse();
+        assertThat(response.path("result").isObject()).isTrue();
     }
 
     // ── Plumbing ────────────────────────────────────────────────────────
