@@ -20,24 +20,25 @@ public class ReleaseSearchService extends BaseService {
         this.converter = converter;
     }
 
-    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer teamIterationId) {
+    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer skip, Integer teamIterationId) {
         public static Builder builder() { return new Builder(); }
         public static class Builder {
             private String nameQuery; private String projectName; private String ownerLogin;
-            private String startDate; private String endDate; private int take = 10; private Integer teamIterationId;
+            private String startDate; private String endDate; private int take = 10; private Integer skip; private Integer teamIterationId;
             public Builder nameQuery(String val) { this.nameQuery = val; return this; }
             public Builder projectName(String val) { this.projectName = val; return this; }
             public Builder ownerLogin(String val) { this.ownerLogin = val; return this; }
             public Builder startDate(String val) { this.startDate = val; return this; }
             public Builder endDate(String val) { this.endDate = val; return this; }
             public Builder take(int val) { this.take = val; return this; }
+            public Builder skip(Integer val) { this.skip = val; return this; }
             public Builder teamIterationId(Integer val) { this.teamIterationId = val; return this; }
-            public SearchCriteria build() { return new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, teamIterationId); }
+            public SearchCriteria build() { return new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, skip, teamIterationId); }
         }
     }
 
     public List<ReleaseDto> searchReleases(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer teamIterationId) {
-        return search(new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, teamIterationId));
+        return search(new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, null, teamIterationId));
     }
 
     public List<ReleaseDto> search(SearchCriteria criteria) {
@@ -56,6 +57,9 @@ public class ReleaseSearchService extends BaseService {
         }
         parameters.put("orderByDesc", "StartDate");
         parameters.put("take", String.valueOf(criteria.take()));
+        if (criteria.skip() != null && criteria.skip() > 0) {
+            parameters.put("skip", String.valueOf(criteria.skip()));
+        }
 
         return engine.list(QueryEngine.RELEASE, parameters, new TypeReference<>() {}, converter::toDto);
     }

@@ -41,7 +41,8 @@ public class FeatureMcpTools {
         server.registerTool("feature_search", "Search for features.",
                 schema.object().prop("nameQuery", schema.string()).prop("projectName", schema.string()).prop("ownerLogin", schema.string())
                         .prop("startDate", schema.string()).prop("endDate", schema.string()).prop("sprintId", schema.integer())
-                        .prop("take", schema.integer().withDefault(10)).build(),
+                        .prop("take", schema.integer().withDefault(10))
+                        .prop("skip", schema.integer().withDescription("Number of items to skip for pagination.")).build(),
                 args -> search(FeatureSearchService.SearchCriteria.builder()
                         .nameQuery(args.path("nameQuery").asText(null))
                         .projectName(args.path("projectName").asText(null))
@@ -49,6 +50,7 @@ public class FeatureMcpTools {
                         .startDate(args.path("startDate").asText(null))
                         .endDate(args.path("endDate").asText(null))
                         .take(args.path("take").asInt(10))
+                        .skip(args.has("skip") ? args.path("skip").asInt() : null)
                         .sprintId(args.has("sprintId") ? args.path("sprintId").asInt() : null)
                         .build()));
 

@@ -19,18 +19,34 @@ java -jar build/libs/zdtp-mcp-1.0.0-all.jar
 
 ## 🐳 Local Docker Development
 
-You can build and run the server locally using Docker (JVM-based).
+You can build and run the server locally using Docker (JVM-based or optional GraalVM native).
 
 ```bash
-# Build the Docker image
+# Build the JVM Docker image (default)
 docker build -t zdtp-mcp .
 
-# Run locally to verify (waits for MCP JSON-RPC on stdin)
+# Build the GraalVM Native Image Docker target (optional)
+docker build --target native -t zdtp-mcp:native .
+
+# Run locally to verify
 docker run -it --rm \
   -e TP_URL="https://youraccount.tpondemand.com" \
   -e TP_TOKEN="your_token" \
+  -e TP_TIMEOUT_SECONDS=30 \
+  -e TP_MAX_RETRIES=3 \
+  -e TP_DEBUG=true \
   zdtp-mcp
 ```
+
+## ⚙️ Configuration Parameters
+
+| Environment Variable | Description | Default |
+| --- | --- | --- |
+| `TP_URL` | Targetprocess instance URL | *(Required)* |
+| `TP_TOKEN` | Targetprocess API token | *(Required)* |
+| `TP_TIMEOUT_SECONDS` | HTTP request timeout in seconds | `30` |
+| `TP_MAX_RETRIES` | Max retries for transient HTTP errors (429, 502, 503, 504) | `3` |
+| `TP_DEBUG` | Enable verbose HTTP debug logging to stderr | `false` |
 
 ## 🧪 Testing
 

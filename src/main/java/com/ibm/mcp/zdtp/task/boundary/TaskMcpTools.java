@@ -40,7 +40,8 @@ public class TaskMcpTools {
         server.registerTool("task_search", "Search for tasks.",
                 schema.object().prop("nameQuery", schema.string()).prop("projectName", schema.string()).prop("ownerLogin", schema.string())
                         .prop("startDate", schema.string()).prop("endDate", schema.string()).prop("userStoryId", schema.integer())
-                        .prop("take", schema.integer().withDefault(10)).build(),
+                        .prop("take", schema.integer().withDefault(10))
+                        .prop("skip", schema.integer().withDescription("Number of items to skip for pagination.")).build(),
                 args -> search(TaskSearchService.SearchCriteria.builder()
                         .nameQuery(args.path("nameQuery").asText(null))
                         .projectName(args.path("projectName").asText(null))
@@ -48,6 +49,7 @@ public class TaskMcpTools {
                         .startDate(args.path("startDate").asText(null))
                         .endDate(args.path("endDate").asText(null))
                         .take(args.path("take").asInt(10))
+                        .skip(args.has("skip") ? args.path("skip").asInt() : null)
                         .userStoryId(args.has("userStoryId") ? args.path("userStoryId").asInt() : null)
                         .build()));
 

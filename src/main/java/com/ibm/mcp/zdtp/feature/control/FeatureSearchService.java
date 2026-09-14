@@ -20,24 +20,25 @@ public class FeatureSearchService extends BaseService {
         this.converter = converter;
     }
 
-    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer sprintId) {
+    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer skip, Integer sprintId) {
         public static Builder builder() { return new Builder(); }
         public static class Builder {
             private String nameQuery; private String projectName; private String ownerLogin;
-            private String startDate; private String endDate; private int take = 10; private Integer sprintId;
+            private String startDate; private String endDate; private int take = 10; private Integer skip; private Integer sprintId;
             public Builder nameQuery(String val) { this.nameQuery = val; return this; }
             public Builder projectName(String val) { this.projectName = val; return this; }
             public Builder ownerLogin(String val) { this.ownerLogin = val; return this; }
             public Builder startDate(String val) { this.startDate = val; return this; }
             public Builder endDate(String val) { this.endDate = val; return this; }
             public Builder take(int val) { this.take = val; return this; }
+            public Builder skip(Integer val) { this.skip = val; return this; }
             public Builder sprintId(Integer val) { this.sprintId = val; return this; }
-            public SearchCriteria build() { return new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, sprintId); }
+            public SearchCriteria build() { return new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, skip, sprintId); }
         }
     }
 
     public List<FeatureDto> searchFeatures(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer teamIterationId) {
-        return search(new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, teamIterationId));
+        return search(new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, null, teamIterationId));
     }
 
     public List<FeatureDto> search(SearchCriteria criteria) {
@@ -56,6 +57,9 @@ public class FeatureSearchService extends BaseService {
         }
         parameters.put("orderByDesc", "CreateDate");
         parameters.put("take", String.valueOf(criteria.take()));
+        if (criteria.skip() != null && criteria.skip() > 0) {
+            parameters.put("skip", String.valueOf(criteria.skip()));
+        }
 
         return engine.list(QueryEngine.FEATURE, parameters, new TypeReference<>() {}, converter::toDto);
     }

@@ -16,11 +16,11 @@ public class UserStorySearchService extends BaseService {
         this.converter = converter;
     }
 
-    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer releaseId, Integer sprintId) {
+    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer skip, Integer releaseId, Integer sprintId) {
         public static Builder builder() { return new Builder(); }
         public static class Builder {
             private String nameQuery; private String projectName; private String ownerLogin;
-            private String startDate; private String endDate; private int take = 10;
+            private String startDate; private String endDate; private int take = 10; private Integer skip;
             private Integer releaseId; private Integer sprintId;
             public Builder nameQuery(String val) { this.nameQuery = val; return this; }
             public Builder projectName(String val) { this.projectName = val; return this; }
@@ -28,14 +28,19 @@ public class UserStorySearchService extends BaseService {
             public Builder startDate(String val) { this.startDate = val; return this; }
             public Builder endDate(String val) { this.endDate = val; return this; }
             public Builder take(int val) { this.take = val; return this; }
+            public Builder skip(Integer val) { this.skip = val; return this; }
             public Builder releaseId(Integer val) { this.releaseId = val; return this; }
             public Builder sprintId(Integer val) { this.sprintId = val; return this; }
-            public SearchCriteria build() { return new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, releaseId, sprintId); }
+            public SearchCriteria build() { return new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, skip, releaseId, sprintId); }
         }
     }
 
     public List<UserStoryDto> searchUserStories(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer releaseId, Integer sprintId) {
-        return search(new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, releaseId, sprintId));
+        return search(new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, null, releaseId, sprintId));
+    }
+
+    public List<UserStoryDto> searchUserStories(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer skip, Integer releaseId, Integer sprintId) {
+        return search(new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, skip, releaseId, sprintId));
     }
 
     public List<UserStoryDto> search(SearchCriteria criteria) {
@@ -55,6 +60,9 @@ public class UserStorySearchService extends BaseService {
         }
         parameters.put("orderByDesc", "CreateDate");
         parameters.put("take", String.valueOf(criteria.take()));
+        if (criteria.skip() != null && criteria.skip() > 0) {
+            parameters.put("skip", String.valueOf(criteria.skip()));
+        }
 
         return engine.list(QueryEngine.USER_STORY, parameters, new TypeReference<>() {}, converter::toDto);
     }

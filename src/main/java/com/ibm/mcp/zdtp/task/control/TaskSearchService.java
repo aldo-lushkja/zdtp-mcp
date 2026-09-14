@@ -16,19 +16,20 @@ public class TaskSearchService extends BaseService {
         this.converter = converter;
     }
 
-    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer userStoryId) {
+    public record SearchCriteria(String nameQuery, String projectName, String ownerLogin, String startDate, String endDate, int take, Integer skip, Integer userStoryId) {
         public static Builder builder() { return new Builder(); }
         public static class Builder {
             private String nameQuery; private String projectName; private String ownerLogin;
-            private String startDate; private String endDate; private int take = 10; private Integer userStoryId;
+            private String startDate; private String endDate; private int take = 10; private Integer skip; private Integer userStoryId;
             public Builder nameQuery(String val) { this.nameQuery = val; return this; }
             public Builder projectName(String val) { this.projectName = val; return this; }
             public Builder ownerLogin(String val) { this.ownerLogin = val; return this; }
             public Builder startDate(String val) { this.startDate = val; return this; }
             public Builder endDate(String val) { this.endDate = val; return this; }
             public Builder take(int val) { this.take = val; return this; }
+            public Builder skip(Integer val) { this.skip = val; return this; }
             public Builder userStoryId(Integer val) { this.userStoryId = val; return this; }
-            public SearchCriteria build() { return new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, userStoryId); }
+            public SearchCriteria build() { return new SearchCriteria(nameQuery, projectName, ownerLogin, startDate, endDate, take, skip, userStoryId); }
         }
     }
 
@@ -48,6 +49,9 @@ public class TaskSearchService extends BaseService {
         }
         parameters.put("orderByDesc", "CreateDate");
         parameters.put("take", String.valueOf(criteria.take()));
+        if (criteria.skip() != null && criteria.skip() > 0) {
+            parameters.put("skip", String.valueOf(criteria.skip()));
+        }
 
         return engine.list(QueryEngine.TASK, parameters, new TypeReference<>() {}, converter::toDto);
     }

@@ -19,7 +19,7 @@ public class TestRunSearchService {
         this.engine = engine;
     }
 
-    public List<TestRun> search(String nameQuery, Integer projectId, Integer testPlanId, Integer take) {
+    public List<TestRun> search(String nameQuery, Integer projectId, Integer testPlanId, Integer take, Integer skip) {
         List<String> conditions = new ArrayList<>();
         if (nameQuery != null && !nameQuery.isBlank()) {
             conditions.add("Name contains '" + nameQuery.replace("'", "''") + "'");
@@ -37,6 +37,9 @@ public class TestRunSearchService {
         }
         if (take != null && take > 0) {
             params.put("take", String.valueOf(take));
+        }
+        if (skip != null && skip > 0) {
+            params.put("skip", String.valueOf(skip));
         }
 
         return engine.list(

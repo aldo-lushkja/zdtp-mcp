@@ -45,7 +45,8 @@ public class TestCaseMcpTools {
     public void register(McpServer server, SchemaBuilder schema) {
         server.registerTool("test_case_search", "Search for test cases.",
                 schema.object().prop("nameQuery", schema.string()).prop("projectName", schema.string()).prop("ownerLogin", schema.string())
-                        .prop("startDate", schema.string()).prop("endDate", schema.string()).prop("take", schema.integer().withDefault(10)).build(),
+                        .prop("startDate", schema.string()).prop("endDate", schema.string()).prop("take", schema.integer().withDefault(10))
+                        .prop("skip", schema.integer().withDescription("Number of items to skip for pagination.")).build(),
                 args -> search(TestCaseSearchService.SearchCriteria.builder()
                         .nameQuery(args.path("nameQuery").asText(null))
                         .projectName(args.path("projectName").asText(null))
@@ -53,6 +54,7 @@ public class TestCaseMcpTools {
                         .startDate(args.path("startDate").asText(null))
                         .endDate(args.path("endDate").asText(null))
                         .take(args.path("take").asInt(10))
+                        .skip(args.has("skip") ? args.path("skip").asInt() : null)
                         .build()));
 
         server.registerTool("test_case_create", "Create a new test case.",

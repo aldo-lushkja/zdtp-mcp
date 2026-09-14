@@ -58,13 +58,15 @@ public class TestRunMcpTools {
                         .prop("projectId", schema.integer().withDescription("Filter by project ID."))
                         .prop("testPlanId", schema.integer().withDescription("Filter by test plan ID."))
                         .prop("take", schema.integer().withDescription("Max results (default: 10)."))
+                        .prop("skip", schema.integer().withDescription("Number of items to skip for pagination."))
                         .build(),
                 args -> {
                     List<TestRun> list = searchService.search(
                             args.path("nameQuery").asText(null),
                             args.has("projectId") ? args.path("projectId").asInt() : null,
                             args.has("testPlanId") ? args.path("testPlanId").asInt() : null,
-                            args.has("take") ? args.path("take").asInt() : 10
+                            args.has("take") ? args.path("take").asInt() : 10,
+                            args.has("skip") ? args.path("skip").asInt() : null
                     );
                     if (list.isEmpty()) return "No test runs found.";
                     return String.join("\n", list.stream().map(r -> "[%d] %s".formatted(r.id(), r.name())).toList());
