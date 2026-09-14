@@ -150,6 +150,30 @@ This document provides a detailed reference for all tools exposed by the Targetp
 | --- | --- | --- |
 | `comment_add` | Add a comment to an entity (User Story, Task, Bug, Test Case, etc.). | `entityId`*, `text`* |
 
+## 🏷️ Tags
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `tag_add` | Add a tag to an assignable entity. | `entityId`*, `tagName`* |
+| `tag_remove` | Remove a tag from an assignable entity. | `entityId`*, `tagName`* |
+
+## ⚙️ Custom Fields
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `custom_field_list` | List custom field definitions for a process/project. | `processId`, `entityTypeName`, `take` (default: 50) |
+| `custom_field_update` | Update a custom field value on an entity. | `entityId`*, `fieldName`*, `value`* |
+
+## 👥 Role Assignments
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `assignment_add` | Assign a user to an assignable entity under a role. | `entityId`*, `userId`*, `roleName` |
+| `assignment_remove` | Remove a user assignment from an entity. | `entityId`*, `userId`* |
+
+## ⚙️ System Meta
+| Tool | Description | Parameters |
+| --- | --- | --- |
+| `server_changelog` | Returns the full zdtp-mcp changelog. | *None* |
+| `server_health` | Returns runtime health status, JVM memory metrics (used/total/max MB), active threads, and uptime. | *None* |
+
 `*` denotes a required parameter.
 
 ---
