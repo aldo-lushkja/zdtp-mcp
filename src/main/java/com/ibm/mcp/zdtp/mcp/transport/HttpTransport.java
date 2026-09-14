@@ -28,6 +28,20 @@ public class HttpTransport implements Transport {
                 sendResponse(exchange, 200, response);
             });
 
+            server.createContext("/webhook", exchange -> {
+                if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    sendResponse(exchange, 451, "Method Not Allowed");
+                    return;
+                }
+                try (InputStream is = exchange.getRequestBody()) {
+                    String payload = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                    System.err.println("[TP-WEBHOOK RECEIVED] Event: " + payload);
+                    sendResponse(exchange, 200, "{\"status\":\"received\"}");
+                } catch (Exception e) {
+                    sendResponse(exchange, 500, "{\"error\":\"" + e.getMessage() + "\"}");
+                }
+            });
+
             server.createContext("/mcp", new HttpHandler() {
                 @Override
                 public void handle(HttpExchange exchange) throws IOException {

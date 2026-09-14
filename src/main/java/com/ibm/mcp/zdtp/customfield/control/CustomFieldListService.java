@@ -11,7 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.ibm.mcp.zdtp.shared.cache.TtlCache;
+
 public class CustomFieldListService {
+    private static final TtlCache<String, List<CustomFieldInfo>> CACHE = new TtlCache<>(5 * 60 * 1000L);
     private final QueryEngine engine;
 
     public CustomFieldListService(QueryEngine engine) {
@@ -19,6 +22,12 @@ public class CustomFieldListService {
     }
 
     public List<CustomFieldInfo> list(String entityTypeName, Integer processId, Integer take) {
+        String cacheKey = (entityTypeName != null ? entityTypeName : "all") + "_" + (processId != null ? processId : 0) + "_" + (take != null ? take : 50);
+        List<CustomFieldInfo> cached = CACHE.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+
         List<String> conditions = new ArrayList<>();
         if (entityTypeName != null && !entityTypeName.isBlank()) {
             conditions.add("EntityKind eq '" + entityTypeName.replace("'", "''") + "'");
@@ -35,11 +44,13 @@ public class CustomFieldListService {
             params.put("take", String.valueOf(take));
         }
 
-        return engine.list(
+        List<CustomFieldInfo> results = engine.list(
                 QueryEngine.CUSTOM_FIELD,
                 params,
                 new TypeReference<TargetProcessResponse<CustomFieldDto>>() {},
                 CustomFieldConverter::toInfo
         );
+        CACHE.put(cacheKey, results);
+        return results;
     }
 }
